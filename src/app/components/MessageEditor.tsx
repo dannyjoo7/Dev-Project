@@ -6,6 +6,8 @@ import { Card } from './ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Label } from './ui/label';
 import type { Message, Participant } from './SequenceDiagram';
+import { useLanguage } from '../contexts/LanguageContext';
+import { getTranslation } from '../../utils/translations';
 
 interface MessageEditorProps {
   participants: Participant[];
@@ -28,6 +30,9 @@ export function MessageEditor({
   onMoveDown,
   selectedMessage 
 }: MessageEditorProps) {
+  const { language } = useLanguage();
+  const t = (key: any) => getTranslation(language, key);
+
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [text, setText] = useState('');
@@ -77,25 +82,25 @@ export function MessageEditor({
 
   const getMessageTypeLabel = (type: Message['type']) => {
     switch (type) {
-      case 'sync': return '동기 호출';
-      case 'async': return '비동기 호출';
-      case 'return': return '응답';
-      case 'self': return '자기 호출';
+      case 'sync': return t('messageTypeSync');
+      case 'async': return t('messageTypeAsync');
+      case 'return': return t('messageTypeReturn');
+      case 'self': return t('messageTypeSelf');
     }
   };
 
   return (
     <Card className="p-4">
       <h3 className="font-semibold mb-4 text-slate-900">
-        {editingId ? '메시지 편집' : '메시지 추가'}
+        {editingId ? t('editMessage') : t('addMessage')}
       </h3>
 
       <div className="space-y-3 mb-4">
         <div>
-          <Label htmlFor="from">발신자</Label>
+          <Label htmlFor="from">{t('sender')}</Label>
           <Select value={from} onValueChange={setFrom}>
             <SelectTrigger id="from">
-              <SelectValue placeholder="선택" />
+              <SelectValue placeholder={t('add')} />
             </SelectTrigger>
             <SelectContent>
               {participants.map((p) => (
@@ -108,10 +113,10 @@ export function MessageEditor({
         </div>
 
         <div>
-          <Label htmlFor="to">수신자</Label>
+          <Label htmlFor="to">{t('receiver')}</Label>
           <Select value={to} onValueChange={setTo}>
             <SelectTrigger id="to">
-              <SelectValue placeholder="선택" />
+              <SelectValue placeholder={t('add')} />
             </SelectTrigger>
             <SelectContent>
               {participants.map((p) => (
@@ -124,27 +129,27 @@ export function MessageEditor({
         </div>
 
         <div>
-          <Label htmlFor="message-type">메시지 유형</Label>
+          <Label htmlFor="message-type">{t('messageType')}</Label>
           <Select value={type} onValueChange={(v) => setType(v as Message['type'])}>
             <SelectTrigger id="message-type">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="sync">동기 호출 (→)</SelectItem>
-              <SelectItem value="async">비동기 호출 (⇢)</SelectItem>
-              <SelectItem value="return">응답 (←)</SelectItem>
-              <SelectItem value="self">자기 호출 (↻)</SelectItem>
+              <SelectItem value="sync">{t('messageTypeSync')}</SelectItem>
+              <SelectItem value="async">{t('messageTypeAsync')}</SelectItem>
+              <SelectItem value="return">{t('messageTypeReturn')}</SelectItem>
+              <SelectItem value="self">{t('messageTypeSelf')}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <Label htmlFor="text">메시지</Label>
+          <Label htmlFor="text">{t('messageContent')}</Label>
           <Input
             id="text"
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="메시지 내용"
+            placeholder={t('messagePlaceholder')}
             onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
           />
         </div>
@@ -152,18 +157,18 @@ export function MessageEditor({
         <div className="flex gap-2">
           <Button onClick={handleSubmit} className="flex-1">
             <Plus className="h-4 w-4 mr-1" />
-            {editingId ? '수정' : '추가'}
+            {editingId ? t('update') : t('add')}
           </Button>
           {editingId && (
             <Button variant="outline" onClick={resetForm}>
-              취소
+              {t('cancel')}
             </Button>
           )}
         </div>
       </div>
 
       <div className="border-t pt-4">
-        <h4 className="text-sm font-medium mb-3 text-slate-700">메시지 목록</h4>
+        <h4 className="text-sm font-medium mb-3 text-slate-700">{t('messageList')}</h4>
         <div className="space-y-2 max-h-[400px] overflow-y-auto">
           {messages.map((message, index) => {
             const fromParticipant = participants.find(p => p.id === message.from);
@@ -193,7 +198,7 @@ export function MessageEditor({
                       className="h-7 px-2 text-xs"
                     >
                       <ArrowUp className="h-3 w-3 mr-1" />
-                      위로
+                      {t('moveUp')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -203,7 +208,7 @@ export function MessageEditor({
                       className="h-7 px-2 text-xs"
                     >
                       <ArrowDown className="h-3 w-3 mr-1" />
-                      아래로
+                      {t('moveDown')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -212,7 +217,7 @@ export function MessageEditor({
                       className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                     >
                       <Edit2 className="h-3 w-3 mr-1" />
-                      편집
+                      {t('edit')}
                     </Button>
                     <Button
                       variant="ghost"
@@ -221,7 +226,7 @@ export function MessageEditor({
                       className="h-7 px-2 text-xs text-red-600 hover:text-red-700 hover:bg-red-50"
                     >
                       <Trash2 className="h-3 w-3 mr-1" />
-                      삭제
+                      {t('delete')}
                     </Button>
                   </div>
                 </div>

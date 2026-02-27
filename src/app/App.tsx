@@ -15,6 +15,13 @@ import { ParticipantEditor } from "./components/ParticipantEditor";
 import { MessageEditor } from "./components/MessageEditor";
 import { Button } from "./components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
+import {
   Sheet,
   SheetContent,
   SheetTrigger,
@@ -28,14 +35,23 @@ import {
   Menu,
   Image,
 } from "lucide-react";
+import { useLanguage } from "./contexts/LanguageContext";
+import { getTranslation, type Language } from "../utils/translations";
 
 export default function App() {
+  const { language, setLanguage } = useLanguage();
+  const t = (key: any) => getTranslation(language, key);
+
+  const handleLanguageChange = (value: string) => {
+    setLanguage(value as Language);
+  };
+
   const [participants, setParticipants] = useState<
     Participant[]
   >([
-    { id: "1", name: "클라이언트", icon: "user" },
-    { id: "2", name: "서버", icon: "server" },
-    { id: "3", name: "데이터베이스", icon: "database" },
+    { id: "1", name: t("client"), icon: "user" },
+    { id: "2", name: t("server"), icon: "server" },
+    { id: "3", name: t("database"), icon: "database" },
   ]);
 
   const handleReorderParticipants = (
@@ -49,28 +65,28 @@ export default function App() {
       id: "1",
       from: "1",
       to: "2",
-      text: "요청 전송",
+      text: t("sendRequest"),
       type: "sync",
     },
     {
       id: "2",
       from: "2",
       to: "3",
-      text: "데이터 조회",
+      text: t("queryData"),
       type: "sync",
     },
     {
       id: "3",
       from: "3",
       to: "2",
-      text: "데이터 반환",
+      text: t("returnData"),
       type: "return",
     },
     {
       id: "4",
       from: "2",
       to: "1",
-      text: "응답 전송",
+      text: t("sendResponse"),
       type: "return",
     },
   ]);
@@ -192,7 +208,7 @@ export default function App() {
             }
           } catch (error) {
             console.error("Failed to import diagram:", error);
-            alert("파일을 불러오는데 실패했습니다.");
+            alert(t("importError"));
           }
         };
         reader.readAsText(file);
@@ -202,7 +218,7 @@ export default function App() {
   };
 
   const clearAll = () => {
-    if (confirm("모든 내용을 삭제하시겠습니까?")) {
+    if (confirm(t("confirmClearAll"))) {
       setParticipants([]);
       setMessages([]);
     }
@@ -295,7 +311,7 @@ export default function App() {
       <header className="bg-white border-b border-slate-200 px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
           <h1 className="text-xl sm:text-2xl font-semibold text-slate-900">
-            시퀀스 다이어그램
+            {t("title")}
           </h1>
           <div className="flex gap-2">
             <div className="hidden sm:flex gap-2">
@@ -305,7 +321,7 @@ export default function App() {
                 onClick={importDiagram}
               >
                 <Upload className="h-4 w-4 mr-2" />
-                가져오기
+                {t("import")}
               </Button>
               <Button
                 variant="outline"
@@ -313,7 +329,7 @@ export default function App() {
                 onClick={exportDiagram}
               >
                 <Download className="h-4 w-4 mr-2" />
-                내보내기
+                {t("export")}
               </Button>
               <Button
                 variant="outline"
@@ -321,7 +337,7 @@ export default function App() {
                 onClick={exportSVG}
               >
                 <Image className="h-4 w-4 mr-2" />
-                SVG 내보내기
+                {t("exportSvg")}
               </Button>
               <Button
                 variant="outline"
@@ -329,7 +345,7 @@ export default function App() {
                 onClick={exportPNG}
               >
                 <Image className="h-4 w-4 mr-2" />
-                PNG 내보내기
+                {t("exportPng")}
               </Button>
               <Button
                 variant="outline"
@@ -337,11 +353,21 @@ export default function App() {
                 onClick={clearAll}
               >
                 <Trash2 className="h-4 w-4 mr-2" />
-                초기화
+                {t("clear")}
               </Button>
             </div>
 
             {/* Mobile Menu Button */}
+            <Select value={language} onValueChange={handleLanguageChange}>
+              <SelectTrigger className="w-[100px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ko">한국어</SelectItem>
+                <SelectItem value="en">English</SelectItem>
+              </SelectContent>
+            </Select>
+
             <Sheet>
               <SheetTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -353,10 +379,10 @@ export default function App() {
                 className="w-[90vw] sm:w-[400px] overflow-y-auto p-4"
               >
                 <SheetTitle className="sr-only">
-                  메뉴
+                  {t("menu")}
                 </SheetTitle>
                 <SheetDescription className="sr-only">
-                  참여자 및 메시지 관리
+                  {t("menuDescription")}
                 </SheetDescription>
                 <div className="space-y-4">
                   {/* Mobile Actions */}
@@ -368,7 +394,7 @@ export default function App() {
                       className="w-full"
                     >
                       <Upload className="h-4 w-4 mr-2" />
-                      가져오기
+                      {t("import")}
                     </Button>
                     <Button
                       variant="outline"
@@ -377,7 +403,7 @@ export default function App() {
                       className="w-full"
                     >
                       <Download className="h-4 w-4 mr-2" />
-                      내보내기
+                      {t("export")}
                     </Button>
                     <Button
                       variant="outline"
@@ -386,7 +412,7 @@ export default function App() {
                       className="w-full"
                     >
                       <Image className="h-4 w-4 mr-2" />
-                      SVG 내보내기
+                      {t("exportSvg")}
                     </Button>
                     <Button
                       variant="outline"
@@ -395,7 +421,7 @@ export default function App() {
                       className="w-full"
                     >
                       <Image className="h-4 w-4 mr-2" />
-                      PNG 내보내기
+                      {t("exportPng")}
                     </Button>
                     <Button
                       variant="outline"
@@ -404,7 +430,7 @@ export default function App() {
                       className="w-full"
                     >
                       <Trash2 className="h-4 w-4 mr-2" />
-                      초기화
+                      {t("clear")}
                     </Button>
                   </div>
 

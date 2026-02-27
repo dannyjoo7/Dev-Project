@@ -33,6 +33,8 @@ import {
   ArrowDown,
 } from "lucide-react";
 import type { Participant } from "./SequenceDiagram";
+import { useLanguage } from "../contexts/LanguageContext";
+import { getTranslation } from "../../utils/translations";
 
 interface ParticipantEditorProps {
   participants: Participant[];
@@ -43,26 +45,6 @@ interface ParticipantEditorProps {
   onReorder: (newParticipants: Participant[]) => void;
 }
 
-const iconOptions = [
-  { value: "user", label: "사용자", Icon: User },
-  { value: "server", label: "서버", Icon: Server },
-  { value: "database", label: "데이터베이스", Icon: Database },
-  { value: "globe", label: "웹", Icon: Globe },
-  { value: "smartphone", label: "모바일", Icon: Smartphone },
-  { value: "monitor", label: "데스크톱", Icon: Monitor },
-  { value: "cloud", label: "클라우드", Icon: Cloud },
-  { value: "code", label: "코드", Icon: Code },
-  { value: "mail", label: "이메일", Icon: Mail },
-  {
-    value: "shopping-cart",
-    label: "장바구니",
-    Icon: ShoppingCart,
-  },
-  { value: "credit-card", label: "결제", Icon: CreditCard },
-  { value: "file-text", label: "문서", Icon: FileText },
-  { value: "settings", label: "설정", Icon: Settings },
-];
-
 export function ParticipantEditor({
   participants,
   onAdd,
@@ -71,6 +53,28 @@ export function ParticipantEditor({
   onUpdateName,
   onReorder,
 }: ParticipantEditorProps) {
+  const { language } = useLanguage();
+  const t = (key: any) => getTranslation(language, key);
+
+  const iconOptions = [
+    { value: "user", label: t("iconUser"), Icon: User },
+    { value: "server", label: t("iconServer"), Icon: Server },
+    { value: "database", label: t("iconDatabase"), Icon: Database },
+    { value: "globe", label: t("iconGlobe"), Icon: Globe },
+    { value: "smartphone", label: t("iconSmartphone"), Icon: Smartphone },
+    { value: "monitor", label: t("iconMonitor"), Icon: Monitor },
+    { value: "cloud", label: t("iconCloud"), Icon: Cloud },
+    { value: "code", label: t("iconCode"), Icon: Code },
+    { value: "mail", label: t("iconMail"), Icon: Mail },
+    {
+      value: "shopping-cart",
+      label: t("iconShoppingCart"),
+      Icon: ShoppingCart,
+    },
+    { value: "credit-card", label: t("iconCreditCard"), Icon: CreditCard },
+    { value: "file-text", label: t("iconFileText"), Icon: FileText },
+    { value: "settings", label: t("iconSettings"), Icon: Settings },
+  ];
   const [newName, setNewName] = useState("");
   const [newIcon, setNewIcon] = useState<string>("");
   const [editingId, setEditingId] = useState<string | null>(
@@ -113,10 +117,10 @@ export function ParticipantEditor({
 
     if (!onReorder || typeof onReorder !== "function") {
       console.error(
-        "🚨 심각: 부모로부터 onReorder 함수가 전달되지 않았어!",
+        "Error: onReorder function not provided from parent!",
       );
       alert(
-        "오류: 순서를 변경할 수 없습니다. 화면을 새로고침 해주세요.",
+        "Error: Cannot change order. Please refresh the page.",
       );
       return;
     }
@@ -148,7 +152,7 @@ export function ParticipantEditor({
   return (
     <Card className="p-4">
       <h3 className="font-semibold mb-4 text-slate-900">
-        참여자 관리
+        {t('participantManage')}
       </h3>
 
       {/* 리스트 영역 (MessageEditor 스타일) */}
@@ -200,7 +204,7 @@ export function ParticipantEditor({
                     className="h-7 px-2 text-xs"
                   >
                     <ArrowUp className="h-3 w-3 mr-1" />
-                    위로
+                    {t('moveUp')}
                   </Button>
                   <Button
                     variant="ghost"
@@ -212,7 +216,7 @@ export function ParticipantEditor({
                     className="h-7 px-2 text-xs"
                   >
                     <ArrowDown className="h-3 w-3 mr-1" />
-                    아래로
+                    {t('moveDown')}
                   </Button>
 
                   {editingId === participant.id ? (
@@ -225,7 +229,7 @@ export function ParticipantEditor({
                         }
                         className="h-7 px-2 text-xs text-green-600"
                       >
-                        <Check className="h-3 w-3 mr-1" /> 저장
+                        <Check className="h-3 w-3 mr-1" /> {t('save')}
                       </Button>
                       <Button
                         variant="ghost"
@@ -233,7 +237,7 @@ export function ParticipantEditor({
                         onClick={cancelEditing}
                         className="h-7 px-2 text-xs text-slate-600"
                       >
-                        <X className="h-3 w-3 mr-1" /> 취소
+                        <X className="h-3 w-3 mr-1" /> {t('cancel')}
                       </Button>
                     </>
                   ) : (
@@ -246,7 +250,7 @@ export function ParticipantEditor({
                         }
                         className="h-7 px-2 text-xs text-blue-600"
                       >
-                        <Edit2 className="h-3 w-3 mr-1" /> 편집
+                        <Edit2 className="h-3 w-3 mr-1" /> {t('edit')}
                       </Button>
                       <Select
                         value={participant.icon || "none"}
@@ -260,11 +264,11 @@ export function ParticipantEditor({
                         }
                       >
                         <SelectTrigger className="h-7 w-[110px] text-[10px] bg-transparent border-none hover:bg-slate-100">
-                          <SelectValue placeholder="아이콘 변경" />
+                          <SelectValue placeholder={t('iconChange')} />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="none">
-                            아이콘 없음
+                            {t('iconNone')}
                           </SelectItem>
                           {iconOptions.map(
                             ({ value, label }) => (
@@ -284,7 +288,7 @@ export function ParticipantEditor({
                         onClick={() => onRemove(participant.id)}
                         className="h-7 px-2 text-xs text-red-600"
                       >
-                        <Trash2 className="h-3 w-3 mr-1" /> 삭제
+                        <Trash2 className="h-3 w-3 mr-1" /> {t('delete')}
                       </Button>
                     </>
                   )}
@@ -302,18 +306,18 @@ export function ParticipantEditor({
       {/* 추가 입력 영역 */}
       <div className="border-t pt-4 space-y-3">
         <div>
-          <Label htmlFor="participant-name">이름</Label>
+          <Label htmlFor="participant-name">{t('participantName')}</Label>
           <Input
             id="participant-name"
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="참여자 이름"
+            placeholder={t('participantNamePlaceholder')}
           />
         </div>
         <div>
           <Label htmlFor="participant-icon">
-            아이콘 (선택)
+            {t('participantIcon')}
           </Label>
           <Select
             value={newIcon || "none"}
@@ -322,10 +326,10 @@ export function ParticipantEditor({
             }
           >
             <SelectTrigger id="participant-icon">
-              <SelectValue placeholder="아이콘 선택" />
+              <SelectValue placeholder={t('iconSelect')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">아이콘 없음</SelectItem>
+              <SelectItem value="none">{t('iconNone')}</SelectItem>
               {iconOptions.map(({ value, label, Icon }) => (
                 <SelectItem key={value} value={value}>
                   <div className="flex items-center gap-2">
@@ -337,7 +341,7 @@ export function ParticipantEditor({
           </Select>
         </div>
         <Button onClick={handleAdd} className="w-full">
-          <Plus className="h-4 w-4 mr-1" /> 참여자 추가
+          <Plus className="h-4 w-4 mr-1" /> {t('addParticipant')}
         </Button>
       </div>
     </Card>
