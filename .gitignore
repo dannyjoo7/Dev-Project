@@ -1,0 +1,70 @@
+# ========================
+# macOS
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ========================
+# IDE - IntelliJ / Android Studio
+# ========================
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+.idea_modules/
+
+# ========================
+# Properties (보안)
+# ========================
+*.properties
+!gradle-wrapper.properties
+
+# ========================
+# Android
+# ========================
+*.apk
+*.aab
+*.ap_
+*.dex
+build/
+local.properties
+.gradle/
+captures/
+.externalNativeBuild/
+.cxx/
+*.keystore
+*.jks
+
+# ========================
+# Flutter
+# ========================
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+pubspec.lock
+*.g.dart
+build/
+
+# ========================
+# Windows
+# ========================
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+*.exe
+*.dll
+*.pdb
