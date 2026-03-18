@@ -1,6 +1,7 @@
 package com.example.loginsignupproject.activity
 
 import Account
+import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.text.Editable
@@ -51,12 +52,19 @@ class SignUpActivity : ComponentActivity() {
                 Toast.makeText(this@SignUpActivity, "빈 칸이 존재합니다.", Toast.LENGTH_SHORT).show()
             } else if (inputId!!.isEnabled) {
                 Toast.makeText(this@SignUpActivity, "ID 중복 여부 확인", Toast.LENGTH_SHORT).show()
-            }else if (!pwCheckTxt!!.text.equals("같음!")) {
+            } else if (!pwCheckTxt!!.text.equals("같음!")) {
                 Toast.makeText(this@SignUpActivity, "비밀 번호 재확인", Toast.LENGTH_SHORT).show()
             } else {
                 Toast.makeText(this@SignUpActivity, "회원 가입 성공!", Toast.LENGTH_SHORT).show()
                 am.list.add(Account(id, pw, name))
-                finish()
+
+                // 결과값 리턴 부분...
+                val intent = Intent(this, SignInActivity::class.java).apply {
+                    putExtra("ID", id);
+                    putExtra("PASSWORD", pw);
+                }
+                setResult(RESULT_OK, intent)
+                if (!isFinishing) finish()
             }
         }
 
@@ -64,7 +72,9 @@ class SignUpActivity : ComponentActivity() {
         dupCheckBtn!!.setOnClickListener {
             val id = inputId!!.text.toString().trim { it <= ' ' }
 
-            if (am.list.find { it.id == id } == null) {
+            if (id == "") {
+                Toast.makeText(this@SignUpActivity, "ID를 입력하세요!", Toast.LENGTH_SHORT).show()
+            } else if (am.list.find { it.id == id } == null) {
                 Toast.makeText(this@SignUpActivity, "ID 사용 가능!", Toast.LENGTH_SHORT).show()
                 inputId!!.isEnabled = false
             } else {
@@ -72,6 +82,7 @@ class SignUpActivity : ComponentActivity() {
             }
         }
 
+        // 비밀번호 재입력 체크...
         input_PwCheck!!.addTextChangedListener(object : TextWatcher {
 
             var passwd = "" // 초기에는 빈 문자열로 초기화
