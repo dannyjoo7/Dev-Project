@@ -4,14 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.*
 import androidx.activity.ComponentActivity
+import androidx.activity.result.ActivityResultLauncher
 import com.example.loginsignupproject.R
-import com.example.loginsignupproject.data.AccountManager
 
 
 class MainActivity : ComponentActivity() {
     private var inputId: EditText? = null
     private var inputPW: EditText? = null
     private lateinit var myApplication: MyApplication
+    private lateinit var signUpLauncher: ActivityResultLauncher<Intent>
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
