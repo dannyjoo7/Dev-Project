@@ -288,14 +288,14 @@ fun NavigationHost(navController: NavHostController) {
             arguments = listOf(navArgument("todoId") { type = NavType.LongType })
         ) { backStackEntry ->
             val todoId = backStackEntry.arguments?.getLong("todoId") ?: -1L
-            DetailTodoScreen(todoId = todoId)
+            DetailTodoScreen(todoId = todoId, navController = navController)
         }
         composable(
             Screen.DetailSchedule.route,
             arguments = listOf(navArgument("scheduleId") { type = NavType.LongType })
         ) { backStackEntry ->
             val scheduleId = backStackEntry.arguments?.getLong("scheduleId") ?: -1L
-            DetailScheduleScreen(scheduleId = scheduleId)
+            DetailScheduleScreen(scheduleId = scheduleId, navController = navController)
         }
     }
 }
