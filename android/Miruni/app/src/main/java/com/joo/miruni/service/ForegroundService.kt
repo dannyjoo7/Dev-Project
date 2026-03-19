@@ -11,6 +11,7 @@ import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import android.content.Context
 import androidx.core.content.ContextCompat
 import com.joo.miruni.R
 import com.joo.miruni.presentation.main.MainActivity
@@ -85,9 +86,13 @@ class ForegroundService : Service() {
     // Unlock 리시버 등록 (onCreate에서 1회만 호출)
     private fun registerUnlockReceiver() {
         if (!isReceiverRegistered) {
-            registerReceiver(unlockReceiver, IntentFilter().apply {
-                addAction(Intent.ACTION_USER_PRESENT)
-            })
+            registerReceiver(
+                unlockReceiver,
+                IntentFilter().apply {
+                    addAction(Intent.ACTION_USER_PRESENT)
+                },
+                Context.RECEIVER_EXPORTED
+            )
             isReceiverRegistered = true
         }
     }
