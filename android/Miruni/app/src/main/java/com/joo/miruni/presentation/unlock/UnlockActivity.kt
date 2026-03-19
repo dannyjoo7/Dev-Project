@@ -32,4 +32,10 @@ class UnlockActivity : ComponentActivity() {
             }
         })
     }
+
+    override fun onStop() {
+        super.onStop()
+        // 화면에서 벗어나면 종료하여 다음 잠금해제 시 새로 생성
+        finish()
+    }
 }
