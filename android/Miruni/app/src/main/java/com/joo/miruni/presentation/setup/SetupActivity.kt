@@ -55,7 +55,9 @@ class SetupActivity : ComponentActivity() {
         initModel()
 
         setContent {
-            SetupScreen(setupViewModel)
+            com.joo.miruni.theme.MiruniTheme {
+                SetupScreen(setupViewModel)
+            }
         }
     }
 

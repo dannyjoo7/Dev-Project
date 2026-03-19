@@ -23,7 +23,9 @@ class UnlockActivity : ComponentActivity() {
         )
 
         setContent {
-            UnlockScreen(unlockViewModel)
+            com.joo.miruni.theme.MiruniTheme {
+                UnlockScreen(unlockViewModel)
+            }
         }
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {

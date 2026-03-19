@@ -84,6 +84,7 @@ class MainActivity : ComponentActivity() {
         requestPermissions()
 
         setContent {
+            com.joo.miruni.theme.MiruniTheme {
             val navController = rememberNavController()
             MainScreen(navController, mainViewModel)
 
@@ -187,6 +188,7 @@ class MainActivity : ComponentActivity() {
                     title = "다른 앱 위에 표시"
                 )
             }
+        }
         }
     }
 
