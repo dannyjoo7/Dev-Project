@@ -1,10 +1,18 @@
 package com.joo.miruni.domain.usecase.task.schedule
 
 import com.joo.miruni.domain.model.ScheduleModel
+import com.joo.miruni.domain.model.toScheduleEntity
+import com.joo.miruni.domain.repository.TaskRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-
-interface GetScheduleItemByIDUseCase {
+@Singleton
+class GetScheduleItemByIDUseCase @Inject constructor(
+    private val taskRepository: TaskRepository,
+) {
     suspend operator fun invoke(
         taskId: Long,
-    ): ScheduleModel
+    ): ScheduleModel {
+        return taskRepository.getTaskItemById(taskId).toScheduleEntity()
+    }
 }

@@ -48,37 +48,7 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".presentation.addTask.addTodo.AddTodoActivity"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".presentation.addTask.addSchedule.AddScheduleActivity"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".presentation.detail.detailTodo.DetailTodoActivity"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-
-        <activity
-            android:name=".presentation.detail.detailSchedule.DetailScheduleActivity"
-            android:exported="true">
-            <intent-filter>
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+        <!-- AddTodo, AddSchedule, DetailTodo, DetailSchedule는 Navigation Compose로 전환 완료 -->
 
         <service
             android:name=".service.ForegroundService"

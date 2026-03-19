@@ -1,8 +1,9 @@
 package com.joo.miruni.presentation.unlock
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joo.miruni.domain.usecase.task.schedule.GetScheduleItemsUseCase
@@ -10,13 +11,14 @@ import com.joo.miruni.domain.usecase.task.todo.GetTodoItemsForAlarmUseCase
 import com.joo.miruni.domain.usecase.setting.SettingObserveCompletedItemsVisibilityUseCase
 import com.joo.miruni.presentation.home.Schedule
 import com.joo.miruni.presentation.home.ThingsTodo
+import com.joo.miruni.presentation.util.DateTimeFormatUtil
+import com.joo.miruni.presentation.util.TaskLoadingHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,31 +36,34 @@ class UnlockViewModel @Inject constructor(
     * */
 
     // 현재 시간
-    private val _curDateTime = MutableLiveData<LocalDateTime>(LocalDateTime.now())
-    val curDateTime: LiveData<LocalDateTime> get() = _curDateTime
+    private val _curDateTime = MutableStateFlow<LocalDateTime>(LocalDateTime.now())
+    val curDateTime: StateFlow<LocalDateTime> get() = _curDateTime.asStateFlow()
 
     // 할 일 Item list
-    private val _thingsTodoItems = MutableLiveData<List<ThingsTodo>>(emptyList())
-    val thingsTodoItems: LiveData<List<ThingsTodo>> get() = _thingsTodoItems
+    private val _thingsTodoItems = MutableStateFlow<List<ThingsTodo>>(emptyList())
+    val thingsTodoItems: StateFlow<List<ThingsTodo>> get() = _thingsTodoItems.asStateFlow()
 
     // 일정 Item list
-    private val _scheduleItems = MutableLiveData<List<Schedule>>(emptyList())
-    val scheduleItems: LiveData<List<Schedule>> get() = _scheduleItems
+    private val _scheduleItems = MutableStateFlow<List<Schedule>>(emptyList())
+    val scheduleItems: StateFlow<List<Schedule>> get() = _scheduleItems.asStateFlow()
 
     // todoList 로딩 중인지 판단하는 변수
-    private val _isTodoListLoading = MutableLiveData(false)
-    val isTodoListLoading: LiveData<Boolean> get() = _isTodoListLoading
+    private val _isTodoListLoading = MutableStateFlow(false)
+    val isTodoListLoading: StateFlow<Boolean> get() = _isTodoListLoading.asStateFlow()
 
     // scheduleList 로딩 중인지 판단하는 변수
-    private val _isScheduleListLoading = MutableLiveData(false)
-    val isScheduleListLoading: LiveData<Boolean> get() = _isScheduleListLoading
+    private val _isScheduleListLoading = MutableStateFlow(false)
+    val isScheduleListLoading: StateFlow<Boolean> get() = _isScheduleListLoading.asStateFlow()
 
     // 완료 항목 값
-    private val _settingObserveCompleteVisibility = MutableLiveData<Boolean>(false)
-    val settingObserveCompleteVisibility: LiveData<Boolean> get() = _settingObserveCompleteVisibility
+    private val _settingObserveCompleteVisibility = MutableStateFlow<Boolean>(false)
+    val settingObserveCompleteVisibility: StateFlow<Boolean> get() = _settingObserveCompleteVisibility.asStateFlow()
 
     // scheduleList 페이징을 위한 마지막 데이터의 startDate
     private var lastStartDate: LocalDate? = null
+
+    // 시간 업데이트 Job
+    private var timeUpdateJob: Job? = null
 
     init {
         loadTodoItemsForAlarm()
@@ -78,23 +83,14 @@ class UnlockViewModel @Inject constructor(
             _isTodoListLoading.value = true
             runCatching {
                 getTodoItemsForAlarmUseCase.invoke(
-                    _curDateTime.value ?: LocalDateTime.now()
+                    _curDateTime.value
                 )
             }.onSuccess { flow ->
                 flow.collect { todoItems ->
                     _thingsTodoItems.value =
-                        todoItems.todoEntities.map {
-                            ThingsTodo(
-                                id = it.id,
-                                title = it.title,
-                                deadline = it.deadLine ?: LocalDateTime.now(),
-                                description = it.details ?: "",
-                                isCompleted = it.isComplete,
-                                completeDate = it.completeDate,
-                                isPinned = it.isPinned
-                            )
-                        }.distinctBy { it.id }
-                            .sortedWith(compareByDescending<ThingsTodo> { it.isPinned }.thenBy { it.deadline })
+                        TaskLoadingHelper.sortTodoItems(
+                            todoItems.todoEntities.map { TaskLoadingHelper.mapToThingsTodo(it) }
+                        )
 
                     _isTodoListLoading.value = false
                 }
@@ -115,38 +111,15 @@ class UnlockViewModel @Inject constructor(
             _isScheduleListLoading.value = true
             runCatching {
                 getScheduleItemsForAlarmUseCase.invoke(
-                    _curDateTime.value?.toLocalDate() ?: LocalDate.now(),
+                    _curDateTime.value.toLocalDate(),
                     null
                 )
             }.onSuccess { flow ->
                 flow.collect { scheduleItems ->
-                    _scheduleItems.value = scheduleItems.scheduleEntities.map {
-                        Schedule(
-                            id = it.id,
-                            title = it.title,
-                            startDate = it.startDate,
-                            endDate = it.endDate,
-                            description = it.details,
-                            daysBefore = when {
-                                it.startDate != null && it.startDate.isEqual(LocalDate.now()) -> 0
-                                it.startDate != null && it.endDate != null &&
-                                        (it.startDate.isBefore(LocalDate.now()) && it.endDate.isAfter(
-                                            LocalDate.now()
-                                        )) -> 0
-
-                                it.startDate != null && it.startDate.isAfter(LocalDate.now()) -> ChronoUnit.DAYS.between(
-                                    LocalDate.now(),
-                                    it.startDate
-                                ).toInt() // 시작일이 미래인 경우
-                                else -> 0
-                            },
-                            isComplete = it.isComplete,
-                            completeDate = it.completeDate,
-                            isPinned = it.isPinned
-                        )
-                    }
-                        .sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
-                    lastStartDate = _scheduleItems.value?.lastOrNull()?.startDate
+                    _scheduleItems.value = TaskLoadingHelper.sortScheduleItems(
+                        scheduleItems.scheduleEntities.map { TaskLoadingHelper.mapToSchedule(it) }
+                    )
+                    lastStartDate = _scheduleItems.value.lastOrNull()?.startDate
 
                     _isScheduleListLoading.value = false
                 }
@@ -164,42 +137,22 @@ class UnlockViewModel @Inject constructor(
             _isScheduleListLoading.value = true
             runCatching {
                 getScheduleItemsForAlarmUseCase.invoke(
-                    _curDateTime.value?.toLocalDate() ?: LocalDate.now(),
+                    _curDateTime.value.toLocalDate(),
                     lastStartDate
                 )
             }.onSuccess { flow ->
                 flow.collect { scheduleItems ->
                     _scheduleItems.value =
-                        _scheduleItems.value?.plus(scheduleItems.scheduleEntities.map {
-                            Schedule(
-                                id = it.id,
-                                title = it.title,
-                                startDate = it.startDate,
-                                endDate = it.endDate,
-                                description = it.details,
-                                daysBefore = when {
-                                    it.startDate != null && it.startDate.isEqual(LocalDate.now()) -> 0
-                                    (it.startDate != null && it.endDate != null) && it.startDate.isBefore(
-                                        LocalDate.now()
-                                    ) && it.endDate.isAfter(
-                                        LocalDate.now()
-                                    ) -> 0
-
-                                    else -> ChronoUnit.DAYS.between(LocalDate.now(), it.startDate)
-                                        .toInt()
-                                },
-                                isComplete = it.isComplete,
-                                completeDate = it.completeDate,
-                                isPinned = it.isPinned
-                            )
-                        }.filterNot { newSchedule ->
-                            _scheduleItems.value?.any { existingSchedule ->
-                                existingSchedule.id == newSchedule.id
-                            } == true
-                        })
-                            ?.sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
-                            ?: emptyList()
-                    lastStartDate = _scheduleItems.value?.lastOrNull()?.startDate
+                        (_scheduleItems.value +
+                            scheduleItems.scheduleEntities.map { TaskLoadingHelper.mapToSchedule(it) }
+                                .filterNot { newSchedule ->
+                                    _scheduleItems.value.any { existingSchedule ->
+                                        existingSchedule.id == newSchedule.id
+                                    }
+                                }
+                        )
+                            .sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
+                    lastStartDate = _scheduleItems.value.lastOrNull()?.startDate
                     _isScheduleListLoading.value = false
                 }
             }.onFailure { exception ->
@@ -233,27 +186,23 @@ class UnlockViewModel @Inject constructor(
 
     // 날짜 Text 포멧
     fun formatSelectedDate(date: LocalDate): String {
-        val today = LocalDate.now()
-
-        return when {
-            else -> {
-                if (date.year == today.year) {
-                    date.format(DateTimeFormatter.ofPattern("M월 d일"))
-                } else {
-                    date.format(DateTimeFormatter.ofPattern("M월 d일, yyyy"))
-                }
-            }
-        }
+        return DateTimeFormatUtil.formatDateWithRelative(date)
     }
 
     // 시간 업데이트
     private fun startUpdatingTime() {
-        viewModelScope.launch {
+        timeUpdateJob?.cancel()
+        timeUpdateJob = viewModelScope.launch {
             while (true) {
-                _curDateTime.postValue(LocalDateTime.now())
+                _curDateTime.value = LocalDateTime.now()
                 delay(1000)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timeUpdateJob?.cancel()
     }
 
 }

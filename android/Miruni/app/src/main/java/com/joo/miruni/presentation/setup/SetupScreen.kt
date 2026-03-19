@@ -25,12 +25,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.joo.miruni.R
 import com.google.android.material.timepicker.TimeFormat
-import com.joo.miruni.presentation.widget.Time
 import com.joo.miruni.presentation.widget.WheelTimePicker
-import java.time.LocalTime
 
 
 @Composable
@@ -39,8 +39,8 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
     /*
     * Live Data
     * */
-    val selectedTime by setupViewModel.selectedTime.observeAsState()        // 선택된 시간
-    val showTimePicker by setupViewModel.showTimePicker.observeAsState()    // TimePicker 표시 여부
+    val selectedTime by setupViewModel.selectedTime.collectAsStateWithLifecycle()        // 선택된 시간
+    val showTimePicker by setupViewModel.showTimePicker.collectAsStateWithLifecycle()    // TimePicker 표시 여부
 
     var isSelect by remember { mutableStateOf(false) }                // 기상 시간 선택 여부
 
@@ -71,7 +71,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
                     .background(Color.Transparent)
             ) {
                 Text(
-                    text = "기상시간 입력",
+                    text = stringResource(R.string.setup_wake_time_input),
                     textAlign = TextAlign.Center,
                     fontSize = 24.sp,
                     color = Color.Gray,
@@ -83,7 +83,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
 
             // 설명 문구
             Text(
-                text = "기상 시간에 맞춰 당일의 알림을 띄워드려요",
+                text = stringResource(R.string.setup_wake_time_description),
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 color = Color.Gray
@@ -111,7 +111,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
             ) {
                 Text(
                     text = setupViewModel.formatLocalTimeToString(
-                        selectedTime ?: LocalTime.now()
+                        selectedTime
                     ),
                     textAlign = TextAlign.Center,
                     fontSize = 32.sp,
@@ -120,7 +120,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
             }
 
             // WheelTimePicker 위젯 표시
-            AnimatedVisibility(visible = showTimePicker ?: false) {
+            AnimatedVisibility(visible = showTimePicker) {
                 Column(
                     modifier = Modifier
                         .animateContentSize()
@@ -132,7 +132,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
                         selectorEffectEnabled = true,
                         timeFormat = TimeFormat.CLOCK_12H,
                         startTime = setupViewModel.convertLocalTimeToTime(
-                            selectedTime ?: LocalTime.now()
+                            selectedTime
                         ),
                         textSize = 19,
                         onTimeChanged = { hour, minute, format ->
@@ -161,7 +161,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
                             .defaultMinSize(minWidth = 250.dp)
                     ) {
                         Text(
-                            text = "기상시간 입력",
+                            text = stringResource(R.string.setup_wake_time_input),
                             textAlign = TextAlign.Center,
                             fontSize = 16.sp,
                             color = Color.White
@@ -195,7 +195,7 @@ fun SetupScreen(setupViewModel: SetupViewModel) {
                         .fillMaxWidth()
                 ) {
                     Text(
-                        text = "완료",
+                        text = stringResource(R.string.complete),
                         textAlign = TextAlign.Center,
                         fontSize = 16.sp,
                         color = Color.White

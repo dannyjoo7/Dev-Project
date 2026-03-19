@@ -3,8 +3,6 @@ package com.joo.miruni.presentation.home
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joo.miruni.domain.usecase.task.CancelCompleteTaskItemUseCase
@@ -14,17 +12,19 @@ import com.joo.miruni.domain.usecase.task.DeleteTaskItemUseCase
 import com.joo.miruni.domain.usecase.task.schedule.GetScheduleItemsUseCase
 import com.joo.miruni.domain.usecase.task.todo.GetTodoItemsForAlarmUseCase
 import com.joo.miruni.domain.usecase.setting.SettingObserveCompletedItemsVisibilityUseCase
-import com.joo.miruni.domain.usecase.TestUseCase
 import com.joo.miruni.domain.usecase.task.TogglePinStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
+import com.joo.miruni.presentation.util.DateTimeFormatUtil
+import com.joo.miruni.presentation.util.TaskLoadingHelper
 import javax.inject.Inject
 
 @HiltViewModel
@@ -37,55 +37,54 @@ class HomeViewModel @Inject constructor(
     private val delayTodoItemUseCase: DelayTodoItemUseCase,
     private val settingObserveCompletedItemsVisibilityUseCase: SettingObserveCompletedItemsVisibilityUseCase,
     private val togglePinStatusUseCase: TogglePinStatusUseCase,
-    private val testUseCase: TestUseCase,
 ) : ViewModel() {
     companion object {
         const val TAG = "HomeViewModel"
     }
 
     /*
-    * Live Date
+    * State Flow
     * */
 
     // 선택된 날짜
-    private val _selectDate = MutableLiveData<LocalDateTime>(LocalDateTime.now())
-    val selectDate: LiveData<LocalDateTime> get() = _selectDate
+    private val _selectDate = MutableStateFlow(LocalDateTime.now())
+    val selectDate: StateFlow<LocalDateTime> = _selectDate.asStateFlow()
 
     // 할 일 Item list
-    private val _thingsTodoItems = MutableLiveData<List<ThingsTodo>>(emptyList())
-    val thingsTodoItems: LiveData<List<ThingsTodo>> get() = _thingsTodoItems
+    private val _thingsTodoItems = MutableStateFlow<List<ThingsTodo>>(emptyList())
+    val thingsTodoItems: StateFlow<List<ThingsTodo>> = _thingsTodoItems.asStateFlow()
 
     // 일정 Item list
-    private val _scheduleItems = MutableLiveData<List<Schedule>>(emptyList())
-    val scheduleItems: LiveData<List<Schedule>> get() = _scheduleItems
+    private val _scheduleItems = MutableStateFlow<List<Schedule>>(emptyList())
+    val scheduleItems: StateFlow<List<Schedule>> = _scheduleItems.asStateFlow()
 
     // todoList 로딩 중인지 판단하는 변수
-    private val _isTodoListLoading = MutableLiveData(false)
-    val isTodoListLoading: LiveData<Boolean> get() = _isTodoListLoading
+    private val _isTodoListLoading = MutableStateFlow(false)
+    val isTodoListLoading: StateFlow<Boolean> = _isTodoListLoading.asStateFlow()
 
     // scheduleList 로딩 중인지 판단하는 변수
-    private val _isScheduleListLoading = MutableLiveData(false)
-    val isScheduleListLoading: LiveData<Boolean> get() = _isScheduleListLoading
+    private val _isScheduleListLoading = MutableStateFlow(false)
+    val isScheduleListLoading: StateFlow<Boolean> = _isScheduleListLoading.asStateFlow()
 
     // 미래일 판단 변수
-    private val _isFutureDate = MutableLiveData(false)
-    val isFutureDate: LiveData<Boolean> get() = _isFutureDate
+    private val _isFutureDate = MutableStateFlow(false)
+    val isFutureDate: StateFlow<Boolean> = _isFutureDate.asStateFlow()
 
     // 확장 여부를 판단하는 변수
     private val _expandedItems = mutableStateOf<Set<Long>>(emptySet())
     val expandedItems: State<Set<Long>> = _expandedItems
 
     // 삭제됐는지 여부를 판단하는 변수
-    private val _deletedItems = MutableLiveData<Set<Long>>(emptySet())
-    val deletedItems: LiveData<Set<Long>> get() = _deletedItems
+    private val _deletedItems = MutableStateFlow<Set<Long>>(emptySet())
+    val deletedItems: StateFlow<Set<Long>> = _deletedItems.asStateFlow()
 
     // 완료 항목 값
-    private val _settingObserveCompleteVisibility = MutableLiveData<Boolean>(false)
-    val settingObserveCompleteVisibility: LiveData<Boolean> get() = _settingObserveCompleteVisibility
+    private val _settingObserveCompleteVisibility = MutableStateFlow(false)
+    val settingObserveCompleteVisibility: StateFlow<Boolean> = _settingObserveCompleteVisibility.asStateFlow()
 
     // 스크롤 끝인지 판단하는 변수
-    private val _isEndOfScroll = MutableLiveData<Boolean>(false)
-    val isEndOfScroll: LiveData<Boolean> get() = _isEndOfScroll
+    private val _isEndOfScroll = MutableStateFlow(false)
+    val isEndOfScroll: StateFlow<Boolean> = _isEndOfScroll.asStateFlow()
 
     // todoList 페이징을 위한 마지막 데이터의 deadLine
     private var lastDataDeadLine: LocalDateTime? = null
@@ -114,26 +113,17 @@ class HomeViewModel @Inject constructor(
             _isTodoListLoading.value = true
             runCatching {
                 getTodoItemsForAlarmUseCase.invoke(
-                    _selectDate.value ?: LocalDateTime.now()
+                    _selectDate.value
                 )
             }.onSuccess { flow ->
                 flow.collect { todoItems ->
                     _thingsTodoItems.value =
-                        todoItems.todoEntities.map {
-                            ThingsTodo(
-                                id = it.id,
-                                title = it.title,
-                                deadline = it.deadLine ?: LocalDateTime.now(),
-                                description = it.details ?: "",
-                                isCompleted = it.isComplete,
-                                completeDate = it.completeDate,
-                                isPinned = it.isPinned
-                            )
-                        }.distinctBy { it.id }
-                            .sortedWith(compareByDescending<ThingsTodo> { it.isPinned }.thenBy { it.deadline })
+                        TaskLoadingHelper.sortTodoItems(
+                            todoItems.todoEntities.map { TaskLoadingHelper.mapToThingsTodo(it) }
+                        )
 
 
-                    lastDataDeadLine = _thingsTodoItems.value?.lastOrNull()?.deadline
+                    lastDataDeadLine = _thingsTodoItems.value.lastOrNull()?.deadline
                     _isTodoListLoading.value = false
                 }
             }.onFailure { exception ->
@@ -146,7 +136,7 @@ class HomeViewModel @Inject constructor(
     // Task 삭제 메소드
     fun deleteTaskItem(id: Long) {
         viewModelScope.launch {
-            _deletedItems.value = _deletedItems.value?.plus(id) ?: setOf(id)
+            _deletedItems.value = _deletedItems.value + id
             runCatching {
                 // 애니매이션을 위한 딜레이
                 delay(1000)
@@ -154,7 +144,7 @@ class HomeViewModel @Inject constructor(
             }.onSuccess {
                 _expandedItems.value = _expandedItems.value.filterNot { it == id }.toSet()
             }.onFailure {
-                _deletedItems.value = _deletedItems.value?.minus(id)
+                _deletedItems.value = _deletedItems.value - id
             }
         }
     }
@@ -167,7 +157,7 @@ class HomeViewModel @Inject constructor(
             }.onSuccess {
                 Log.d(TAG, "Complete selectDate = ${selectDate.value}")
             }.onFailure {
-
+                Log.e(TAG, "Failed to complete task", it)
             }
         }
     }
@@ -180,7 +170,7 @@ class HomeViewModel @Inject constructor(
             }.onSuccess {
                 Log.d(TAG, "Cancel Complete selectDate = ${selectDate.value}")
             }.onFailure {
-
+                Log.e(TAG, "Failed to cancel complete task", it)
             }
         }
     }
@@ -191,10 +181,8 @@ class HomeViewModel @Inject constructor(
             runCatching {
                 // TODO deadLine 미룰 때 기기에 저장된 유저가 설정한 값으로 대체 -> 현재 1에서 userSetting 값으로...
                 delayTodoItemUseCase.invoke(thingsTodo.id, thingsTodo.deadline.plusDays(1))
-            }.onSuccess {
-
             }.onFailure {
-
+                Log.e(TAG, "Failed to delay todo item", it)
             }
         }
     }
@@ -204,10 +192,8 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 togglePinStatusUseCase.invoke(taskId)
-            }.onSuccess {
-
             }.onFailure {
-
+                Log.e(TAG, "Failed to toggle pin status", it)
             }
         }
     }
@@ -230,19 +216,19 @@ class HomeViewModel @Inject constructor(
         _selectDate.value = when (op) {
             DateChange.RIGHT -> LocalDateTime.of(
                 // 자정으로 설정
-                _selectDate.value?.toLocalDate() ?: LocalDate.now(),
+                _selectDate.value.toLocalDate(),
                 LocalTime.MIDNIGHT
-            ).plusDays(1) ?: LocalDateTime.now()
+            ).plusDays(1)
 
             DateChange.LEFT -> LocalDateTime.of(
                 // 자정으로 설정
-                _selectDate.value?.toLocalDate() ?: LocalDate.now(),
+                _selectDate.value.toLocalDate(),
                 LocalTime.MIDNIGHT
-            ).minusDays(1) ?: LocalDateTime.now()
+            ).minusDays(1)
         }
 
         // 바뀐 날짜가 오늘이면 자정이 아닌 현재 시간 적용
-        if ((_selectDate.value?.toLocalDate() ?: LocalDate.now()) == LocalDate.now()) {
+        if (_selectDate.value.toLocalDate() == LocalDate.now()) {
             _selectDate.value = LocalDateTime.now()
         }
 
@@ -269,27 +255,12 @@ class HomeViewModel @Inject constructor(
 
     // 날짜 Text 포멧
     fun formatSelectedDate(date: LocalDateTime): String {
-        val selectDate = date.toLocalDate()
-        val today = LocalDate.now()
-
-        return when {
-            selectDate.isEqual(today.minusDays(1)) -> "어제"
-            selectDate.isEqual(today) -> "오늘"
-            selectDate.isEqual(today.plusDays(1)) -> "내일"
-            else -> {
-                if (selectDate.year == today.year) {
-                    selectDate.format(DateTimeFormatter.ofPattern("M월 d일"))
-                } else {
-                    selectDate.format(DateTimeFormatter.ofPattern("M월 d일, yyyy"))
-                }
-            }
-        }
+        return DateTimeFormatUtil.formatDateTimeWithRelative(date)
     }
 
     // 미래일 판단 메소드
     private fun checkFutureDate() {
-        val selectedDate = _selectDate.value
-        _isFutureDate.value = selectedDate != null && selectedDate.isAfter(LocalDateTime.now())
+        _isFutureDate.value = _selectDate.value.isAfter(LocalDateTime.now())
     }
 
     /*
@@ -302,40 +273,16 @@ class HomeViewModel @Inject constructor(
             _isScheduleListLoading.value = true
             runCatching {
                 getScheduleItemsForAlarmUseCase.invoke(
-                    _selectDate.value?.toLocalDate() ?: LocalDate.now(),
+                    _selectDate.value.toLocalDate(),
                     null
                 )
             }.onSuccess { flow ->
                 flow.collect { scheduleItems ->
-                    _scheduleItems.value = scheduleItems.scheduleEntities.map {
-                        Schedule(
-                            id = it.id,
-                            title = it.title,
-                            startDate = it.startDate,
-                            endDate = it.endDate,
-                            description = it.details,
-                            daysBefore = when {
-                                it.startDate != null && it.startDate.isEqual(LocalDate.now()) -> 0
-                                it.startDate != null && it.endDate != null &&
-                                        (it.startDate.isBefore(LocalDate.now()) && it.endDate.isAfter(
-                                            LocalDate.now()
-                                        )) -> 0
+                    _scheduleItems.value = TaskLoadingHelper.sortScheduleItems(
+                        scheduleItems.scheduleEntities.map { TaskLoadingHelper.mapToSchedule(it) }
+                    )
 
-                                it.startDate != null && it.startDate.isAfter(LocalDate.now()) -> ChronoUnit.DAYS.between(
-                                    LocalDate.now(),
-                                    it.startDate
-                                ).toInt()
-
-                                else -> 0
-                            },
-                            isComplete = it.isComplete,
-                            completeDate = it.completeDate,
-                            isPinned = it.isPinned
-                        )
-                    }
-                        .sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
-
-                    lastStartDate = _scheduleItems.value?.lastOrNull()?.startDate
+                    lastStartDate = _scheduleItems.value.lastOrNull()?.startDate
                     _isScheduleListLoading.value = false
                 }
 
@@ -352,45 +299,23 @@ class HomeViewModel @Inject constructor(
             _isScheduleListLoading.value = true
             runCatching {
                 getScheduleItemsForAlarmUseCase.invoke(
-                    _selectDate.value?.toLocalDate() ?: LocalDate.now(),
+                    _selectDate.value.toLocalDate(),
                     lastStartDate
                 )
             }.onSuccess { flow ->
                 flow.collect { scheduleItems ->
                     _scheduleItems.value =
-                        _scheduleItems.value?.plus(scheduleItems.scheduleEntities.map {
-                            Schedule(
-                                id = it.id,
-                                title = it.title,
-                                startDate = it.startDate,
-                                endDate = it.endDate,
-                                description = it.details,
-                                daysBefore = when {
-                                    it.startDate != null && it.startDate.isEqual(LocalDate.now()) -> 0
-                                    (it.startDate != null && it.endDate != null) && it.startDate.isBefore(
-                                        LocalDate.now()
-                                    ) && it.endDate.isAfter(
-                                        LocalDate.now()
-                                    ) -> 0
-
-                                    else -> ChronoUnit.DAYS.between(LocalDate.now(), it.startDate)
-                                        .toInt()
-                                },
-                                isComplete = it.isComplete,
-                                completeDate = it.completeDate,
-                                isPinned = it.isPinned
-                            )
-                        }.filterNot { newSchedule ->
-                            _scheduleItems.value?.any { existingSchedule ->
-                                existingSchedule.id == newSchedule.id
-                            } == true
-                        })
-                            ?.sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
-                            ?: emptyList()
+                        (_scheduleItems.value + scheduleItems.scheduleEntities.map { TaskLoadingHelper.mapToSchedule(it) }
+                                .filterNot { newSchedule ->
+                                    _scheduleItems.value.any { existingSchedule ->
+                                        existingSchedule.id == newSchedule.id
+                                    }
+                                })
+                            .sortedWith(compareByDescending<Schedule> { it.isPinned }.thenBy { it.startDate })
 
                     Log.d(TAG, "추가 ${_scheduleItems.value}")
 
-                    lastStartDate = _scheduleItems.value?.lastOrNull()?.startDate
+                    lastStartDate = _scheduleItems.value.lastOrNull()?.startDate
                     _isScheduleListLoading.value = false
                 }
             }.onFailure { exception ->
@@ -420,18 +345,6 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    // TODO 임시 테스트
-    fun testNoti() {
-        viewModelScope.launch {
-            runCatching {
-                testUseCase.invoke()
-            }.onSuccess {
-
-            }.onFailure { exception ->
-                exception.printStackTrace()
-            }
-        }
-    }
 }
 
 

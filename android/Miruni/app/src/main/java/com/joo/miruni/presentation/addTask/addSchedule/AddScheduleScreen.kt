@@ -1,6 +1,5 @@
 package com.joo.miruni.presentation.addTask.addSchedule
 
-import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -36,7 +35,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +44,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.joo.miruni.R
 import com.joo.miruni.presentation.widget.DateRangePicker
 
@@ -60,6 +61,8 @@ import com.joo.miruni.presentation.widget.DateRangePicker
 @Composable
 fun AddScheduleScreen(
     addScheduleViewModel: AddScheduleViewModel = hiltViewModel(),
+    selectDate: String? = null,
+    navController: NavHostController? = null,
 ) {
 
     // 현재 컨택스트
@@ -74,16 +77,16 @@ fun AddScheduleScreen(
     /*
     * Live Data
     *  */
-    val titleText by addScheduleViewModel.titleText.observeAsState("")
-    val descriptionText by addScheduleViewModel.descriptionText.observeAsState("")
+    val titleText by addScheduleViewModel.titleText.collectAsStateWithLifecycle()
+    val descriptionText by addScheduleViewModel.descriptionText.collectAsStateWithLifecycle()
 
-    val showDateRangePicker by addScheduleViewModel.showDateRangePicker.observeAsState(false)
-    val selectedStartDate by addScheduleViewModel.selectedStartDate.observeAsState()
-    val selectedEndDate by addScheduleViewModel.selectedEndDate.observeAsState()
+    val showDateRangePicker by addScheduleViewModel.showDateRangePicker.collectAsStateWithLifecycle()
+    val selectedStartDate by addScheduleViewModel.selectedStartDate.collectAsStateWithLifecycle()
+    val selectedEndDate by addScheduleViewModel.selectedEndDate.collectAsStateWithLifecycle()
 
-    val isTitleTextEmpty by addScheduleViewModel.isTitleTextEmpty.observeAsState(false)
-    val isDateEmpty by addScheduleViewModel.isDateEmpty.observeAsState(false)
-    val isScheduleAdded by addScheduleViewModel.isScheduleAdded.observeAsState(false)
+    val isTitleTextEmpty by addScheduleViewModel.isTitleTextEmpty.collectAsStateWithLifecycle()
+    val isDateEmpty by addScheduleViewModel.isDateEmpty.collectAsStateWithLifecycle()
+    val isScheduleAdded by addScheduleViewModel.isScheduleAdded.collectAsStateWithLifecycle()
 
     /*
     * UI
@@ -115,6 +118,12 @@ fun AddScheduleScreen(
         }
     }
 
+    LaunchedEffect(selectDate) {
+        selectDate?.takeIf { it.isNotEmpty() }?.let {
+            addScheduleViewModel.setSelectedDate(java.time.LocalDate.parse(it))
+        }
+    }
+
     // 비었을 시 애니메이션 실행
     LaunchedEffect(isTitleTextEmpty, isDateEmpty) {
         if (isTitleTextEmpty) {
@@ -138,7 +147,7 @@ fun AddScheduleScreen(
     // Schedule 추가 성공 시 해당 액티비티 종료
     LaunchedEffect(isScheduleAdded) {
         if (isScheduleAdded) {
-            (context as? Activity)?.finish()
+            navController?.popBackStack()
         }
     }
 
@@ -154,13 +163,13 @@ fun AddScheduleScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "일정",
+                            text = stringResource(R.string.schedule),
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "추가",
+                            text = stringResource(R.string.add),
                             modifier = Modifier
                                 .padding(start = 16.dp)
                                 .clickable(
@@ -176,13 +185,13 @@ fun AddScheduleScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            (context as? Activity)?.finish()
+                            navController?.popBackStack()
                         },
                         modifier = Modifier.padding(4.dp)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "back",
+                            contentDescription = stringResource(R.string.cd_back),
                         )
                     }
                 },
@@ -220,7 +229,7 @@ fun AddScheduleScreen(
                             }
                     ) {
                         Text(
-                            text = "일정",
+                            text = stringResource(R.string.schedule),
                             modifier = Modifier
                                 .padding(end = 34.dp),
                             fontSize = 16.sp,
@@ -234,7 +243,7 @@ fun AddScheduleScreen(
                             singleLine = true,
                             placeholder = {
                                 Text(
-                                    text = "제목",
+                                    text = stringResource(R.string.title_placeholder),
                                     fontSize = 16.sp,
                                     color = titleTextColor
                                 )
@@ -264,7 +273,7 @@ fun AddScheduleScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "세부사항",
+                            text = stringResource(R.string.description),
                             modifier = Modifier
                                 .padding(end = 8.dp),
                             fontSize = 16.sp,
@@ -278,7 +287,7 @@ fun AddScheduleScreen(
                             singleLine = false,
                             placeholder = {
                                 Text(
-                                    text = "세부사항",
+                                    text = stringResource(R.string.description),
                                     fontSize = 16.sp,
                                     color = colorResource(id = R.color.ios_gray)
                                 )
@@ -319,7 +328,7 @@ fun AddScheduleScreen(
                             },
                     ) {
                         Text(
-                            text = "기간",
+                            text = stringResource(R.string.period),
                             modifier = Modifier
                                 .weight(0.1f),
                             fontSize = 16.sp,
@@ -349,7 +358,7 @@ fun AddScheduleScreen(
                                 ),
                                 text = addScheduleViewModel.formatSelectedDateForCalendar(
                                     selectedStartDate
-                                ),
+                                ) ?: stringResource(R.string.select_date),
                                 color = dateTextColor,
                                 fontSize = 18.sp,
                             )
@@ -357,7 +366,7 @@ fun AddScheduleScreen(
                                 modifier = Modifier
                                     .size(8.dp),
                                 painter = painterResource(id = R.drawable.ic_vertical_dot),
-                                contentDescription = "in",
+                                contentDescription = stringResource(R.string.cd_date_separator),
                                 colorFilter = ColorFilter.tint(dateTextColor),
                             )
                             Text(
@@ -367,7 +376,7 @@ fun AddScheduleScreen(
                                 ),
                                 text = addScheduleViewModel.formatSelectedDateForCalendar(
                                     selectedEndDate
-                                ),
+                                ) ?: stringResource(R.string.select_date),
                                 color = dateTextColor,
                                 fontSize = 18.sp,
                             )

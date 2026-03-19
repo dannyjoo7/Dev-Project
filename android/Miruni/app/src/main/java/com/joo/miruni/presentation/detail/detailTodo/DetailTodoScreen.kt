@@ -1,6 +1,5 @@
 package com.joo.miruni.presentation.detail.detailTodo
 
-import android.app.Activity
 import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -49,7 +48,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,6 +60,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -68,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.android.material.timepicker.TimeFormat
 import com.joo.miruni.R
 import com.joo.miruni.presentation.widget.AlarmDisplayDatePicker
@@ -83,6 +84,8 @@ import java.time.LocalTime
 @Composable
 fun DetailTodoScreen(
     detailTodoViewModel: DetailTodoViewModel = hiltViewModel(),
+    todoId: Long = -1L,
+    navController: NavHostController? = null,
 ) {
     // 현재 컨택스트
     val context = LocalContext.current
@@ -96,25 +99,23 @@ fun DetailTodoScreen(
     /*
     * Live Data
     *  */
-    val todoItem by detailTodoViewModel.todoItem.observeAsState()
+    val todoItem by detailTodoViewModel.todoItem.collectAsStateWithLifecycle()
 
-    val todoText by detailTodoViewModel.todoText.observeAsState("")
-    val descriptionText by detailTodoViewModel.descriptionText.observeAsState("")
+    val todoText by detailTodoViewModel.todoText.collectAsStateWithLifecycle()
+    val descriptionText by detailTodoViewModel.descriptionText.collectAsStateWithLifecycle()
 
-    val isModified by detailTodoViewModel.isModified.observeAsState()
+    val isModified by detailTodoViewModel.isModified.collectAsStateWithLifecycle()
 
-    val showDatePicker by detailTodoViewModel.showDatePicker.observeAsState(false)
-    val showTimePicker by detailTodoViewModel.showTimePicker.observeAsState(false)
-    val showAlarmDisplayStartDatePicker by detailTodoViewModel.showAlarmDisplayStartDatePicker.observeAsState(
-        true
-    )
+    val showDatePicker by detailTodoViewModel.showDatePicker.collectAsStateWithLifecycle()
+    val showTimePicker by detailTodoViewModel.showTimePicker.collectAsStateWithLifecycle()
+    val showAlarmDisplayStartDatePicker by detailTodoViewModel.showAlarmDisplayStartDatePicker.collectAsStateWithLifecycle()
 
-    val selectDate by detailTodoViewModel.selectedDate.observeAsState()
-    val selectTime by detailTodoViewModel.selectedTime.observeAsState()
-    val selectedAlarmDisplayDate by detailTodoViewModel.selectedAlarmDisplayDate.observeAsState()
+    val selectDate by detailTodoViewModel.selectedDate.collectAsStateWithLifecycle()
+    val selectTime by detailTodoViewModel.selectedTime.collectAsStateWithLifecycle()
+    val selectedAlarmDisplayDate by detailTodoViewModel.selectedAlarmDisplayDate.collectAsStateWithLifecycle()
 
-    val isTodoTextEmpty by detailTodoViewModel.isTodoTextEmpty.observeAsState(false)
-    val isTodoAddedSuccess by detailTodoViewModel.isTodoUpdate.observeAsState(false)
+    val isTodoTextEmpty by detailTodoViewModel.isTodoTextEmpty.collectAsStateWithLifecycle()
+    val isTodoAddedSuccess by detailTodoViewModel.isTodoUpdate.collectAsStateWithLifecycle()
 
     /*
     * UI
@@ -143,6 +144,12 @@ fun DetailTodoScreen(
         }
     }
 
+    LaunchedEffect(todoId) {
+        if (todoId != -1L) {
+            detailTodoViewModel.loadTodoDetails(todoId)
+        }
+    }
+
     // 비었을 시 애니메이션 실행
     LaunchedEffect(isTodoTextEmpty) {
         if (isTodoTextEmpty) {
@@ -158,7 +165,7 @@ fun DetailTodoScreen(
     // Todo추가 성공 시 해당 액티비티 종료
     LaunchedEffect(isTodoAddedSuccess) {
         if (isTodoAddedSuccess) {
-            (context as? Activity)?.finish()
+            navController?.popBackStack()
         }
     }
 
@@ -174,36 +181,36 @@ fun DetailTodoScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "할 일",
+                            text = stringResource(R.string.todo),
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "수정",
+                            text = stringResource(R.string.edit),
                             modifier = Modifier
                                 .padding(start = 16.dp)
                                 .clickable(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() },
-                                    enabled = isModified == true
+                                    enabled = isModified
                                 ) {
                                     detailTodoViewModel.updateTodoItem()
                                 },
-                            color = if (isModified == true) colorResource(id = R.color.ios_blue) else Color.Transparent,
+                            color = if (isModified) colorResource(id = R.color.ios_blue) else Color.Transparent,
                         )
                     }
                 },
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            (context as? Activity)?.finish()
+                            navController?.popBackStack()
                         },
                         modifier = Modifier.padding(4.dp)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "back",
+                            contentDescription = stringResource(R.string.cd_back),
                         )
                     }
                 },
@@ -213,7 +220,7 @@ fun DetailTodoScreen(
             )
         },
         bottomBar = {
-            if (isModified == false) {
+            if (!isModified) {
                 Row(
                     modifier = Modifier
                         .padding(vertical = 18.dp)
@@ -234,7 +241,7 @@ fun DetailTodoScreen(
                                 showDialog = true
                             },
                         painter = painterResource(id = R.drawable.ic_trash_can),
-                        contentDescription = "delete todo",
+                        contentDescription = stringResource(R.string.cd_delete_todo),
                         colorFilter = ColorFilter.tint(colorResource(id = R.color.ios_red)),
                     )
                     // 완료 아이콘
@@ -264,7 +271,7 @@ fun DetailTodoScreen(
                                 R.drawable.ic_calendar_check
                             }
                         ),
-                        contentDescription = "complete todo",
+                        contentDescription = stringResource(R.string.cd_complete_todo),
                         colorFilter = ColorFilter.tint(colorResource(id = R.color.ios_blue)),
                     )
                 }
@@ -299,7 +306,7 @@ fun DetailTodoScreen(
                             }
                     ) {
                         Text(
-                            text = "할 일",
+                            text = stringResource(R.string.todo),
                             modifier = Modifier
                                 .padding(end = 34.dp),
                             fontSize = 16.sp,
@@ -313,7 +320,7 @@ fun DetailTodoScreen(
                             singleLine = true,
                             placeholder = {
                                 Text(
-                                    text = "할 일",
+                                    text = stringResource(R.string.todo),
                                     fontSize = 16.sp,
                                     color = todoTextColor
                                 )
@@ -343,7 +350,7 @@ fun DetailTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "세부사항",
+                            text = stringResource(R.string.description),
                             modifier = Modifier
                                 .padding(end = 8.dp),
                             fontSize = 16.sp,
@@ -357,7 +364,7 @@ fun DetailTodoScreen(
                             singleLine = false,
                             placeholder = {
                                 Text(
-                                    text = "세부사항",
+                                    text = stringResource(R.string.description),
                                     fontSize = 16.sp,
                                     color = colorResource(id = R.color.ios_gray)
                                 )
@@ -389,7 +396,7 @@ fun DetailTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "마감일",
+                            text = stringResource(R.string.deadline),
                             modifier = Modifier
                                 .padding(end = 38.dp),
                             fontSize = 16.sp,
@@ -515,7 +522,7 @@ fun DetailTodoScreen(
                                         .fillMaxWidth() // 버튼을 전체 너비로 설정
                                 ) {
                                     Text(
-                                        text = "완료",
+                                        text = stringResource(R.string.complete),
                                         textAlign = TextAlign.Center,
                                         fontSize = 16.sp,
                                         color = Color.White
@@ -535,7 +542,7 @@ fun DetailTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "알람 표시 시작일",
+                            text = stringResource(R.string.alarm_display_start_date),
                             modifier = Modifier
                                 .padding(end = 16.dp),
                             fontSize = 16.sp,
@@ -614,7 +621,7 @@ fun DetailTodoScreen(
                                         .fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "완료",
+                                        text = stringResource(R.string.complete),
                                         textAlign = TextAlign.Center,
                                         fontSize = 16.sp,
                                         color = Color.White
@@ -644,19 +651,19 @@ fun DetailTodoScreen(
                         when (dialogMod) {
                             DialogMod.TODO_DELETE -> {
                                 detailTodoViewModel.deleteTodoItem(todoItem?.id ?: 0)
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             DialogMod.TODO_COMPLETE -> {
                                 detailTodoViewModel.completeTodoItem(todoItem?.id ?: 0)
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             DialogMod.TODO_CANCEL_COMPLETE -> {
                                 detailTodoViewModel.completeCancelTodoItem(
                                     todoItem?.id ?: 0
                                 )
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             else -> {
@@ -665,7 +672,7 @@ fun DetailTodoScreen(
                         }
                         showDialog = false
                     },
-                    title = todoItem?.title ?: "알 수 없음",
+                    title = todoItem?.title ?: stringResource(R.string.unknown),
                 )
             }
         }
@@ -679,7 +686,7 @@ fun DatePicker(
     onDateSelected: (LocalDate) -> Unit,
     onMonthChanged: (Int) -> Unit,
 ) {
-    val selectedDate by detailTodoViewModel.selectedDate.observeAsState(LocalDate.now())
+    val selectedDate by detailTodoViewModel.selectedDate.collectAsStateWithLifecycle()
     val currentDate = selectedDate ?: LocalDate.now()
 
     val daysOfWeek = listOf("일", "월", "화", "수", "목", "금", "토")
@@ -792,7 +799,7 @@ fun DatePicker(
                     IconButton(onClick = { onMonthChanged(currentDate.monthValue - 1) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_left),
-                            contentDescription = "Previous Month",
+                            contentDescription = stringResource(R.string.cd_previous_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue),
                         )
@@ -800,7 +807,7 @@ fun DatePicker(
                     IconButton(onClick = { onMonthChanged(currentDate.monthValue + 1) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_right),
-                            contentDescription = "Next Month",
+                            contentDescription = stringResource(R.string.cd_next_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue)
                         )

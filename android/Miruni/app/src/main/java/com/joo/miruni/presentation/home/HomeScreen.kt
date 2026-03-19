@@ -1,7 +1,6 @@
 package com.joo.miruni.presentation.home
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -55,7 +54,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,7 +67,12 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -77,11 +81,8 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.joo.miruni.R
-import com.joo.miruni.presentation.addTask.addSchedule.AddScheduleActivity
-import com.joo.miruni.presentation.addTask.addTodo.AddTodoActivity
-import com.joo.miruni.presentation.detail.detailSchedule.DetailScheduleActivity
-import com.joo.miruni.presentation.detail.detailTodo.DetailTodoActivity
 import com.joo.miruni.presentation.widget.BasicDialog
 import com.joo.miruni.presentation.widget.DialogMod
 import java.time.Duration
@@ -92,23 +93,24 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel(),
+    navController: NavHostController? = null,
 ) {
     val context = LocalContext.current
 
     /*
-    * Live Data
+    * State Flow
     * */
-    val thingsToDoItems by homeViewModel.thingsTodoItems.observeAsState(emptyList())
-    val scheduleItems by homeViewModel.scheduleItems.observeAsState(emptyList())
-    val deletedItems by homeViewModel.deletedItems.observeAsState()
+    val thingsToDoItems by homeViewModel.thingsTodoItems.collectAsStateWithLifecycle()
+    val scheduleItems by homeViewModel.scheduleItems.collectAsStateWithLifecycle()
+    val deletedItems by homeViewModel.deletedItems.collectAsStateWithLifecycle()
 
-    val selectDate by homeViewModel.selectDate.observeAsState(LocalDateTime.now())
+    val selectDate by homeViewModel.selectDate.collectAsStateWithLifecycle()
 
-    val isTodoListLoading by homeViewModel.isTodoListLoading.observeAsState(false)
-    val isScheduleListLoading by homeViewModel.isScheduleListLoading.observeAsState(false)
+    val isTodoListLoading by homeViewModel.isTodoListLoading.collectAsStateWithLifecycle()
+    val isScheduleListLoading by homeViewModel.isScheduleListLoading.collectAsStateWithLifecycle()
     val isCompletedViewChecked =
-        homeViewModel.settingObserveCompleteVisibility.observeAsState(false)
-    val isFutureDate by homeViewModel.isFutureDate.observeAsState(false)
+        homeViewModel.settingObserveCompleteVisibility.collectAsStateWithLifecycle()
+    val isFutureDate by homeViewModel.isFutureDate.collectAsStateWithLifecycle()
 
     // FAB 메뉴
     var isAddMenuExpanded by remember { mutableStateOf(false) }
@@ -144,11 +146,13 @@ fun HomeScreen(
                             initialLoad = false
                         }
                     },
-                    modifier = Modifier.alpha(if (isFutureDate) 1f else 0.25f)
+                    modifier = Modifier
+                        .alpha(if (isFutureDate) 1f else 0.25f)
+                        .testTag("home_btn_prev_date")
                 ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_left),
-                        contentDescription = "Previous Date Icon"
+                        contentDescription = stringResource(R.string.cd_previous_date)
                     )
                 }
 
@@ -168,19 +172,22 @@ fun HomeScreen(
                     )
                     Icon(
                         painter = painterResource(id = R.drawable.ic_weather),
-                        contentDescription = "Weather Icon",
+                        contentDescription = stringResource(R.string.cd_weather),
                         modifier = Modifier.size(24.dp)
                     )
                 }
 
                 // 오른쪽 버튼
-                IconButton(onClick = {
-                    homeViewModel.changeDate(DateChange.RIGHT)
-                    initialLoad = false
-                }) {
+                IconButton(
+                    onClick = {
+                        homeViewModel.changeDate(DateChange.RIGHT)
+                        initialLoad = false
+                    },
+                    modifier = Modifier.testTag("home_btn_next_date")
+                ) {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_right),
-                        contentDescription = "Next Date Icon"
+                        contentDescription = stringResource(R.string.cd_next_date)
                     )
                 }
             }
@@ -217,7 +224,8 @@ fun HomeScreen(
                                             schedule = scheduleGroup[j],
                                             onLongClicked = {
                                                 homeViewModel.togglePinStatus(scheduleGroup[j].id)
-                                            }
+                                            },
+                                            navController = navController,
                                         )
                                     }
                                     // 로딩바
@@ -259,7 +267,7 @@ fun HomeScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Text(
-                                text = "할 일이 없습니다",
+                                text = stringResource(R.string.home_no_todos),
                                 color = colorResource(R.color.ios_gray),
                                 textAlign = TextAlign.Center,
                                 fontSize = 16.sp
@@ -270,7 +278,7 @@ fun HomeScreen(
                     items(thingsToDoItems.size) { index ->
                         val thingsToDo = thingsToDoItems[index]
 
-                        val isDelete = deletedItems?.contains(thingsToDo.id) ?: false
+                        val isDelete = deletedItems.contains(thingsToDo.id)
                         val isExpanded = homeViewModel.expandedItems.value.contains(thingsToDo.id)
                         val isOverdue =
                             LocalDateTime.now().isAfter(thingsToDo.deadline) || LocalDateTime.now()
@@ -285,17 +293,8 @@ fun HomeScreen(
                                         homeViewModel.toggleItemExpansion(thingsToDo.id)
                                     },
                                     onClickedShowDetail = {
-                                        // 상세보기 액티비티로 넘어가기
-                                        val intent = Intent(
-                                            context,
-                                            DetailTodoActivity::class.java
-                                        ).apply {
-                                            putExtra(
-                                                "TODO_ID",
-                                                thingsToDo.id
-                                            )
-                                        }
-                                        context.startActivity(intent)
+                                        // 상세보기 화면으로 넘어가기
+                                        navController?.navigate("detailTodo/${thingsToDo.id}")
                                         homeViewModel.collapseAllItems()
                                     },
                                     onClickedDelay = {
@@ -363,7 +362,8 @@ fun HomeScreen(
                 onClick = { isAddMenuExpanded = !isAddMenuExpanded },
                 modifier = Modifier
                     .padding(16.dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .testTag("home_fab_add"),
                 shape = CircleShape,
                 containerColor = Color.Transparent,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp),
@@ -371,7 +371,7 @@ fun HomeScreen(
                 Icon(
                     modifier = Modifier.size(68.dp),
                     painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Add Item",
+                    contentDescription = stringResource(R.string.cd_add_item),
                     tint = Color.Black,
                 )
                 // 메뉴
@@ -394,7 +394,7 @@ fun HomeScreen(
                     ) {
                         Column {
                             Text(
-                                text = "할 일",
+                                text = stringResource(R.string.todo),
                                 modifier = Modifier
                                     .clickable(
                                         indication = ripple(
@@ -404,20 +404,20 @@ fun HomeScreen(
                                         interactionSource = remember { MutableInteractionSource() }
                                     ) {
                                         // 할 일 추가
-                                        val intent = Intent(context, AddTodoActivity::class.java)
-                                        context.startActivity(intent)
+                                        navController?.navigate("addTodo")
                                         isAddMenuExpanded = false
                                         homeViewModel.collapseAllItems()
                                     }
                                     .padding(16.dp)
                                     .defaultMinSize(60.dp)
+                                    .testTag("home_menu_add_todo")
                             )
                             HorizontalDivider(
                                 thickness = 0.5.dp,
                                 color = Color.Black.copy(alpha = 0.2f)
                             )
                             Text(
-                                text = "일정",
+                                text = stringResource(R.string.schedule),
                                 modifier = Modifier
                                     .clickable(
                                         indication = ripple(
@@ -427,14 +427,13 @@ fun HomeScreen(
                                         interactionSource = remember { MutableInteractionSource() }
                                     ) {
                                         // 일정 추가
-                                        val intent =
-                                            Intent(context, AddScheduleActivity::class.java)
-                                        context.startActivity(intent)
+                                        navController?.navigate("addSchedule")
                                         isAddMenuExpanded = false
                                         homeViewModel.collapseAllItems()
                                     }
                                     .padding(16.dp)
                                     .defaultMinSize(60.dp)
+                                    .testTag("home_menu_add_schedule")
                             )
                         }
                     }
@@ -465,6 +464,7 @@ fun ScheduleItem(
     schedule: Schedule,
     onLongClicked: () -> Unit,
     isClickable: Boolean = true,
+    navController: NavHostController? = null,
 ) {
     // 햅틱
     val haptics = LocalHapticFeedback.current
@@ -489,6 +489,7 @@ fun ScheduleItem(
                 horizontal = 6.dp,
                 vertical = 4.dp,
             )
+            .testTag("home_schedule_item_${schedule.id}")
             .combinedClickable(
                 indication = ripple(
                     bounded = true,
@@ -498,16 +499,7 @@ fun ScheduleItem(
                 onClick = {
                     // 클릭 시
                     if (isClickable) {
-                        val intent = Intent(
-                            context,
-                            DetailScheduleActivity::class.java
-                        ).apply {
-                            putExtra(
-                                "SCHEDULE_ID",
-                                schedule.id
-                            )
-                        }
-                        context.startActivity(intent)
+                        navController?.navigate("detailSchedule/${schedule.id}")
                     }
                 },
                 onLongClick = {
@@ -566,7 +558,7 @@ fun ScheduleItem(
             if (schedule.isPinned) {
                 Image(
                     painter = painterResource(id = R.drawable.ic_pin_inversion),
-                    contentDescription = "Pin whether",
+                    contentDescription = stringResource(R.string.cd_pin),
                     modifier = Modifier.size(8.dp)
                 )
             }
@@ -628,6 +620,7 @@ fun ThingsToDoItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(4.dp)
+                    .testTag("home_todo_item_${thingsToDo.id}")
                     .combinedClickable(
                         indication = ripple(
                             bounded = true,
@@ -696,10 +689,10 @@ fun ThingsToDoItem(
                                     val daysRemaining = duration.toDays()
 
                                     when {
-                                        minutesRemaining <= 0 -> "기한 만료"
-                                        minutesRemaining <= 60 -> "${minutesRemaining}분 후"
-                                        hoursRemaining <= 24 -> "${hoursRemaining}시간 후"
-                                        daysRemaining <= 7 -> "${daysRemaining}일 후"
+                                        minutesRemaining <= 0 -> stringResource(R.string.deadline_expired)
+                                        minutesRemaining <= 60 -> stringResource(R.string.minutes_later, minutesRemaining.toInt())
+                                        hoursRemaining <= 24 -> stringResource(R.string.hours_later, hoursRemaining.toInt())
+                                        daysRemaining <= 7 -> stringResource(R.string.days_later, daysRemaining.toInt())
                                         else -> thingsToDo.deadline.format(
                                             DateTimeFormatter.ofPattern(
                                                 "yyyy.MM.dd"
@@ -716,6 +709,7 @@ fun ThingsToDoItem(
                             Box(
                                 modifier = Modifier
                                     .padding(start = 4.dp)
+                                    .semantics { role = Role.Button }
                                     .clickable(
                                         indication = null,
                                         interactionSource = remember { MutableInteractionSource() }
@@ -729,7 +723,7 @@ fun ThingsToDoItem(
                             ) {
                                 Icon(
                                     painter = painterResource(id = R.drawable.ic_more),
-                                    contentDescription = "See More",
+                                    contentDescription = stringResource(R.string.cd_see_more),
                                     modifier = Modifier.size(12.dp),
                                     tint = Color.Black
                                 )
@@ -758,7 +752,7 @@ fun ThingsToDoItem(
 
                                             // 상세보기 메뉴
                                             Text(
-                                                text = "상세보기",
+                                                text = stringResource(R.string.detail),
                                                 modifier = Modifier
                                                     .clickable(
                                                         indication = ripple(
@@ -781,7 +775,7 @@ fun ThingsToDoItem(
 
                                             // 미루기 메뉴
                                             Text(
-                                                text = "미루기",
+                                                text = stringResource(R.string.delay),
                                                 modifier = Modifier
                                                     .clickable(
                                                         indication = ripple(
@@ -827,7 +821,7 @@ fun ThingsToDoItem(
                                 Text(
                                     text = run {
                                         val currentYear = LocalDateTime.now().year
-                                        val completeDate = thingsToDo.completeDate?.let { date ->
+                                        val completeDateStr = thingsToDo.completeDate?.let { date ->
                                             val formatter = if (date.year == currentYear) {
                                                 DateTimeFormatter.ofPattern("M월 d일 a h시 m분")
                                             } else {
@@ -836,7 +830,7 @@ fun ThingsToDoItem(
                                             date.format(formatter)
                                         } ?: "(알 수 없음)"
 
-                                        "${completeDate}에 완료함"
+                                        stringResource(R.string.completed_at, completeDateStr)
                                     },
                                     fontSize = 10.sp
                                 )
@@ -854,17 +848,17 @@ fun ThingsToDoItem(
                             ) {
                                 Text(
                                     text = run {
-                                        "${
-                                            thingsToDo.deadline.let { date ->
-                                                val formatter =
-                                                    if (date.year == LocalDateTime.now().year) {
-                                                        DateTimeFormatter.ofPattern("M월 d일 a h시 m분")
-                                                    } else {
-                                                        DateTimeFormatter.ofPattern("yyyy년 M월 d일 a h시 m분")
-                                                    }
-                                                date.format(formatter)
-                                            } ?: "(알 수 없음)"
-                                        }에 만료됨"
+                                        val expiredDateStr = thingsToDo.deadline.let { date ->
+                                            val formatter =
+                                                if (date.year == LocalDateTime.now().year) {
+                                                    DateTimeFormatter.ofPattern("M월 d일 a h시 m분")
+                                                } else {
+                                                    DateTimeFormatter.ofPattern("yyyy년 M월 d일 a h시 m분")
+                                                }
+                                            date.format(formatter)
+                                        } ?: "(알 수 없음)"
+
+                                        stringResource(R.string.expired_at, expiredDateStr)
                                     },
                                     fontSize = 10.sp
                                 )
@@ -886,6 +880,7 @@ fun ThingsToDoItem(
                                     modifier = Modifier
                                         .background(Color.Transparent)
                                         .weight(1f)
+                                        .semantics { role = Role.Button }
                                         .clickable(
                                             indication = null,
                                             interactionSource = remember { MutableInteractionSource() }
@@ -898,7 +893,7 @@ fun ThingsToDoItem(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        text = "삭제",
+                                        text = stringResource(R.string.delete),
                                         color = Color.Red,
                                         textAlign = TextAlign.Center,
                                     )
@@ -918,6 +913,7 @@ fun ThingsToDoItem(
                                     modifier = Modifier
                                         .background(Color.Transparent)
                                         .weight(1f)
+                                        .semantics { role = Role.Button }
                                         .clickable(
                                             indication = null,
                                             interactionSource = remember { MutableInteractionSource() }
@@ -935,11 +931,7 @@ fun ThingsToDoItem(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Text(
-                                        text = if (isComplete) {
-                                            "완료 취소"
-                                        } else {
-                                            "완료"
-                                        },
+                                        text = if (isComplete) stringResource(R.string.dialog_cancel_complete_button) else stringResource(R.string.complete),
                                         color = colorResource(R.color.ios_blue),
                                         textAlign = TextAlign.Center,
                                     )
@@ -976,7 +968,7 @@ fun ThingsToDoItem(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_check),
-                        contentDescription = "complete",
+                        contentDescription = stringResource(R.string.cd_complete),
                         modifier = Modifier
                             .fillMaxSize()
                             .background(
@@ -996,7 +988,7 @@ fun ThingsToDoItem(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_close),
-                        contentDescription = "overdue",
+                        contentDescription = stringResource(R.string.cd_overdue),
                         modifier = Modifier
                             .fillMaxSize()
                             .background(
@@ -1035,7 +1027,7 @@ fun ThingsToDoItem(
                 ) {
                     Image(
                         painter = painterResource(id = R.drawable.ic_pin_inversion),
-                        contentDescription = "Pin whether",
+                        contentDescription = stringResource(R.string.cd_pin),
                         colorFilter = if (isPinned) {
                             ColorFilter.tint(backgroundColor)
                         } else {

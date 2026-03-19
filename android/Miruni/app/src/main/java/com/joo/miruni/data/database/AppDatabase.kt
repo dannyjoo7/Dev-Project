@@ -23,8 +23,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "tasks"
                 )
-                    //TODO 앱 출시 직전에 삭제
-                    .fallbackToDestructiveMigration()
+                    // TODO: Add migrations here when the DB schema changes
                     .build()
                 INSTANCE = instance
                 instance

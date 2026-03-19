@@ -1,5 +1,14 @@
 package com.joo.miruni.domain.usecase.setting
 
-interface SettingActiveUnlockScreenUseCase {
-    suspend operator fun invoke()
+import com.joo.miruni.domain.repository.SharedPreferenceRepository
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class SettingActiveUnlockScreenUseCase @Inject constructor(
+    private val sharedPreferenceRepository: SharedPreferenceRepository,
+) {
+    suspend operator fun invoke() {
+        sharedPreferenceRepository.settingActiveUnlockScreen()
+    }
 }

@@ -1,7 +1,9 @@
 package com.joo.miruni.di
 
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.preferencesDataStore
 import androidx.room.Room
 import com.joo.miruni.data.database.AppDatabase
 import com.joo.miruni.data.database.TaskDao
@@ -17,24 +19,26 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings_preferences")
+
 @Module
 @InstallIn(SingletonComponent::class)
 class RepositoryModule {
 
 
     /*
-    * SharedPreferences
+    * DataStore
     * */
     @Provides
     @Singleton
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return context.getSharedPreferences("settings_preferences", Context.MODE_PRIVATE)
+    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
+        return context.dataStore
     }
 
     @Provides
     @Singleton
-    fun provideSharedPreferenceRepository(sharedPreferences: SharedPreferences): SharedPreferenceRepository {
-        return SharedPreferenceRepositoryImpl(sharedPreferences)
+    fun provideSharedPreferenceRepository(dataStore: DataStore<Preferences>): SharedPreferenceRepository {
+        return SharedPreferenceRepositoryImpl(dataStore)
     }
 
 

@@ -1,5 +1,14 @@
 package com.joo.miruni.domain.usecase.setting
 
-interface SettingGetUnlockStateUseCase {
-    operator fun invoke(): Boolean
+import com.joo.miruni.domain.repository.SharedPreferenceRepository
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class SettingGetUnlockStateUseCase @Inject constructor(
+    private val sharedPreferenceRepository: SharedPreferenceRepository,
+) {
+    operator fun invoke(): Boolean {
+        return sharedPreferenceRepository.getSettingUnlockScreenState()
+    }
 }

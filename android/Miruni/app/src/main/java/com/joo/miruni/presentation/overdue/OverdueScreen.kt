@@ -1,6 +1,5 @@
 package com.joo.miruni.presentation.overdue
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,22 +19,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.joo.miruni.R
-import com.joo.miruni.presentation.detail.detailTodo.DetailTodoActivity
 import com.joo.miruni.presentation.home.ThingsToDoItem
 import com.joo.miruni.presentation.widget.BasicDialog
 import com.joo.miruni.presentation.widget.DialogMod
@@ -43,16 +44,17 @@ import com.joo.miruni.presentation.widget.DialogMod
 @Composable
 fun OverdueScreen(
     overdueViewModel: OverdueViewModel = hiltViewModel(),
+    navController: NavHostController? = null,
 ) {
     val context = LocalContext.current
 
     /*
     * LiveData
     * */
-    val overdueTodoItems by overdueViewModel.overdueTodoItems.observeAsState(emptyList())
-    val isOverdueTodoListLoading by overdueViewModel.isOverdueTodoListLoading.observeAsState(false)
-    val isDelayAllTodoLoading by overdueViewModel.isDelayAllTodoLoading.observeAsState(false)
-    val deletedItems by overdueViewModel.deletedItems.observeAsState()
+    val overdueTodoItems by overdueViewModel.overdueTodoItems.collectAsStateWithLifecycle()
+    val isOverdueTodoListLoading by overdueViewModel.isOverdueTodoListLoading.collectAsStateWithLifecycle()
+    val isDelayAllTodoLoading by overdueViewModel.isDelayAllTodoLoading.collectAsStateWithLifecycle()
+    val deletedItems by overdueViewModel.deletedItems.collectAsStateWithLifecycle()
 
     // 한번 초기화가 되었는지 판단 변수
     var initialLoad by remember { mutableStateOf(true) }
@@ -86,7 +88,7 @@ fun OverdueScreen(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "기한이 지난 할 일",
+                    text = stringResource(R.string.overdue_title),
                     textAlign = TextAlign.Center,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -101,7 +103,7 @@ fun OverdueScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
-                        text = "기한이 지난\n할 일이 없습니다",
+                        text = stringResource(R.string.overdue_empty),
                         textAlign = TextAlign.Center,
                         fontSize = 36.sp,
                         color = colorResource(R.color.ios_gray),
@@ -139,7 +141,7 @@ fun OverdueScreen(
                         items(overdueTodoItems.size) { index ->
                             val thingsToDo = overdueTodoItems[index]
 
-                            val isDelete = deletedItems?.contains(thingsToDo.id) ?: false
+                            val isDelete = deletedItems.contains(thingsToDo.id)
                             val isExpanded =
                                 overdueViewModel.expandedItems.value.contains(thingsToDo.id)
 
@@ -150,17 +152,8 @@ fun OverdueScreen(
                                     overdueViewModel.toggleItemExpansion(thingsToDo.id)
                                 },
                                 onClickedShowDetail = {
-                                    // 상세보기 액티비티로 넘어가기
-                                    val intent = Intent(
-                                        context,
-                                        DetailTodoActivity::class.java
-                                    ).apply {
-                                        putExtra(
-                                            "TODO_ID",
-                                            thingsToDo.id
-                                        )
-                                    }
-                                    context.startActivity(intent)
+                                    // 상세보기 화면으로 넘어가기
+                                    navController?.navigate("detailTodo/${thingsToDo.id}")
                                     overdueViewModel.collapseAllItems()
                                 },
                                 onClickedDelay = {
@@ -221,9 +214,10 @@ fun OverdueScreen(
                                 modifier = Modifier
                                     .padding(vertical = 8.dp, horizontal = 8.dp)
                                     .fillMaxWidth()
+                                    .testTag("overdue_btn_delay_all")
                             ) {
                                 Text(
-                                    text = "모두 미루기",
+                                    text = stringResource(R.string.overdue_delay_all),
                                     textAlign = TextAlign.Center,
                                     fontSize = 16.sp,
                                     color = Color.White

@@ -1,18 +1,20 @@
 package com.joo.miruni.presentation.addTask.addTodo
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joo.miruni.domain.usecase.task.todo.AddTodoItemUseCase
+import com.joo.miruni.presentation.util.DateTimeFormatUtil
+import com.joo.miruni.presentation.util.DurationUnit
 import com.joo.miruni.presentation.widget.Time
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,50 +33,50 @@ class AddTodoViewModel @Inject constructor(
     * */
 
     // 할 일 텍스트
-    private val _todoText = MutableLiveData("")
-    val todoText: LiveData<String> get() = _todoText
+    private val _todoText = MutableStateFlow("")
+    val todoText: StateFlow<String> = _todoText.asStateFlow()
 
     // 세부사항 텍스트
-    private val _descriptionText = MutableLiveData("")
-    val descriptionText: LiveData<String> get() = _descriptionText
+    private val _descriptionText = MutableStateFlow("")
+    val descriptionText: StateFlow<String> = _descriptionText.asStateFlow()
 
 
     // 선택된 날짜
-    private val _selectedDate = MutableLiveData<LocalDate?>(LocalDate.now().plusDays(1))
-    val selectedDate: LiveData<LocalDate?> get() = _selectedDate
+    private val _selectedDate = MutableStateFlow<LocalDate?>(LocalDate.now().plusDays(1))
+    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
 
     // 선택된 시간
-    private val _selectedTime = MutableLiveData<LocalTime>(getCurrentTimeIn5MinIntervals())
-    val selectedTime: LiveData<LocalTime> get() = _selectedTime
+    private val _selectedTime = MutableStateFlow(getCurrentTimeIn5MinIntervals())
+    val selectedTime: StateFlow<LocalTime> = _selectedTime.asStateFlow()
 
     // 선택된 알람 표시 시간
-    private val _selectedAlarmDisplayDate = MutableLiveData<AlarmDisplayDuration>(
-        AlarmDisplayDuration(1, "주")
+    private val _selectedAlarmDisplayDate = MutableStateFlow(
+        AlarmDisplayDuration(1, DurationUnit.WEEK)
     )
-    val selectedAlarmDisplayDate: LiveData<AlarmDisplayDuration> get() = _selectedAlarmDisplayDate
+    val selectedAlarmDisplayDate: StateFlow<AlarmDisplayDuration> = _selectedAlarmDisplayDate.asStateFlow()
 
 
     // Bool 날짜 선택 진행 유뮤
-    private val _showDatePicker = MutableLiveData(false)
-    val showDatePicker: LiveData<Boolean> get() = _showDatePicker
+    private val _showDatePicker = MutableStateFlow(false)
+    val showDatePicker: StateFlow<Boolean> = _showDatePicker.asStateFlow()
 
     // Bool 시간 선택 진행 유뮤
-    private val _showTimePicker = MutableLiveData(false)
-    val showTimePicker: LiveData<Boolean> get() = _showTimePicker
+    private val _showTimePicker = MutableStateFlow(false)
+    val showTimePicker: StateFlow<Boolean> = _showTimePicker.asStateFlow()
 
     // Bool 알람 표시 시작일 선택 진행 유뮤
-    private val _showAlarmDisplayStartDatePicker = MutableLiveData(false)
-    val showAlarmDisplayStartDatePicker: LiveData<Boolean> get() = _showAlarmDisplayStartDatePicker
+    private val _showAlarmDisplayStartDatePicker = MutableStateFlow(false)
+    val showAlarmDisplayStartDatePicker: StateFlow<Boolean> = _showAlarmDisplayStartDatePicker.asStateFlow()
 
 
     // TodoTextEmpty 애니매이션
-    private val _isTodoTextEmpty = MutableLiveData(false)
-    val isTodoTextEmpty: LiveData<Boolean> get() = _isTodoTextEmpty
+    private val _isTodoTextEmpty = MutableStateFlow(false)
+    val isTodoTextEmpty: StateFlow<Boolean> = _isTodoTextEmpty.asStateFlow()
 
 
     // AddTodo 성공 여부
-    private val _isTodoAdded = MutableLiveData<Boolean>(false)
-    val isTodoAdded: LiveData<Boolean> get() = _isTodoAdded
+    private val _isTodoAdded = MutableStateFlow(false)
+    val isTodoAdded: StateFlow<Boolean> = _isTodoAdded.asStateFlow()
 
     /*
     * 메소드
@@ -96,21 +98,21 @@ class AddTodoViewModel @Inject constructor(
 
     // DatePicker 가시성 on/off
     fun clickedDatePickerBtn() {
-        _showDatePicker.value = _showDatePicker.value?.not()
+        _showDatePicker.value = !_showDatePicker.value
         _showTimePicker.value = false
         _showAlarmDisplayStartDatePicker.value = false
     }
 
     // TimePicker 가시성 on/off
     fun clickedTimePickerBtn() {
-        _showTimePicker.value = _showTimePicker.value?.not()
+        _showTimePicker.value = !_showTimePicker.value
         _showDatePicker.value = false
         _showAlarmDisplayStartDatePicker.value = false
     }
 
     // AlarmDisplayDatePicker 가시성 on/off
     fun clickedAlarmDisplayStartDateText() {
-        _showAlarmDisplayStartDatePicker.value = _showAlarmDisplayStartDatePicker.value?.not()
+        _showAlarmDisplayStartDatePicker.value = !_showAlarmDisplayStartDatePicker.value
         _showDatePicker.value = false
         _showTimePicker.value = false
     }
@@ -128,7 +130,7 @@ class AddTodoViewModel @Inject constructor(
 
     // 선택된 알람 표시일 업데이트 메서드
     fun updateSelectedAlarmDisplayDate(amount: Int? = null, durationUnit: String? = null) {
-        val currentValue = _selectedAlarmDisplayDate.value ?: AlarmDisplayDuration(1, "주")
+        val currentValue = _selectedAlarmDisplayDate.value
 
         _selectedAlarmDisplayDate.value = AlarmDisplayDuration(
             amount = amount ?: currentValue.amount,
@@ -147,77 +149,27 @@ class AddTodoViewModel @Inject constructor(
 
     // 시간 포멧
     fun convertLocalTimeToTime(localTime: LocalTime): Time {
-        val hour = localTime.hour
-        val minute = localTime.minute
-
-        val format = if (hour < 12) {
-            "오전"
-        } else {
-            "오후"
-        }
-
-        val adjustedHour = if (hour % 12 == 0) 12 else hour % 12
-
-        return Time(adjustedHour, minute, format)
+        return DateTimeFormatUtil.convertLocalTimeToTime(localTime)
     }
 
     // 날짜 Text 포멧
     fun formatSelectedDate(date: LocalDate): String {
-
-        val today = LocalDate.now()
-        val tomorrow = today.plusDays(1)
-        val dayAfterTomorrow = today.plusDays(2)
-
-        return when {
-            date.isEqual(today) -> "오늘"
-            date.isEqual(tomorrow) -> "내일"
-            date.isEqual(dayAfterTomorrow) -> "내일 모레"
-            else -> date.format(DateTimeFormatter.ofPattern("M월 d일, yyyy"))
-                ?: today.format(DateTimeFormatter.ofPattern("M월 d일, yyyy"))
-        }
+        return DateTimeFormatUtil.formatDateWithRelative(date)
     }
 
     // 시간 Text 포멧
     fun formatLocalTimeToString(localTime: LocalTime): String {
-        val hour = localTime.hour
-        val minute = localTime.minute
-
-        val format = if (hour < 12) {
-            "오전"
-        } else {
-            "오후"
-        }
-
-        val adjustedHour = if (hour % 12 == 0) 12 else hour % 12
-
-        return "${adjustedHour}:${minute.toString().padStart(2, '0')} $format"
+        return DateTimeFormatUtil.formatLocalTimeToString(localTime)
     }
 
     // 선택된 시간 업데이트 메서드
     fun updateSelectedTime(hour: Int, minute: Int, format: String) {
-        val adjustedHour = when {
-            format == "오후" && hour != 12 -> hour + 12
-            format == "오전" && hour == 12 -> 0
-            else -> hour
-        }
-        val newTime = LocalTime.of(adjustedHour, minute)
-        _selectedTime.value = newTime
+        _selectedTime.value = DateTimeFormatUtil.toLocalTime(hour, minute, format)
     }
 
     // 현재 시간을 5분 단위로 올림 조정
     private fun getCurrentTimeIn5MinIntervals(): LocalTime {
-        val now = LocalTime.now()
-        val adjustedMinute = ((now.minute + 4) / 5) * 5
-
-        val newHour = if (adjustedMinute >= 60) {
-            (now.hour + 1) % 24
-        } else {
-            now.hour
-        }
-
-        val newMinute = adjustedMinute % 60
-
-        return LocalTime.of(newHour, newMinute)
+        return DateTimeFormatUtil.getCurrentTimeIn5MinIntervals()
     }
 
     /*
@@ -264,15 +216,15 @@ class AddTodoViewModel @Inject constructor(
             viewModelScope.launch {
                 val todoItem = TodoItem(
                     id = 0,
-                    title = _todoText.value ?: "",
-                    descriptionText = _descriptionText.value ?: "",
+                    title = _todoText.value,
+                    descriptionText = _descriptionText.value,
                     selectedDate = combineDateAndTime(
                         _selectedDate.value ?: LocalDate.now().plusDays(1),
-                        _selectedTime.value ?: LocalTime.now()
+                        _selectedTime.value
                     ),
                     adjustedDate = calculateAdjustedDate(
                         _selectedDate.value ?: LocalDate.now(),
-                        _selectedAlarmDisplayDate.value ?: AlarmDisplayDuration(1, "주")
+                        _selectedAlarmDisplayDate.value
                     ),
                     isComplete = false,
                     isPinned = false,
@@ -295,7 +247,7 @@ class AddTodoViewModel @Inject constructor(
     // 무결성 검사
     private fun validateTodoItem(): Boolean {
         // 제목이 비어있는지 체크
-        if (_todoText.value.isNullOrEmpty()) {
+        if (_todoText.value.isEmpty()) {
             _isTodoTextEmpty.value = true
             return false
         }
@@ -311,10 +263,10 @@ class AddTodoViewModel @Inject constructor(
             return currentDate.minusWeeks(1)
         }
         return when (duration.unit) {
-            "일" -> currentDate.minusDays(duration.amount.toLong())
-            "주" -> currentDate.minusWeeks(duration.amount.toLong())
-            "개월" -> currentDate.minusMonths(duration.amount.toLong())
-            "년" -> currentDate.minusYears(duration.amount.toLong())
+            DurationUnit.DAY -> currentDate.minusDays(duration.amount.toLong())
+            DurationUnit.WEEK -> currentDate.minusWeeks(duration.amount.toLong())
+            DurationUnit.MONTH -> currentDate.minusMonths(duration.amount.toLong())
+            DurationUnit.YEAR -> currentDate.minusYears(duration.amount.toLong())
             else -> currentDate
         }
     }

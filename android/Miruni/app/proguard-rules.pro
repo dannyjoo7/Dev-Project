@@ -19,3 +19,24 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Room
+-keep class * extends androidx.room.RoomDatabase
+-keep @androidx.room.Entity class *
+-dontwarn androidx.room.paging.**
+
+# Hilt
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
+
+# Compose
+-dontwarn androidx.compose.**
+
+# Kotlin
+-keep class kotlin.Metadata { *; }
+-dontwarn kotlin.**
+
+# App models
+-keep class com.joo.miruni.data.entities.** { *; }
+-keep class com.joo.miruni.domain.model.** { *; }

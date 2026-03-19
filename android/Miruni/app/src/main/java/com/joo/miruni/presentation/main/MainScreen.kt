@@ -26,26 +26,35 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.navArgument
 import com.joo.miruni.R
 import com.joo.miruni.presentation.BottomNavItem
 import com.joo.miruni.presentation.Screen
+import com.joo.miruni.presentation.addTask.addSchedule.AddScheduleScreen
+import com.joo.miruni.presentation.addTask.addTodo.AddTodoScreen
 import com.joo.miruni.presentation.calendar.CalendarScreen
+import com.joo.miruni.presentation.detail.detailSchedule.DetailScheduleScreen
+import com.joo.miruni.presentation.detail.detailTodo.DetailTodoScreen
 import com.joo.miruni.presentation.home.HomeScreen
 import com.joo.miruni.presentation.overdue.OverdueScreen
 import kotlinx.coroutines.launch
@@ -57,14 +66,13 @@ fun MainScreen(
     mainViewModel: MainViewModel = hiltViewModel(),
 ) {
 
-    val isCompletedViewChecked = mainViewModel.settingObserveCompleteVisibility.observeAsState(
-        false
-    )
-    val isActiveUnlockScreenChecked = mainViewModel.settingObserveUnlockState.observeAsState(
-        false
-    )
+    val isCompletedViewChecked = mainViewModel.settingObserveCompleteVisibility.collectAsStateWithLifecycle()
+    val isActiveUnlockScreenChecked = mainViewModel.settingObserveUnlockState.collectAsStateWithLifecycle()
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
+    val showBars = currentRoute in listOf(Screen.Home.route, Screen.Overdue.route, Screen.Calendar.route)
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -84,7 +92,7 @@ fun MainScreen(
                         // 앱 제목
                         Row {
                             Text(
-                                text = "미루니",
+                                text = stringResource(R.string.app_title),
                                 modifier = Modifier.padding(vertical = 8.dp),
                                 fontSize = 28.sp,
                                 fontWeight = FontWeight.Bold
@@ -97,7 +105,7 @@ fun MainScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "완료된 항목 보기",
+                                text = stringResource(R.string.setting_completed_items),
                                 modifier = Modifier
                                     .padding(vertical = 8.dp)
                                     .weight(1f),
@@ -129,7 +137,7 @@ fun MainScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "잠금 화면 표시 기능",
+                                text = stringResource(R.string.setting_lock_screen),
                                 modifier = Modifier
                                     .padding(vertical = 8.dp)
                                     .weight(1f),
@@ -161,30 +169,35 @@ fun MainScreen(
     ) {
         Scaffold(
             topBar = {
-                Column {
-                    TopAppBar(title = { Text(text = "") }, navigationIcon = {
-                        Box(modifier = Modifier
-                            .padding(16.dp)
-                            .clickable(indication = null,
-                                interactionSource = remember { MutableInteractionSource() }) {
-                                scope.launch { drawerState.open() }
-                            }) {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_menu),
-                                contentDescription = "menu",
-                            )
-                        }
-                    }, colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = Color.White
-                    )
-                    )
-                    HorizontalDivider(color = Color.Gray, thickness = 0.5.dp)
+                if (showBars) {
+                    Column {
+                        TopAppBar(title = { Text(text = "") }, navigationIcon = {
+                            Box(modifier = Modifier
+                                .padding(16.dp)
+                                .testTag("main_btn_menu")
+                                .clickable(indication = null,
+                                    interactionSource = remember { MutableInteractionSource() }) {
+                                    scope.launch { drawerState.open() }
+                                }) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_menu),
+                                    contentDescription = stringResource(R.string.cd_menu),
+                                )
+                            }
+                        }, colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color.White
+                        )
+                        )
+                        HorizontalDivider(color = Color.Gray, thickness = 0.5.dp)
+                    }
                 }
             },
             bottomBar = {
-                BottomNavigationBar(
-                    navController, mainViewModel.bottomNavItems
-                )
+                if (showBars) {
+                    BottomNavigationBar(
+                        navController, mainViewModel.bottomNavItems
+                    )
+                }
             },
             content = { contentPadding ->
                 Box(
@@ -217,10 +230,10 @@ fun BottomNavigationBar(
                 NavigationBarItem(
                     icon = {
                         Icon(
-                            painterResource(item.iconResId), contentDescription = item.label
+                            painterResource(item.iconResId), contentDescription = stringResource(item.labelResId)
                         )
                     },
-                    label = { Text(item.label) },
+                    label = { Text(stringResource(item.labelResId)) },
                     selected = currentDestination == item.screen.route,
                     onClick = {
                         navController.navigate(item.screen.route) {
@@ -229,15 +242,17 @@ fun BottomNavigationBar(
                             restoreState = true
                         }
                     },
-                    modifier = Modifier.clickable(indication = ripple(
-                        bounded = true,
-                        color = colorResource(R.color.ios_gray),
-                    ),
-                        interactionSource = remember { MutableInteractionSource() },
-                        onClick = {
+                    modifier = Modifier
+                        .testTag("main_nav_${item.screen.route}")
+                        .clickable(indication = ripple(
+                            bounded = true,
+                            color = colorResource(R.color.ios_gray),
+                        ),
+                            interactionSource = remember { MutableInteractionSource() },
+                            onClick = {
 
-                        }
-                    )
+                            }
+                        )
                 )
 
             }
@@ -252,14 +267,36 @@ fun NavigationHost(navController: NavHostController) {
         navController,
         startDestination = Screen.Home.route,
     ) {
+        composable(Screen.Home.route) { HomeScreen(navController = navController) }
+        composable(Screen.Overdue.route) { OverdueScreen(navController = navController) }
+        composable(Screen.Calendar.route) { CalendarScreen(navController = navController) }
         composable(
-            Screen.Home.route,
-        ) { HomeScreen() }
+            Screen.AddTodo.route,
+            arguments = listOf(navArgument("selectDate") { type = NavType.StringType; defaultValue = "" })
+        ) { backStackEntry ->
+            val selectDate = backStackEntry.arguments?.getString("selectDate")
+            AddTodoScreen(selectDate = selectDate)
+        }
         composable(
-            Screen.Overdue.route,
-        ) { OverdueScreen() }
+            Screen.AddSchedule.route,
+            arguments = listOf(navArgument("selectDate") { type = NavType.StringType; defaultValue = "" })
+        ) { backStackEntry ->
+            val selectDate = backStackEntry.arguments?.getString("selectDate")
+            AddScheduleScreen(selectDate = selectDate)
+        }
         composable(
-            Screen.Calendar.route,
-        ) { CalendarScreen() }
+            Screen.DetailTodo.route,
+            arguments = listOf(navArgument("todoId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val todoId = backStackEntry.arguments?.getLong("todoId") ?: -1L
+            DetailTodoScreen(todoId = todoId)
+        }
+        composable(
+            Screen.DetailSchedule.route,
+            arguments = listOf(navArgument("scheduleId") { type = NavType.LongType })
+        ) { backStackEntry ->
+            val scheduleId = backStackEntry.arguments?.getLong("scheduleId") ?: -1L
+            DetailScheduleScreen(scheduleId = scheduleId)
+        }
     }
 }

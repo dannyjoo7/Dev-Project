@@ -1,7 +1,6 @@
 package com.joo.miruni.presentation.calendar
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,18 +34,20 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,12 +56,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.joo.miruni.R
 import com.joo.miruni.data.entities.TaskType
-import com.joo.miruni.presentation.addTask.addSchedule.AddScheduleActivity
-import com.joo.miruni.presentation.addTask.addTodo.AddTodoActivity
-import com.joo.miruni.presentation.detail.detailSchedule.DetailScheduleActivity
-import com.joo.miruni.presentation.detail.detailTodo.DetailTodoActivity
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -68,15 +66,16 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CalendarScreen(
     calendarViewModel: CalendarViewModel = hiltViewModel(),
+    navController: NavHostController? = null,
 ) {
     val context = LocalContext.current
 
     /*
     * Live Date
     * */
-    val selectDate by calendarViewModel.selectedDate.observeAsState()
-    val selectedDateTaskList by calendarViewModel.selectedDateTaskList.observeAsState(emptyList())
-    val taskExistList by calendarViewModel.taskExistList.observeAsState(emptyList())
+    val selectDate by calendarViewModel.selectedDate.collectAsStateWithLifecycle()
+    val selectedDateTaskList by calendarViewModel.selectedDateTaskList.collectAsStateWithLifecycle()
+    val taskExistList by calendarViewModel.taskExistList.collectAsStateWithLifecycle()
 
     // FAB 메뉴
     var isAddMenuExpanded by remember { mutableStateOf(false) }
@@ -120,7 +119,12 @@ fun CalendarScreen(
                     // 태스크 리스트 아이템
                     items(selectedDateTaskList.size) { index ->
                         val task = selectedDateTaskList[index]
-                        TaskWidget(task)
+                        TaskWidget(task, onItemClicked = {
+                            when (task.type) {
+                                TaskType.SCHEDULE -> navController?.navigate("detailSchedule/${task.id}")
+                                TaskType.TODO -> navController?.navigate("detailTodo/${task.id}")
+                            }
+                        })
                     }
                 }
             }
@@ -154,7 +158,12 @@ fun CalendarScreen(
                 // 태스크 리스트 아이템
                 items(selectedDateTaskList.size) { index ->
                     val task = selectedDateTaskList[index]
-                    TaskWidget(task)
+                    TaskWidget(task, onItemClicked = {
+                        when (task.type) {
+                            TaskType.SCHEDULE -> navController?.navigate("detailSchedule/${task.id}")
+                            TaskType.TODO -> navController?.navigate("detailTodo/${task.id}")
+                        }
+                    })
                 }
             }
         }
@@ -169,7 +178,8 @@ fun CalendarScreen(
                 onClick = { isAddMenuExpanded = !isAddMenuExpanded },
                 modifier = Modifier
                     .padding(16.dp)
-                    .align(Alignment.BottomEnd),
+                    .align(Alignment.BottomEnd)
+                    .testTag("calendar_fab_add"),
                 shape = CircleShape,
                 containerColor = Color.Transparent,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp),
@@ -177,7 +187,7 @@ fun CalendarScreen(
                 Icon(
                     modifier = Modifier.size(68.dp),
                     painter = painterResource(id = R.drawable.ic_add),
-                    contentDescription = "Add Item",
+                    contentDescription = stringResource(R.string.cd_add_item),
                     tint = Color.Black,
                 )
 
@@ -201,7 +211,7 @@ fun CalendarScreen(
                     ) {
                         Column {
                             Text(
-                                text = "할 일",
+                                text = stringResource(R.string.todo),
                                 modifier = Modifier
                                     .clickable(
                                         indication = ripple(
@@ -211,14 +221,7 @@ fun CalendarScreen(
                                         interactionSource = remember { MutableInteractionSource() }
                                     ) {
                                         // 할 일 추가
-                                        val intent = Intent(context, AddTodoActivity::class.java)
-                                            .apply {
-                                                putExtra(
-                                                    "SELECT_DATE",
-                                                    selectDate.toString()
-                                                )
-                                            }
-                                        context.startActivity(intent)
+                                        navController?.navigate("addTodo?selectDate=${selectDate}")
                                         isAddMenuExpanded = false
                                     }
                                     .padding(16.dp)
@@ -229,7 +232,7 @@ fun CalendarScreen(
                                 color = Color.Black.copy(alpha = 0.2f)
                             )
                             Text(
-                                text = "일정",
+                                text = stringResource(R.string.schedule),
                                 modifier = Modifier
                                     .clickable(
                                         indication = ripple(
@@ -239,14 +242,7 @@ fun CalendarScreen(
                                         interactionSource = remember { MutableInteractionSource() }
                                     ) {
                                         // 일정 추가
-                                        val intent =
-                                            Intent(context, AddScheduleActivity::class.java).apply {
-                                                putExtra(
-                                                    "SELECT_DATE",
-                                                    selectDate.toString()
-                                                )
-                                            }
-                                        context.startActivity(intent)
+                                        navController?.navigate("addSchedule?selectDate=${selectDate}")
                                         isAddMenuExpanded = false
                                     }
                                     .padding(16.dp)
@@ -315,6 +311,7 @@ fun DatePickerForTask(
                                     .weight(1f)
                                     .aspectRatio(1f)
                                     .padding(2.dp)
+                                    .testTag("calendar_day_${dayOfMonth}")
                                     .background(
                                         when {
                                             isSelected -> colorResource(id = R.color.ios_light_blue)
@@ -405,7 +402,7 @@ fun DatePickerForTask(
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_left),
-                            contentDescription = "Previous Month",
+                            contentDescription = stringResource(R.string.cd_previous_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue),
                         )
@@ -424,7 +421,7 @@ fun DatePickerForTask(
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_right),
-                            contentDescription = "Next Month",
+                            contentDescription = stringResource(R.string.cd_next_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue)
                         )
@@ -439,9 +436,9 @@ fun DatePickerForTask(
 }
 
 @Composable
-fun TaskWidget(taskItem: TaskItem) {
+fun TaskWidget(taskItem: TaskItem, onItemClicked: (() -> Unit)? = null) {
 
-    val context = LocalContext.current
+    val unknownText = stringResource(R.string.unknown)
 
     // 날짜 포멧
     fun formatDate(date: LocalDate?): String {
@@ -453,7 +450,7 @@ fun TaskWidget(taskItem: TaskItem) {
         return if (date?.year == currentYear) {
             date.format(formatterSameYear)
         } else {
-            date?.format(formatterDifferentYear) ?: "알 수 없음"
+            date?.format(formatterDifferentYear) ?: unknownText
         }
     }
 
@@ -467,7 +464,7 @@ fun TaskWidget(taskItem: TaskItem) {
         return if (dateTime?.year == currentYear) {
             dateTime.format(formatterSameYear)
         } else {
-            dateTime?.format(formatterDifferentYear) ?: "알 수 없음"
+            dateTime?.format(formatterDifferentYear) ?: unknownText
         }
     }
 
@@ -483,32 +480,7 @@ fun TaskWidget(taskItem: TaskItem) {
                 ),
                 interactionSource = remember { MutableInteractionSource() }
             ) {
-                val intent = when (taskItem.type) {
-                    TaskType.SCHEDULE -> {
-                        Intent(
-                            context,
-                            DetailScheduleActivity::class.java
-                        ).apply {
-                            putExtra(
-                                "SCHEDULE_ID",
-                                taskItem.id
-                            )
-                        }
-                    }
-
-                    TaskType.TODO -> {
-                        Intent(
-                            context,
-                            DetailTodoActivity::class.java
-                        ).apply {
-                            putExtra(
-                                "TODO_ID",
-                                taskItem.id
-                            )
-                        }
-                    }
-                }
-                context.startActivity(intent)
+                onItemClicked?.invoke()
             }
     ) {
         Column(
@@ -533,7 +505,7 @@ fun TaskWidget(taskItem: TaskItem) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "일정",
+                                text = stringResource(R.string.schedule),
                                 color = Color.Gray,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(end = 4.dp)
@@ -545,7 +517,7 @@ fun TaskWidget(taskItem: TaskItem) {
                                 ) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_check),
-                                        contentDescription = "complete",
+                                        contentDescription = stringResource(R.string.cd_complete),
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .background(
@@ -565,7 +537,7 @@ fun TaskWidget(taskItem: TaskItem) {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "할 일",
+                                text = stringResource(R.string.todo),
                                 color = Color.Gray,
                                 fontSize = 12.sp,
                                 modifier = Modifier.padding(end = 4.dp)
@@ -577,7 +549,7 @@ fun TaskWidget(taskItem: TaskItem) {
                                 ) {
                                     Image(
                                         painter = painterResource(id = R.drawable.ic_check),
-                                        contentDescription = "complete",
+                                        contentDescription = stringResource(R.string.cd_complete),
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .background(

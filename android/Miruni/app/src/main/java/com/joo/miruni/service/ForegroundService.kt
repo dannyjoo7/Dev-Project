@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -35,9 +36,12 @@ class ForegroundService : Service() {
     @Inject
     lateinit var unlockReceiver: UnlockReceiver
 
+    private var isReceiverRegistered = false
+
     override fun onCreate() {
         super.onCreate()
         startForegroundService()
+        registerUnlockReceiver()
     }
 
     // 서비스 시작
@@ -45,7 +49,7 @@ class ForegroundService : Service() {
         createNotificationChannel()
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("미루니 서비스 실행 중")
+            .setContentTitle(getString(R.string.service_notification_title))
             .setSmallIcon(getIcon())
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setColor(ContextCompat.getColor(this, R.color.ios_gray_calander_font))
@@ -63,32 +67,37 @@ class ForegroundService : Service() {
         * */
         intent?.let {
             val id = it.getLongExtra("TODO_ID", -1)
-            val title = it.getStringExtra("TODO_TITLE") ?: "리마인더"
+            val title = it.getStringExtra("TODO_TITLE") ?: getString(R.string.reminder_default)
             val reminderType = it.getSerializableExtra("REMINDER_TYPE") as? ReminderType
             val reminderTime = it.getLongExtra("REMINDER_TIME", -1)
             val deadLineTime = it.getLongExtra("DEADLINE_TIME", -1)
 
-            if (id.toInt() != -1) {
+            if (id != -1L && reminderType != null) {
                 sendReminder(id, title, reminderType)
-                // 다음 알람 예약
                 scheduleNextAlarm(id, title, deadLineTime, reminderType, reminderTime)
             }
         }
 
 
-        /*
-        * Unlock 서비스
-        * */
-        registerReceiver(unlockReceiver, IntentFilter().apply {
-            addAction(Intent.ACTION_USER_PRESENT)
-        })
-
         return START_STICKY
+    }
+
+    // Unlock 리시버 등록 (onCreate에서 1회만 호출)
+    private fun registerUnlockReceiver() {
+        if (!isReceiverRegistered) {
+            registerReceiver(unlockReceiver, IntentFilter().apply {
+                addAction(Intent.ACTION_USER_PRESENT)
+            })
+            isReceiverRegistered = true
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        unregisterReceiver(unlockReceiver)
+        if (isReceiverRegistered) {
+            unregisterReceiver(unlockReceiver)
+            isReceiverRegistered = false
+        }
     }
 
     // 채널 생성
@@ -98,7 +107,7 @@ class ForegroundService : Service() {
             CHANNEL_NAME,
             NotificationManager.IMPORTANCE_HIGH
         ).apply {
-            description = "리마인더 및 잠금 해제 알림 채널"
+            description = getString(R.string.service_notification_channel_desc)
         }
         val manager = getSystemService(NotificationManager::class.java)
         manager.createNotificationChannel(channel)
@@ -108,11 +117,11 @@ class ForegroundService : Service() {
 
     private fun sendReminder(id: Long, title: String, reminderType: ReminderType?) {
         val message = when (reminderType) {
-            ReminderType.ONE_HOUR_BEFORE -> "1시간 전 알림"
-            ReminderType.TEN_MINUTES_BEFORE -> "10분 전 알림"
-            ReminderType.FIVE_MINUTES_BEFORE -> "5분 전 알림"
-            ReminderType.NOW -> "시간이 되었습니다!"
-            null -> "알림"
+            ReminderType.ONE_HOUR_BEFORE -> getString(R.string.reminder_1hour)
+            ReminderType.TEN_MINUTES_BEFORE -> getString(R.string.reminder_10min)
+            ReminderType.FIVE_MINUTES_BEFORE -> getString(R.string.reminder_5min)
+            ReminderType.NOW -> getString(R.string.reminder_now)
+            null -> getString(R.string.reminder_notification)
         }
 
         val intent = Intent(this, MainActivity::class.java).apply {

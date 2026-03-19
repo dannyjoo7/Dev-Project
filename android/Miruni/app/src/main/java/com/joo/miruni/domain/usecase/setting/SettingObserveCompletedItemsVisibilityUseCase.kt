@@ -1,7 +1,15 @@
 package com.joo.miruni.domain.usecase.setting
 
+import com.joo.miruni.domain.repository.SharedPreferenceRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface SettingObserveCompletedItemsVisibilityUseCase {
-    suspend operator fun invoke(): Flow<Boolean>
+@Singleton
+class SettingObserveCompletedItemsVisibilityUseCase @Inject constructor(
+    private val sharedPreferenceRepository: SharedPreferenceRepository,
+) {
+    suspend operator fun invoke(): Flow<Boolean> {
+        return sharedPreferenceRepository.observeSettingCompletedItemsVisibility()
+    }
 }

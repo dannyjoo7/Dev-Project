@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -63,73 +64,73 @@ fun BasicDialog(
 
     when (dialogType) {
         DialogMod.TODO_DELETE -> {
-            dialogTitle = "할 일 삭제"
-            dialogContent = "$title \n 항목을 정말로 삭제하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "삭제"
+            dialogTitle = stringResource(R.string.dialog_todo_delete_title)
+            dialogContent = stringResource(R.string.dialog_todo_delete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.delete)
         }
 
         DialogMod.TODO_COMPLETE -> {
-            dialogTitle = "할 일 완료"
-            dialogContent = "$title \n 항목을 정말로 완료하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "완료"
+            dialogTitle = stringResource(R.string.dialog_todo_complete_title)
+            dialogContent = stringResource(R.string.dialog_todo_complete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.complete)
         }
 
         DialogMod.TODO_CANCEL_COMPLETE -> {
-            dialogTitle = "완료 취소"
-            dialogContent = "$title \n 항목을 정말로 완료 취소하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "완료 취소"
+            dialogTitle = stringResource(R.string.dialog_cancel_complete_title)
+            dialogContent = stringResource(R.string.dialog_cancel_complete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.dialog_cancel_complete_button)
         }
 
         DialogMod.TODO_ALL_DELAY -> {
-            dialogTitle = "모두 미루기"
-            dialogContent = "모든 항목을 정말로 미루겠습니까??"
-            cancelButtonText = "취소"
-            confirmButtonText = "확인"
+            dialogTitle = stringResource(R.string.dialog_delay_all_title)
+            dialogContent = stringResource(R.string.dialog_delay_all_content)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.confirm)
         }
 
         DialogMod.SCHEDULE_DELETE -> {
-            dialogTitle = "일정 삭제"
-            dialogContent = "$title \n 항목을 정말로 삭제하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "삭제"
+            dialogTitle = stringResource(R.string.dialog_schedule_delete_title)
+            dialogContent = stringResource(R.string.dialog_schedule_delete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.delete)
         }
 
         DialogMod.SCHEDULE_COMPLETE -> {
-            dialogTitle = "일정 완료"
-            dialogContent = "$title \n 항목을 정말로 완료하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "완료"
+            dialogTitle = stringResource(R.string.dialog_schedule_complete_title)
+            dialogContent = stringResource(R.string.dialog_schedule_complete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.complete)
         }
 
         DialogMod.SCHEDULE_CANCEL_COMPLETE -> {
-            dialogTitle = "완료 취소"
-            dialogContent = "$title \n 항목을 정말로 완료 취소하시겠습니까?"
-            cancelButtonText = "취소"
-            confirmButtonText = "완료 취소"
+            dialogTitle = stringResource(R.string.dialog_cancel_complete_title)
+            dialogContent = stringResource(R.string.dialog_cancel_complete_content, title)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.dialog_cancel_complete_button)
         }
 
         DialogMod.POST_NOTIFICATION_PERMISSION -> {
-            dialogTitle = "알림 권한 허용"
-            dialogContent = "리마인드 서비스를 위해\n꼭 필요한 권한입니다\n권한을 허용해주세요"
-            cancelButtonText = "취소"
-            confirmButtonText = "확인"
+            dialogTitle = stringResource(R.string.dialog_notification_permission_title)
+            dialogContent = stringResource(R.string.dialog_notification_permission_content)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.confirm)
         }
 
         DialogMod.BATTERY_SETTING_PERMISSION -> {
-            dialogTitle = "배터리 설정"
-            dialogContent = "원할한 서비스를 위해\n제한 없음으로\n설정해주세요"
-            cancelButtonText = "취소"
-            confirmButtonText = "확인"
+            dialogTitle = stringResource(R.string.dialog_battery_permission_title)
+            dialogContent = stringResource(R.string.dialog_battery_permission_content)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.confirm)
         }
 
         DialogMod.FOREGROUND_SERVICE_PERMISSION -> {
-            dialogTitle = "정확한 알람 권한 설정"
-            dialogContent = "정확한 시간에 알람을\n받으려면 설정에서\n권한을 허용해주세요"
-            cancelButtonText = "취소"
-            confirmButtonText = "확인"
+            dialogTitle = stringResource(R.string.dialog_alarm_permission_title)
+            dialogContent = stringResource(R.string.dialog_alarm_permission_content)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.confirm)
         }
 
         else -> {

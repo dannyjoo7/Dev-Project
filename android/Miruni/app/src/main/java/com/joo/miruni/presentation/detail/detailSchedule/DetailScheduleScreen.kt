@@ -1,6 +1,5 @@
 package com.joo.miruni.presentation.detail.detailSchedule
 
-import android.app.Activity
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
@@ -37,7 +36,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,6 +47,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.joo.miruni.R
 import com.joo.miruni.presentation.widget.BasicDialog
 import com.joo.miruni.presentation.widget.DateRangePicker
@@ -65,6 +66,8 @@ import com.joo.miruni.presentation.widget.DialogMod
 @Composable
 fun DetailScheduleScreen(
     detailScheduleViewModel: DetailScheduleViewModel = hiltViewModel(),
+    scheduleId: Long = -1L,
+    navController: NavHostController? = null,
 ) {
     // 현재 컨택스트
     val context = LocalContext.current
@@ -78,21 +81,21 @@ fun DetailScheduleScreen(
     /*
     * Live Data
     *  */
-    val scheduleItem by detailScheduleViewModel.scheduleItem.observeAsState()
+    val scheduleItem by detailScheduleViewModel.scheduleItem.collectAsStateWithLifecycle()
 
-    val isModified by detailScheduleViewModel.isModified.observeAsState()
+    val isModified by detailScheduleViewModel.isModified.collectAsStateWithLifecycle()
 
-    val titleText by detailScheduleViewModel.titleText.observeAsState("")
-    val descriptionText by detailScheduleViewModel.descriptionText.observeAsState("")
+    val titleText by detailScheduleViewModel.titleText.collectAsStateWithLifecycle()
+    val descriptionText by detailScheduleViewModel.descriptionText.collectAsStateWithLifecycle()
 
-    val showDateRangePicker by detailScheduleViewModel.showDateRangePicker.observeAsState(false)
+    val showDateRangePicker by detailScheduleViewModel.showDateRangePicker.collectAsStateWithLifecycle()
 
-    val selectedStartDate by detailScheduleViewModel.selectedStartDate.observeAsState()
-    val selectedEndDate by detailScheduleViewModel.selectedEndDate.observeAsState()
+    val selectedStartDate by detailScheduleViewModel.selectedStartDate.collectAsStateWithLifecycle()
+    val selectedEndDate by detailScheduleViewModel.selectedEndDate.collectAsStateWithLifecycle()
 
-    val isTitleTextEmpty by detailScheduleViewModel.isTitleTextEmpty.observeAsState(false)
-    val isDateEmpty by detailScheduleViewModel.isDateEmpty.observeAsState(false)
-    val isScheduleUpdate by detailScheduleViewModel.isScheduleAdded.observeAsState(false)
+    val isTitleTextEmpty by detailScheduleViewModel.isTitleTextEmpty.collectAsStateWithLifecycle()
+    val isDateEmpty by detailScheduleViewModel.isDateEmpty.collectAsStateWithLifecycle()
+    val isScheduleUpdate by detailScheduleViewModel.isScheduleAdded.collectAsStateWithLifecycle()
 
     /*
     * UI
@@ -127,6 +130,12 @@ fun DetailScheduleScreen(
         }
     }
 
+    LaunchedEffect(scheduleId) {
+        if (scheduleId != -1L) {
+            detailScheduleViewModel.loadScheduleDetails(scheduleId)
+        }
+    }
+
     // 항목 비었을 시 애니메이션 실행
     LaunchedEffect(isTitleTextEmpty, isDateEmpty) {
         if (isTitleTextEmpty) {
@@ -150,7 +159,7 @@ fun DetailScheduleScreen(
     // Schedule 추가 성공 시 해당 액티비티 종료
     LaunchedEffect(isScheduleUpdate) {
         if (isScheduleUpdate) {
-            (context as? Activity)?.finish()
+            navController?.popBackStack()
         }
     }
 
@@ -166,36 +175,36 @@ fun DetailScheduleScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "일정",
+                            text = stringResource(R.string.schedule),
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "수정",
+                            text = stringResource(R.string.edit),
                             modifier = Modifier
                                 .padding(start = 16.dp)
                                 .clickable(
                                     indication = null,
                                     interactionSource = remember { MutableInteractionSource() },
-                                    enabled = isModified == true
+                                    enabled = isModified
                                 ) {
                                     detailScheduleViewModel.updateScheduleItem()
                                 },
-                            color = if (isModified == true) colorResource(id = R.color.ios_blue) else Color.Transparent,
+                            color = if (isModified) colorResource(id = R.color.ios_blue) else Color.Transparent,
                         )
                     }
                 },
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            (context as? Activity)?.finish()
+                            navController?.popBackStack()
                         },
                         modifier = Modifier.padding(4.dp)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "back",
+                            contentDescription = stringResource(R.string.cd_back),
                         )
                     }
                 },
@@ -206,7 +215,7 @@ fun DetailScheduleScreen(
         },
         containerColor = Color.White,
         bottomBar = {
-            if (isModified == false) {
+            if (!isModified) {
                 Row(
                     modifier = Modifier
                         .padding(vertical = 18.dp)
@@ -227,7 +236,7 @@ fun DetailScheduleScreen(
                                 showDialog = true
                             },
                         painter = painterResource(id = R.drawable.ic_trash_can),
-                        contentDescription = "delete schedule",
+                        contentDescription = stringResource(R.string.cd_delete_schedule),
                         colorFilter = ColorFilter.tint(colorResource(id = R.color.ios_red)),
                     )
                     // 완료 아이콘
@@ -257,7 +266,7 @@ fun DetailScheduleScreen(
                                 R.drawable.ic_calendar_check
                             }
                         ),
-                        contentDescription = "complete schedule",
+                        contentDescription = stringResource(R.string.cd_complete_schedule),
                         colorFilter = ColorFilter.tint(colorResource(id = R.color.ios_blue)),
                     )
                 }
@@ -292,7 +301,7 @@ fun DetailScheduleScreen(
                             }
                     ) {
                         Text(
-                            text = "일정",
+                            text = stringResource(R.string.schedule),
                             modifier = Modifier
                                 .padding(end = 34.dp),
                             fontSize = 16.sp,
@@ -306,7 +315,7 @@ fun DetailScheduleScreen(
                             singleLine = true,
                             placeholder = {
                                 Text(
-                                    text = "제목",
+                                    text = stringResource(R.string.title_placeholder),
                                     fontSize = 16.sp,
                                     color = titleTextColor
                                 )
@@ -336,7 +345,7 @@ fun DetailScheduleScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "세부사항",
+                            text = stringResource(R.string.description),
                             modifier = Modifier
                                 .padding(end = 8.dp),
                             fontSize = 16.sp,
@@ -350,7 +359,7 @@ fun DetailScheduleScreen(
                             singleLine = false,
                             placeholder = {
                                 Text(
-                                    text = "세부사항",
+                                    text = stringResource(R.string.description),
                                     fontSize = 16.sp,
                                     color = colorResource(id = R.color.ios_gray)
                                 )
@@ -391,7 +400,7 @@ fun DetailScheduleScreen(
                             },
                     ) {
                         Text(
-                            text = "기간",
+                            text = stringResource(R.string.period),
                             modifier = Modifier
                                 .weight(0.1f),
                             fontSize = 16.sp,
@@ -417,7 +426,7 @@ fun DetailScheduleScreen(
                                 ),
                                 text = detailScheduleViewModel.formatSelectedDateForCalendar(
                                     selectedStartDate
-                                ),
+                                ) ?: stringResource(R.string.select_date),
                                 color = dateTextColor,
                                 fontSize = 18.sp,
                             )
@@ -425,7 +434,7 @@ fun DetailScheduleScreen(
                                 modifier = Modifier
                                     .size(8.dp),
                                 painter = painterResource(id = R.drawable.ic_vertical_dot),
-                                contentDescription = "complete",
+                                contentDescription = stringResource(R.string.cd_date_separator),
                                 colorFilter = ColorFilter.tint(dateTextColor),
                             )
                             Text(
@@ -435,7 +444,7 @@ fun DetailScheduleScreen(
                                 ),
                                 text = detailScheduleViewModel.formatSelectedDateForCalendar(
                                     selectedEndDate
-                                ),
+                                ) ?: stringResource(R.string.select_date),
                                 color = dateTextColor,
                                 fontSize = 18.sp,
                             )
@@ -497,19 +506,19 @@ fun DetailScheduleScreen(
                         when (dialogMod) {
                             DialogMod.SCHEDULE_DELETE -> {
                                 detailScheduleViewModel.deleteScheduleItem(scheduleItem?.id ?: 0)
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             DialogMod.SCHEDULE_COMPLETE -> {
                                 detailScheduleViewModel.completeScheduleItem(scheduleItem?.id ?: 0)
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             DialogMod.SCHEDULE_CANCEL_COMPLETE -> {
                                 detailScheduleViewModel.completeCancelScheduleItem(
                                     scheduleItem?.id ?: 0
                                 )
-                                (context as? Activity)?.finish()
+                                navController?.popBackStack()
                             }
 
                             else -> {
@@ -518,7 +527,7 @@ fun DetailScheduleScreen(
                         }
                         showDialog = false
                     },
-                    title = scheduleItem?.title ?: "알 수 없음 ",
+                    title = scheduleItem?.title ?: stringResource(R.string.unknown),
                 )
             }
         }

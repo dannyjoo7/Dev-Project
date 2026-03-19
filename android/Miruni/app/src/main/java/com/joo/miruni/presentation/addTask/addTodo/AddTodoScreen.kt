@@ -1,6 +1,5 @@
 package com.joo.miruni.presentation.addTask.addTodo
 
-import android.app.Activity
 import android.content.Context
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
@@ -49,7 +48,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -60,6 +59,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import com.google.android.material.timepicker.TimeFormat
 import com.joo.miruni.R
 import com.joo.miruni.presentation.widget.AlarmDisplayDatePicker
@@ -79,6 +80,8 @@ import java.time.LocalTime
 @Composable
 fun AddTodoScreen(
     addTodoViewModel: AddTodoViewModel = hiltViewModel(),
+    selectDate: String? = null,
+    navController: NavHostController? = null,
 ) {
     // 현재 컨택스트
     val context = LocalContext.current
@@ -92,21 +95,19 @@ fun AddTodoScreen(
     /*
     * Live Data
     *  */
-    val todoText by addTodoViewModel.todoText.observeAsState("")
-    val descriptionText by addTodoViewModel.descriptionText.observeAsState("")
+    val todoText by addTodoViewModel.todoText.collectAsStateWithLifecycle()
+    val descriptionText by addTodoViewModel.descriptionText.collectAsStateWithLifecycle()
 
-    val showDatePicker by addTodoViewModel.showDatePicker.observeAsState(false)
-    val showTimePicker by addTodoViewModel.showTimePicker.observeAsState(false)
-    val showAlarmDisplayStartDatePicker by addTodoViewModel.showAlarmDisplayStartDatePicker.observeAsState(
-        true
-    )
+    val showDatePicker by addTodoViewModel.showDatePicker.collectAsStateWithLifecycle()
+    val showTimePicker by addTodoViewModel.showTimePicker.collectAsStateWithLifecycle()
+    val showAlarmDisplayStartDatePicker by addTodoViewModel.showAlarmDisplayStartDatePicker.collectAsStateWithLifecycle()
 
-    val selectDate by addTodoViewModel.selectedDate.observeAsState()
-    val selectTime by addTodoViewModel.selectedTime.observeAsState()
-    val selectedAlarmDisplayDate by addTodoViewModel.selectedAlarmDisplayDate.observeAsState()
+    val selectDate by addTodoViewModel.selectedDate.collectAsStateWithLifecycle()
+    val selectTime by addTodoViewModel.selectedTime.collectAsStateWithLifecycle()
+    val selectedAlarmDisplayDate by addTodoViewModel.selectedAlarmDisplayDate.collectAsStateWithLifecycle()
 
-    val isTodoTextEmpty by addTodoViewModel.isTodoTextEmpty.observeAsState(false)
-    val isTodoAddedSuccess by addTodoViewModel.isTodoAdded.observeAsState(false)
+    val isTodoTextEmpty by addTodoViewModel.isTodoTextEmpty.collectAsStateWithLifecycle()
+    val isTodoAddedSuccess by addTodoViewModel.isTodoAdded.collectAsStateWithLifecycle()
 
     /*
     * 애니매이션
@@ -129,6 +130,12 @@ fun AddTodoScreen(
         }
     }
 
+    LaunchedEffect(selectDate) {
+        selectDate?.takeIf { it.isNotEmpty() }?.let {
+            addTodoViewModel.setSelectedDate(java.time.LocalDate.parse(it))
+        }
+    }
+
     // 비었을 시 애니메이션 실행
     LaunchedEffect(isTodoTextEmpty) {
         if (isTodoTextEmpty) {
@@ -144,7 +151,7 @@ fun AddTodoScreen(
     // Todo추가 성공 시 해당 액티비티 종료
     LaunchedEffect(isTodoAddedSuccess) {
         if (isTodoAddedSuccess) {
-            (context as? Activity)?.finish()
+            navController?.popBackStack()
         }
     }
 
@@ -160,13 +167,13 @@ fun AddTodoScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "할 일",
+                            text = stringResource(R.string.todo),
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center,
                             fontWeight = FontWeight.Bold,
                         )
                         Text(
-                            text = "추가",
+                            text = stringResource(R.string.add),
                             modifier = Modifier
                                 .padding(start = 16.dp)
                                 .clickable(
@@ -182,13 +189,13 @@ fun AddTodoScreen(
                 navigationIcon = {
                     IconButton(
                         onClick = {
-                            (context as? Activity)?.finish()
+                            navController?.popBackStack()
                         },
                         modifier = Modifier.padding(4.dp)
                     ) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back),
-                            contentDescription = "back",
+                            contentDescription = stringResource(R.string.cd_back),
                         )
                     }
                 },
@@ -226,7 +233,7 @@ fun AddTodoScreen(
                             }
                     ) {
                         Text(
-                            text = "할 일",
+                            text = stringResource(R.string.todo),
                             modifier = Modifier
                                 .padding(end = 34.dp),
                             fontSize = 16.sp,
@@ -240,7 +247,7 @@ fun AddTodoScreen(
                             singleLine = true,
                             placeholder = {
                                 Text(
-                                    text = "할 일",
+                                    text = stringResource(R.string.todo),
                                     fontSize = 16.sp,
                                     color = todoTextColor
                                 )
@@ -270,7 +277,7 @@ fun AddTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "세부사항",
+                            text = stringResource(R.string.description),
                             modifier = Modifier
                                 .padding(end = 8.dp),
                             fontSize = 16.sp,
@@ -284,7 +291,7 @@ fun AddTodoScreen(
                             singleLine = false,
                             placeholder = {
                                 Text(
-                                    text = "세부사항",
+                                    text = stringResource(R.string.description),
                                     fontSize = 16.sp,
                                     color = colorResource(id = R.color.ios_gray)
                                 )
@@ -316,7 +323,7 @@ fun AddTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "마감일",
+                            text = stringResource(R.string.deadline),
                             modifier = Modifier
                                 .padding(end = 38.dp),
                             fontSize = 16.sp,
@@ -447,7 +454,7 @@ fun AddTodoScreen(
                                         .fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "완료",
+                                        text = stringResource(R.string.complete),
                                         textAlign = TextAlign.Center,
                                         fontSize = 16.sp,
                                         color = Color.White
@@ -467,7 +474,7 @@ fun AddTodoScreen(
                             .heightIn(min = 60.dp)
                     ) {
                         Text(
-                            text = "알람 표시 시작일",
+                            text = stringResource(R.string.alarm_display_start_date),
                             modifier = Modifier
                                 .padding(end = 16.dp),
                             fontSize = 16.sp,
@@ -549,7 +556,7 @@ fun AddTodoScreen(
                                         .fillMaxWidth()
                                 ) {
                                     Text(
-                                        text = "완료",
+                                        text = stringResource(R.string.complete),
                                         textAlign = TextAlign.Center,
                                         fontSize = 16.sp,
                                         color = Color.White
@@ -699,7 +706,7 @@ fun DatePicker(
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_left),
-                            contentDescription = "Previous Month",
+                            contentDescription = stringResource(R.string.cd_previous_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue),
                         )
@@ -716,7 +723,7 @@ fun DatePicker(
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_right),
-                            contentDescription = "Next Month",
+                            contentDescription = stringResource(R.string.cd_next_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue)
                         )

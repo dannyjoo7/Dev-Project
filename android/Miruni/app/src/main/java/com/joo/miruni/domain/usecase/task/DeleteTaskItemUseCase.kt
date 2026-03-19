@@ -1,6 +1,14 @@
 package com.joo.miruni.domain.usecase.task
 
+import com.joo.miruni.domain.repository.TaskRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-interface DeleteTaskItemUseCase {
-    suspend operator fun invoke(id: Long)
+@Singleton
+class DeleteTaskItemUseCase @Inject constructor(
+    private val taskRepository: TaskRepository,
+) {
+    suspend operator fun invoke(id: Long) {
+        taskRepository.deleteTaskById(id)
+    }
 }

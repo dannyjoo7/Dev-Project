@@ -1,5 +1,14 @@
 package com.joo.miruni.domain.usecase.task
 
-interface TogglePinStatusUseCase {
-    suspend operator fun invoke(id: Long)
+import com.joo.miruni.domain.repository.TaskRepository
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class TogglePinStatusUseCase @Inject constructor(
+    private val taskRepository: TaskRepository,
+) {
+    suspend operator fun invoke(id: Long) {
+        return taskRepository.togglePinStatus(id)
+    }
 }

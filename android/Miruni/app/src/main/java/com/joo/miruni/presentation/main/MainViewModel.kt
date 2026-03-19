@@ -1,10 +1,11 @@
 package com.joo.miruni.presentation.main
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import com.joo.miruni.R
 import com.joo.miruni.domain.usecase.setting.SettingActiveUnlockScreenUseCase
 import com.joo.miruni.domain.usecase.setting.SettingCompletedItemsVisibilityUseCase
@@ -29,16 +30,16 @@ class MainViewModel @Inject constructor(
     }
 
     /*
-    * Live Data
+    * State Flow
     * */
 
     // 완료 항목 값
-    private val _settingObserveCompleteVisibility = MutableLiveData<Boolean>(false)
-    val settingObserveCompleteVisibility: LiveData<Boolean> get() = _settingObserveCompleteVisibility
+    private val _settingObserveCompleteVisibility = MutableStateFlow(false)
+    val settingObserveCompleteVisibility: StateFlow<Boolean> = _settingObserveCompleteVisibility.asStateFlow()
 
     // 잠금화면 활성화 여부
-    private val _settingObserveUnlockState = MutableLiveData<Boolean>(true)
-    val settingObserveUnlockState: LiveData<Boolean> get() = _settingObserveUnlockState
+    private val _settingObserveUnlockState = MutableStateFlow(true)
+    val settingObserveUnlockState: StateFlow<Boolean> = _settingObserveUnlockState.asStateFlow()
 
     init {
         loadUserSetting()
@@ -46,9 +47,9 @@ class MainViewModel @Inject constructor(
 
     // 아이콘 리소스 ID만 저장
     val bottomNavItems: List<BottomNavItem> = listOf(
-        BottomNavItem("미루기", R.drawable.ic_clock, Screen.Overdue),
-        BottomNavItem("홈", R.drawable.ic_home, Screen.Home),
-        BottomNavItem("캘린더", R.drawable.ic_calendar, Screen.Calendar)
+        BottomNavItem(R.string.nav_overdue, R.drawable.ic_clock, Screen.Overdue),
+        BottomNavItem(R.string.nav_home, R.drawable.ic_home, Screen.Home),
+        BottomNavItem(R.string.nav_calendar, R.drawable.ic_calendar, Screen.Calendar)
     )
 
     // 완료된 항목 보기 설정
@@ -58,7 +59,7 @@ class MainViewModel @Inject constructor(
                 settingCompletedItemsVisibilityUseCase.invoke()
             }.onSuccess {
                 _settingObserveCompleteVisibility.value =
-                    _settingObserveCompleteVisibility.value!!.not()
+                    !_settingObserveCompleteVisibility.value
             }.onFailure { exception ->
                 Log.e(TAG, "Failed to load settings", exception)
             }
@@ -72,7 +73,7 @@ class MainViewModel @Inject constructor(
                 settingActiveUnlockScreenUseCase.invoke()
             }.onSuccess {
                 _settingObserveUnlockState.value =
-                    _settingObserveUnlockState.value!!.not()
+                    !_settingObserveUnlockState.value
             }.onFailure { exception ->
                 Log.e(TAG, "Failed to load settings", exception)
             }

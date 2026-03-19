@@ -1,10 +1,11 @@
 package com.joo.miruni.presentation.detail.detailSchedule
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import com.joo.miruni.domain.usecase.task.CancelCompleteTaskItemUseCase
 import com.joo.miruni.domain.usecase.task.CompleteTaskItemUseCase
 import com.joo.miruni.domain.usecase.task.DeleteTaskItemUseCase
@@ -39,48 +40,48 @@ class DetailScheduleViewModel @Inject constructor(
     * */
 
     // ScheduleItem
-    private val _scheduleItem = MutableLiveData<ScheduleItem>()
-    val scheduleItem: LiveData<ScheduleItem> get() = _scheduleItem
+    private val _scheduleItem = MutableStateFlow<ScheduleItem?>(null)
+    val scheduleItem: StateFlow<ScheduleItem?> = _scheduleItem.asStateFlow()
 
     // 수정 됐는지 판단 변수
-    private val _isModified = MutableLiveData(false)
-    val isModified: LiveData<Boolean> get() = _isModified
+    private val _isModified = MutableStateFlow(false)
+    val isModified: StateFlow<Boolean> = _isModified.asStateFlow()
 
     // 일정 텍스트
-    private val _titleText = MutableLiveData("")
-    val titleText: LiveData<String> get() = _titleText
+    private val _titleText = MutableStateFlow("")
+    val titleText: StateFlow<String> = _titleText.asStateFlow()
 
     // 세부사항 텍스트
-    private val _descriptionText = MutableLiveData("")
-    val descriptionText: LiveData<String> get() = _descriptionText
+    private val _descriptionText = MutableStateFlow("")
+    val descriptionText: StateFlow<String> = _descriptionText.asStateFlow()
 
 
     // 선택된 시작 날짜
-    private val _selectedStartDate = MutableLiveData<LocalDate?>(null)
-    val selectedStartDate: LiveData<LocalDate?> get() = _selectedStartDate
+    private val _selectedStartDate = MutableStateFlow<LocalDate?>(null)
+    val selectedStartDate: StateFlow<LocalDate?> = _selectedStartDate.asStateFlow()
 
     // 선택된 종료 날짜
-    private val _selectedEndDate = MutableLiveData<LocalDate?>(null)
-    val selectedEndDate: LiveData<LocalDate?> get() = _selectedEndDate
+    private val _selectedEndDate = MutableStateFlow<LocalDate?>(null)
+    val selectedEndDate: StateFlow<LocalDate?> = _selectedEndDate.asStateFlow()
 
 
     // Bool 시작 날짜 선택 진행 유뮤
-    private val _showDateRangePicker = MutableLiveData(false)
-    val showDateRangePicker: LiveData<Boolean> get() = _showDateRangePicker
+    private val _showDateRangePicker = MutableStateFlow(false)
+    val showDateRangePicker: StateFlow<Boolean> = _showDateRangePicker.asStateFlow()
 
 
     // TodoTextEmpty 무결성 검사
-    private val _isTitleTextEmpty = MutableLiveData(false)
-    val isTitleTextEmpty: LiveData<Boolean> get() = _isTitleTextEmpty
+    private val _isTitleTextEmpty = MutableStateFlow(false)
+    val isTitleTextEmpty: StateFlow<Boolean> = _isTitleTextEmpty.asStateFlow()
 
     // 날짜 무결성 검사
-    private val _isDateEmpty = MutableLiveData(false)
-    val isDateEmpty: LiveData<Boolean> get() = _isDateEmpty
+    private val _isDateEmpty = MutableStateFlow(false)
+    val isDateEmpty: StateFlow<Boolean> = _isDateEmpty.asStateFlow()
 
 
     // AddSchedule 성공 여부
-    private val _isScheduleAdded = MutableLiveData<Boolean>(false)
-    val isScheduleAdded: LiveData<Boolean> get() = _isScheduleAdded
+    private val _isScheduleAdded = MutableStateFlow(false)
+    val isScheduleAdded: StateFlow<Boolean> = _isScheduleAdded.asStateFlow()
 
     /*
     * UI
@@ -130,7 +131,7 @@ class DetailScheduleViewModel @Inject constructor(
 
     // StartDatePicker 가시성 on/off
     fun clickedDateRangePickerBtn() {
-        _showDateRangePicker.value = _showDateRangePicker.value?.not()
+        _showDateRangePicker.value = !_showDateRangePicker.value
     }
 
     // 애니메이션 종료
@@ -191,14 +192,11 @@ class DetailScheduleViewModel @Inject constructor(
         isModify()
     }
 
-    // date MM월 yyyy 변환 메소드
-    fun formatSelectedDateForCalendar(selectDate: LocalDate?): String {
-        return selectDate?.let {
-            val month = it.monthValue
-            val year = it.year
-            val date = it.dayOfMonth
-            "${month}월 ${date}일 $year"
-        } ?: "날짜 선택"
+    // date MM월 dd일 yyyy 변환 메소드
+    fun formatSelectedDateForCalendar(selectDate: LocalDate?): String? {
+        return selectDate?.format(
+            java.time.format.DateTimeFormatter.ofPattern("M월 d일 yyyy", java.util.Locale.KOREA)
+        )
     }
 
     /*
@@ -211,8 +209,8 @@ class DetailScheduleViewModel @Inject constructor(
             viewModelScope.launch {
                 val scheduleItem = ScheduleItem(
                     id = _scheduleItem.value?.id ?: 0,
-                    title = _titleText.value ?: "",
-                    descriptionText = _descriptionText.value ?: "",
+                    title = _titleText.value,
+                    descriptionText = _descriptionText.value,
                     startDate = _selectedStartDate.value ?: LocalDate.now().plusDays(1),
                     endDate = _selectedEndDate.value ?: LocalDate.now().plusDays(1),
                     isComplete = _scheduleItem.value?.isComplete ?: false,
@@ -236,7 +234,7 @@ class DetailScheduleViewModel @Inject constructor(
     // 무결성 검사
     private fun validateScheduleItem(): Boolean {
         // 제목이 비어있는지 체크
-        if (_titleText.value.isNullOrEmpty()) {
+        if (_titleText.value.isEmpty()) {
             _isTitleTextEmpty.value = true
             return false
         }
@@ -259,10 +257,8 @@ class DetailScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 deleteTaskItemUseCase.invoke(scheduleId)
-            }.onSuccess {
-
             }.onFailure {
-
+                Log.e(TAG, "Failed to delete schedule item", it)
             }
         }
     }
@@ -272,10 +268,8 @@ class DetailScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 completeTaskItemUseCase.invoke(scheduleId, LocalDateTime.now())
-            }.onSuccess {
-
             }.onFailure {
-
+                Log.e(TAG, "Failed to complete schedule item", it)
             }
         }
     }
@@ -285,10 +279,8 @@ class DetailScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 cancelCompleteTaskItemUseCase.invoke(scheduleId)
-            }.onSuccess {
-
             }.onFailure {
-
+                Log.e(TAG, "Failed to cancel complete schedule item", it)
             }
         }
     }

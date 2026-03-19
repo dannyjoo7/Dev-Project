@@ -35,7 +35,7 @@ import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -46,6 +46,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
@@ -71,14 +72,14 @@ fun UnlockScreen(
     * Live Data
     * */
 
-    val thingsToDoItems by unlockViewModel.thingsTodoItems.observeAsState(emptyList())
-    val scheduleItems by unlockViewModel.scheduleItems.observeAsState(emptyList())
-    val currentDateTime by unlockViewModel.curDateTime.observeAsState()
+    val thingsToDoItems by unlockViewModel.thingsTodoItems.collectAsStateWithLifecycle()
+    val scheduleItems by unlockViewModel.scheduleItems.collectAsStateWithLifecycle()
+    val currentDateTime by unlockViewModel.curDateTime.collectAsStateWithLifecycle()
 
-    val isTodoListLoading by unlockViewModel.isTodoListLoading.observeAsState(false)
-    val isScheduleListLoading by unlockViewModel.isScheduleListLoading.observeAsState(false)
+    val isTodoListLoading by unlockViewModel.isTodoListLoading.collectAsStateWithLifecycle()
+    val isScheduleListLoading by unlockViewModel.isScheduleListLoading.collectAsStateWithLifecycle()
     val isCompletedViewChecked =
-        unlockViewModel.settingObserveCompleteVisibility.observeAsState(false)
+        unlockViewModel.settingObserveCompleteVisibility.collectAsStateWithLifecycle()
 
     // 일정 페이지 상태
     val pageCount = (scheduleItems.size + 2) / 3
@@ -127,7 +128,7 @@ fun UnlockScreen(
                     ) {
                         Text(
                             text = unlockViewModel.formatSelectedDate(
-                                currentDateTime?.toLocalDate() ?: LocalDate.now()
+                                currentDateTime.toLocalDate()
                             ),
                             color = Color.Black,
                             fontWeight = FontWeight.Bold,
@@ -136,7 +137,7 @@ fun UnlockScreen(
                         )
                         Icon(
                             painter = painterResource(id = R.drawable.ic_weather),
-                            contentDescription = "Weather Icon",
+                            contentDescription = stringResource(R.string.cd_weather),
                             modifier = Modifier.size(24.dp)
                         )
                     }
@@ -151,8 +152,7 @@ fun UnlockScreen(
                     horizontalArrangement = Arrangement.Center
                 ) {
                     Text(
-                        text = currentDateTime?.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-                            ?: "알 수 없음",
+                        text = currentDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")),
                         fontSize = 36.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center
@@ -231,7 +231,7 @@ fun UnlockScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
-                                    text = "할 일이 없습니다",
+                                    text = stringResource(R.string.home_no_todos),
                                     color = colorResource(R.color.ios_gray),
                                     textAlign = TextAlign.Center,
                                     fontSize = 16.sp
@@ -296,12 +296,12 @@ fun UnlockScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "앱 열기",
+                        text = stringResource(R.string.unlock_open_app),
                         color = colorResource(R.color.ios_gray_calander_font),
                         modifier = Modifier.weight(1f)
                     )
                     Text(
-                        text = "잠금 해제",
+                        text = stringResource(R.string.unlock_dismiss),
                         color = colorResource(R.color.ios_gray_calander_font),
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.End
@@ -359,7 +359,7 @@ fun UnlockScreen(
                     ) {
                         Image(
                             painter = painterResource(id = R.drawable.ic_swap_arrows),
-                            contentDescription = "Unlock or Start App Button",
+                            contentDescription = stringResource(R.string.cd_unlock_button),
                         )
                     }
                 }

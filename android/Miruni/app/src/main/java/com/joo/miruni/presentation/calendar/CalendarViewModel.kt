@@ -1,13 +1,14 @@
 package com.joo.miruni.presentation.calendar
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.joo.miruni.data.entities.TaskType
 import com.joo.miruni.domain.usecase.task.GetTasksForDateRangeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -22,24 +23,24 @@ open class CalendarViewModel @Inject constructor(
     }
 
     // 달력을 움직이기 위한 변수
-    private val _curDate = MutableLiveData<LocalDate?>(LocalDate.now())
-    val curDate: LiveData<LocalDate?> get() = _curDate
+    private val _curDate = MutableStateFlow<LocalDate?>(LocalDate.now())
+    val curDate: StateFlow<LocalDate?> = _curDate.asStateFlow()
 
     // 선택된 날짜
-    private val _selectedDate = MutableLiveData<LocalDate?>(LocalDate.now())
-    val selectedDate: LiveData<LocalDate?> get() = _selectedDate
+    private val _selectedDate = MutableStateFlow<LocalDate?>(LocalDate.now())
+    val selectedDate: StateFlow<LocalDate?> = _selectedDate.asStateFlow()
 
     // task 존재 여부 리스트
-    private val _taskExistList = MutableLiveData<List<Boolean>>()
-    val taskExistList: LiveData<List<Boolean>> get() = _taskExistList
+    private val _taskExistList = MutableStateFlow<List<Boolean>>(emptyList())
+    val taskExistList: StateFlow<List<Boolean>> = _taskExistList.asStateFlow()
 
     // task List
-    private val _taskList = MutableLiveData<List<TaskItem>>()
-    val taskList: LiveData<List<TaskItem>> get() = _taskList
+    private val _taskList = MutableStateFlow<List<TaskItem>>(emptyList())
+    val taskList: StateFlow<List<TaskItem>> = _taskList.asStateFlow()
 
     // selected Date task List
-    private val _selectedDateTaskList = MutableLiveData<List<TaskItem>>()
-    val selectedDateTaskList: LiveData<List<TaskItem>> get() = _selectedDateTaskList
+    private val _selectedDateTaskList = MutableStateFlow<List<TaskItem>>(emptyList())
+    val selectedDateTaskList: StateFlow<List<TaskItem>> = _selectedDateTaskList.asStateFlow()
 
     init {
         loadTaskListForMonth()
@@ -107,7 +108,7 @@ open class CalendarViewModel @Inject constructor(
             val dateToCheck =
                 LocalDate.of(currentDate.year, currentDate.monthValue, day)
 
-            taskList.value?.any { task ->
+            _taskList.value.any { task ->
                 when (task.type) {
                     TaskType.SCHEDULE ->
                         (task.startDate == dateToCheck || task.endDate == dateToCheck ||
@@ -119,7 +120,7 @@ open class CalendarViewModel @Inject constructor(
                     TaskType.TODO ->
                         task.deadline?.toLocalDate() == dateToCheck
                 }
-            } ?: false
+            }
         }
     }
 
@@ -127,7 +128,7 @@ open class CalendarViewModel @Inject constructor(
     private fun setSelectedDateTaskList() {
         val date = selectedDate.value
         if (date != null) {
-            _selectedDateTaskList.value = _taskList.value?.filter { task ->
+            _selectedDateTaskList.value = _taskList.value.filter { task ->
                 when (task.type) {
                     TaskType.SCHEDULE -> {
                         task.startDate != null && task.endDate != null &&
@@ -140,7 +141,7 @@ open class CalendarViewModel @Inject constructor(
                         task.deadline?.toLocalDate() == date
                     }
                 }
-            }?.sortedBy { it.type } ?: emptyList()
+            }.sortedBy { it.type }
         }
     }
 

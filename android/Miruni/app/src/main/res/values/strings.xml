@@ -1,5 +1,135 @@
 <resources>
+    <!-- 앱 기본 -->
     <string name="app_name">Miruni</string>
+    <string name="app_title">미루니</string>
+
+    <!-- 공통 -->
+    <string name="todo">할 일</string>
+    <string name="schedule">일정</string>
+    <string name="complete">완료</string>
+    <string name="cancel">취소</string>
+    <string name="confirm">확인</string>
+    <string name="delete">삭제</string>
+    <string name="add">추가</string>
+    <string name="edit">수정</string>
+    <string name="detail">상세보기</string>
+    <string name="delay">미루기</string>
+    <string name="description">세부사항</string>
+    <string name="unknown">알 수 없음</string>
+
+    <!-- 날짜/시간 관련 -->
+    <string name="date_yesterday">어제</string>
+    <string name="date_today">오늘</string>
+    <string name="date_tomorrow">내일</string>
+    <string name="date_day_after_tomorrow">내일 모레</string>
+    <string name="time_am">오전</string>
+    <string name="time_pm">오후</string>
+    <string name="deadline">마감일</string>
+    <string name="deadline_expired">기한 만료</string>
+    <string name="minutes_later">%d분 후</string>
+    <string name="hours_later">%d시간 후</string>
+    <string name="days_later">%d일 후</string>
+    <string name="completed_at">%s에 완료함</string>
+    <string name="expired_at">%s에 만료됨</string>
+    <string name="start_date_label">시작일 : %s</string>
+    <string name="end_date_label">종료일 : %s</string>
+    <string name="deadline_label">마감일 : %s</string>
+
+    <!-- 홈 화면 -->
+    <string name="home_no_todos">할 일이 없습니다</string>
+
+    <!-- 기한 지난 할 일 화면 -->
+    <string name="overdue_title">기한이 지난 할 일</string>
+    <string name="overdue_empty">기한이 지난\n할 일이 없습니다</string>
+    <string name="overdue_delay_all">모두 미루기</string>
+
+    <!-- 설정/셋업 화면 -->
+    <string name="setup_wake_time_input">기상시간 입력</string>
+    <string name="setup_wake_time_description">기상 시간에 맞춰 당일의 알림을 띄워드려요</string>
+    <string name="setting_completed_items">완료된 항목 보기</string>
+    <string name="setting_lock_screen">잠금 화면 표시 기능</string>
+
+    <!-- 할 일 추가/상세 화면 -->
+    <string name="alarm_display_start_date">알람 표시 시작일</string>
+    <string name="alarm_display_before">%d%s 전</string>
+
+    <!-- 잠금화면 -->
     <string name="lock_screen_description">잠금화면</string>
+    <string name="unlock_open_app">앱 열기</string>
+    <string name="unlock_dismiss">잠금 해제</string>
+
+    <!-- 다이얼로그 -->
+    <string name="dialog_todo_delete_title">할 일 삭제</string>
+    <string name="dialog_todo_delete_content">%s \n 항목을 정말로 삭제하시겠습니까?</string>
+    <string name="dialog_todo_complete_title">할 일 완료</string>
+    <string name="dialog_todo_complete_content">%s \n 항목을 정말로 완료하시겠습니까?</string>
+    <string name="dialog_cancel_complete_title">완료 취소</string>
+    <string name="dialog_cancel_complete_content">%s \n 항목을 정말로 완료 취소하시겠습니까?</string>
+    <string name="dialog_cancel_complete_button">완료 취소</string>
+    <string name="dialog_delay_all_title">모두 미루기</string>
+    <string name="dialog_delay_all_content">모든 항목을 정말로 미루겠습니까??</string>
+    <string name="dialog_schedule_delete_title">일정 삭제</string>
+    <string name="dialog_schedule_delete_content">%s \n 항목을 정말로 삭제하시겠습니까?</string>
+    <string name="dialog_schedule_complete_title">일정 완료</string>
+    <string name="dialog_schedule_complete_content">%s \n 항목을 정말로 완료하시겠습니까?</string>
+
+    <!-- 권한 다이얼로그 -->
+    <string name="dialog_notification_permission_title">알림 권한 허용</string>
+    <string name="dialog_notification_permission_content">리마인드 서비스를 위해\n꼭 필요한 권한입니다\n권한을 허용해주세요</string>
+    <string name="dialog_battery_permission_title">배터리 설정</string>
+    <string name="dialog_battery_permission_content">원할한 서비스를 위해\n제한 없음으로\n설정해주세요</string>
+    <string name="dialog_alarm_permission_title">정확한 알람 권한 설정</string>
+    <string name="dialog_alarm_permission_content">정확한 시간에 알람을\n받으려면 설정에서\n권한을 허용해주세요</string>
+
+    <!-- 서비스 알림 -->
+    <string name="service_notification_title">미루니 서비스 실행 중</string>
+    <string name="service_notification_channel_desc">리마인더 및 잠금 해제 알림 채널</string>
+    <string name="reminder_default">리마인더</string>
+    <string name="reminder_1hour">1시간 전 알림</string>
+    <string name="reminder_10min">10분 전 알림</string>
+    <string name="reminder_5min">5분 전 알림</string>
+    <string name="reminder_now">시간이 되었습니다!</string>
+    <string name="reminder_notification">알림</string>
+
+    <!-- 일정 추가/상세 화면 -->
+    <string name="title_placeholder">제목</string>
+    <string name="period">기간</string>
+    <string name="select_date">날짜 선택</string>
+
+    <!-- 하단 네비게이션 -->
+    <string name="nav_overdue">미루기</string>
+    <string name="nav_home">홈</string>
+    <string name="nav_calendar">캘린더</string>
+
+    <!-- 캘린더 요일 헤더 -->
+    <string name="day_sun">일</string>
+    <string name="day_mon">월</string>
+    <string name="day_tue">화</string>
+    <string name="day_wed">수</string>
+    <string name="day_thu">목</string>
+    <string name="day_fri">금</string>
+    <string name="day_sat">토</string>
+
+    <!-- 접근성 contentDescription -->
+    <string name="cd_previous_date">이전 날짜</string>
+    <string name="cd_next_date">다음 날짜</string>
+    <string name="cd_previous_month">이전 월</string>
+    <string name="cd_next_month">다음 월</string>
+    <string name="cd_weather">날씨</string>
+    <string name="cd_add_item">항목 추가</string>
+    <string name="cd_menu">메뉴</string>
+    <string name="cd_back">뒤로가기</string>
+    <string name="cd_see_more">더보기</string>
+    <string name="cd_pin">고정 여부</string>
+    <string name="cd_complete">완료됨</string>
+    <string name="cd_overdue">기한 만료됨</string>
+    <string name="cd_delete_todo">할 일 삭제</string>
+    <string name="cd_complete_todo">할 일 완료</string>
+    <string name="cd_delete_schedule">일정 삭제</string>
+    <string name="cd_complete_schedule">일정 완료</string>
+    <string name="cd_unlock_button">앱 열기 또는 잠금 해제 버튼</string>
+    <string name="cd_date_separator">날짜 구분</string>
+
+    <!-- 기타 (레거시) -->
     <string name="title_activity_task_launch">TaskLaunchActivity</string>
 </resources>

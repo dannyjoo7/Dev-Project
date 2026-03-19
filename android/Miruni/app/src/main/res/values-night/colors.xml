@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- iOS-style dark mode colors -->
+    <color name="ios_blue">#0A84FF</color>
+    <color name="ios_gray">#8E8E93</color>
+    <color name="ios_light_blue">#1C3A5F</color>
+    <color name="ios_light_green">#1C3A2F</color>
+    <color name="ios_dark_blue">#0A84FF</color>
+    <color name="ios_light_gray">#2C2C2E</color>
+    <color name="ios_gray_calander_font">#AEAEB2</color>
+    <color name="ios_complete_gray">#3A3A3C</color>
+    <color name="ios_dialog_gray">#2C2C2E</color>
+    <color name="ios_divider">#48484A</color>
+    <color name="ios_red">#FF453A</color>
+
+    <color name="red">#FF453A</color>
+    <color name="orange">#FF9F0A</color>
+    <color name="yellow">#FFD60A</color>
+    <color name="green">#30D158</color>
+
+    <color name="gray_menu">#1C1C1E</color>
+    <color name="button_gray">#3A3A3C</color>
+
+    <color name="white">#1C1C1E</color>
+    <color name="black">#FFFFFF</color>
+</resources>

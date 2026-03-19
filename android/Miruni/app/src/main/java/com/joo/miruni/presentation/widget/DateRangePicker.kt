@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -206,7 +207,7 @@ fun DateRangePicker(
                     IconButton(onClick = { currentDate = currentDate.minusMonths(1) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_left),
-                            contentDescription = "Previous Month",
+                            contentDescription = stringResource(R.string.cd_previous_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue),
                         )
@@ -214,7 +215,7 @@ fun DateRangePicker(
                     IconButton(onClick = { currentDate = currentDate.plusMonths(1) }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_right),
-                            contentDescription = "Next Month",
+                            contentDescription = stringResource(R.string.cd_next_month),
                             modifier = Modifier.size(20.dp),
                             tint = colorResource(id = R.color.ios_blue)
                         )
