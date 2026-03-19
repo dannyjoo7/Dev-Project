@@ -101,6 +101,13 @@ class ForegroundService : Service() {
         }
     }
 
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        // 앱이 최근 앱에서 제거되어도 서비스 재시작
+        val restartIntent = Intent(this, ForegroundService::class.java)
+        ContextCompat.startForegroundService(this, restartIntent)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         if (isReceiverRegistered) {
