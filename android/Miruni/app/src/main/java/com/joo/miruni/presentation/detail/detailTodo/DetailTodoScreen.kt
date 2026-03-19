@@ -550,7 +550,7 @@ fun DetailTodoScreen(
                         )
 
                         Text(
-                            text = "${selectedAlarmDisplayDate?.amount ?: 1}${selectedAlarmDisplayDate?.unit ?: "일"} 전",
+                            text = "${selectedAlarmDisplayDate.amount ?: 1}${selectedAlarmDisplayDate.unit ?: "일"} 전",
                             modifier = Modifier
                                 .padding(end = 8.dp)
                                 .clickable(
@@ -589,8 +589,8 @@ fun DetailTodoScreen(
                                 * 알람 표시 시작일 위젯
                                 * */
                                 AlarmDisplayDatePicker(
-                                    selectedNumber = selectedAlarmDisplayDate?.amount ?: 1,
-                                    selectedText = selectedAlarmDisplayDate?.unit ?: "주",
+                                    selectedNumber = selectedAlarmDisplayDate.amount ?: 1,
+                                    selectedText = selectedAlarmDisplayDate.unit ?: "주",
                                     onDurationAmountChanged = { newAmount ->
                                         detailTodoViewModel.updateSelectedAlarmDisplayDate(
                                             newAmount,

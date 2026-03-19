@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
@@ -38,8 +39,8 @@ class SetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 상태바 설정
-        window.statusBarColor = android.graphics.Color.WHITE
+        // 상태바 설정 (enableEdgeToEdge로 대체)
+        enableEdgeToEdge()
 
         // 권한 요청
         requestPermissions()

@@ -625,18 +625,6 @@ fun TaskWidget(taskItem: TaskItem, onItemClicked: (() -> Unit)? = null) {
 @Preview(showBackground = true)
 @Composable
 fun PreviewTaskWidget() {
-    val sampleTodoItem = TaskItem(
-        id = 1,
-        deadline = LocalDateTime.now(),
-        startDate = null,
-        endDate = null,
-        title = "할 일",
-        details = "할 일 세부 사항",
-        isComplete = true,
-        completeDate = null,
-        type = TaskType.TODO
-    )
-
     val sampleScheduleItem = TaskItem(
         id = 1,
         deadline = null,

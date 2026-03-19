@@ -133,12 +133,6 @@ fun BasicDialog(
             confirmButtonText = stringResource(R.string.confirm)
         }
 
-        else -> {
-            dialogTitle = "title"
-            dialogContent = " "
-            cancelButtonText = " "
-            confirmButtonText = " "
-        }
     }
 
     if (showDialog) {

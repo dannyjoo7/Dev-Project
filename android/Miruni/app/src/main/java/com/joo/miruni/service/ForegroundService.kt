@@ -41,6 +41,7 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        Log.d(TAG, "ForegroundService onCreate")
         startForegroundService()
         registerUnlockReceiver()
     }
@@ -69,13 +70,17 @@ class ForegroundService : Service() {
         intent?.let {
             val id = it.getLongExtra("TODO_ID", -1)
             val title = it.getStringExtra("TODO_TITLE") ?: getString(R.string.reminder_default)
-            val reminderType = it.getSerializableExtra("REMINDER_TYPE") as? ReminderType
-            val reminderTime = it.getLongExtra("REMINDER_TIME", -1)
+            val reminderType = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                it.getSerializableExtra("REMINDER_TYPE", ReminderType::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                it.getSerializableExtra("REMINDER_TYPE") as? ReminderType
+            }
             val deadLineTime = it.getLongExtra("DEADLINE_TIME", -1)
 
             if (id != -1L && reminderType != null) {
                 sendReminder(id, title, reminderType)
-                scheduleNextAlarm(id, title, deadLineTime, reminderType, reminderTime)
+                scheduleNextAlarm(id, title, deadLineTime, reminderType)
             }
         }
 
@@ -86,6 +91,7 @@ class ForegroundService : Service() {
     // Unlock 리시버 등록 (onCreate에서 1회만 호출)
     private fun registerUnlockReceiver() {
         if (!isReceiverRegistered) {
+            Log.d(TAG, "Registering UnlockReceiver with ACTION_USER_PRESENT")
             registerReceiver(
                 unlockReceiver,
                 IntentFilter().apply {
@@ -94,6 +100,9 @@ class ForegroundService : Service() {
                 Context.RECEIVER_EXPORTED
             )
             isReceiverRegistered = true
+            Log.d(TAG, "UnlockReceiver registered successfully")
+        } else {
+            Log.d(TAG, "UnlockReceiver already registered")
         }
     }
 
@@ -161,7 +170,6 @@ class ForegroundService : Service() {
         title: String,
         deadLineTime: Long,
         reminderType: ReminderType?,
-        reminderTime: Long,
     ) {
         // 다음 알람 결정
         val nextReminderType = when (reminderType) {
