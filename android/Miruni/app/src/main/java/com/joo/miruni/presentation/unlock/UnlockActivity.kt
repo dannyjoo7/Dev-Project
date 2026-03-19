@@ -33,9 +33,9 @@ class UnlockActivity : ComponentActivity() {
         })
     }
 
-    override fun onStop() {
-        super.onStop()
-        // 화면에서 벗어나면 종료하여 다음 잠금해제 시 새로 생성
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        // 사용자가 홈으로 나갈 때 종료하여 다음 잠금해제 시 새로 생성
         finish()
     }
 }
