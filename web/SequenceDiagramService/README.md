@@ -3,8 +3,8 @@
 웹 기반 **시퀀스 다이어그램 생성 도구**입니다.  
 Figma 디자인을 기반으로 제작되었으며, 참여자와 메시지를 동적으로 추가·편집하여 시퀀스 다이어그램을 생성할 수 있습니다.
 
-🔗 원본 디자인  
-https://www.figma.com/design/GNkXs12Q5t6FDNT1KK2Brg/Sequence-Diagram
+🔗 링크
+https://sequence-diagram-service.vercel.app/
 
 ---
 
