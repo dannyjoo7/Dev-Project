@@ -62,6 +62,7 @@ class MainActivity : ComponentActivity() {
 
     private var showPostNotificationPermissionDialog by mutableStateOf(false)
     private var showForegroundServicePermissionDialog by mutableStateOf(false)
+    private var showOverlayPermissionDialog by mutableStateOf(false)
     private var showBatterySettingPermissionDialog by mutableStateOf(false)
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,6 +164,29 @@ class MainActivity : ComponentActivity() {
                     title = "배터리 최적화 설정"
                 )
             }
+
+            // 다른 앱 위에 표시 권한 다이얼로그
+            if (!showPostNotificationPermissionDialog && !showForegroundServicePermissionDialog && !showBatterySettingPermissionDialog && showOverlayPermissionDialog) {
+                BasicDialog(
+                    dialogType = DialogMod.OVERLAY_PERMISSION,
+                    showDialog = showOverlayPermissionDialog,
+                    onDismiss = {
+                        showOverlayPermissionDialog = false
+                    },
+                    onCancel = {
+                        showOverlayPermissionDialog = false
+                    },
+                    onConfirmed = {
+                        startActivity(
+                            Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                android.net.Uri.parse("package:$packageName")
+                            )
+                        )
+                    },
+                    title = "다른 앱 위에 표시"
+                )
+            }
         }
     }
 
@@ -185,6 +209,11 @@ class MainActivity : ComponentActivity() {
                 notificationPermission = true
                 startForegroundService()
             }
+        }
+
+        // 다른 앱 위에 표시 권한
+        if (!Settings.canDrawOverlays(this)) {
+            showOverlayPermissionDialog = true
         }
 
         // 배터리 최적화 설정

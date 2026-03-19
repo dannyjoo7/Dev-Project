@@ -45,6 +45,7 @@ enum class DialogMod {
     POST_NOTIFICATION_PERMISSION,               // 알림 권한 요청
     FOREGROUND_SERVICE_PERMISSION,                     // 포그라운드 서비스 권한 요청
     BATTERY_SETTING_PERMISSION,                 // 배터리 최적화 요청
+    OVERLAY_PERMISSION,                         // 다른 앱 위에 표시 권한
 }
 
 // 대화상자
@@ -129,6 +130,13 @@ fun BasicDialog(
         DialogMod.FOREGROUND_SERVICE_PERMISSION -> {
             dialogTitle = stringResource(R.string.dialog_alarm_permission_title)
             dialogContent = stringResource(R.string.dialog_alarm_permission_content)
+            cancelButtonText = stringResource(R.string.cancel)
+            confirmButtonText = stringResource(R.string.confirm)
+        }
+
+        DialogMod.OVERLAY_PERMISSION -> {
+            dialogTitle = "다른 앱 위에 표시"
+            dialogContent = "잠금해제 시 할 일을 표시하려면\n이 권한이 필요합니다."
             cancelButtonText = stringResource(R.string.cancel)
             confirmButtonText = stringResource(R.string.confirm)
         }
