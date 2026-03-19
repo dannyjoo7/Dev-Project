@@ -268,6 +268,8 @@ class DetailScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 completeTaskItemUseCase.invoke(scheduleId, LocalDateTime.now())
+            }.onSuccess {
+                loadScheduleDetails(scheduleId)
             }.onFailure {
                 Log.e(TAG, "Failed to complete schedule item", it)
             }
@@ -279,6 +281,8 @@ class DetailScheduleViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 cancelCompleteTaskItemUseCase.invoke(scheduleId)
+            }.onSuccess {
+                loadScheduleDetails(scheduleId)
             }.onFailure {
                 Log.e(TAG, "Failed to cancel complete schedule item", it)
             }

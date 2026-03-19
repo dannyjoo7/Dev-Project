@@ -362,6 +362,8 @@ class DetailTodoViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 completeTaskItemUseCase.invoke(todoId, LocalDateTime.now())
+            }.onSuccess {
+                loadTodoDetails(todoId)
             }.onFailure {
                 Log.e(TAG, "Failed to complete todo item", it)
             }
@@ -373,6 +375,8 @@ class DetailTodoViewModel @Inject constructor(
         viewModelScope.launch {
             runCatching {
                 cancelCompleteTaskItemUseCase.invoke(todoId)
+            }.onSuccess {
+                loadTodoDetails(todoId)
             }.onFailure {
                 Log.e(TAG, "Failed to cancel complete todo item", it)
             }
