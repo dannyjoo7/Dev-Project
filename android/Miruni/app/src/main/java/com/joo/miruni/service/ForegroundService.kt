@@ -41,7 +41,6 @@ class ForegroundService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        Log.d(TAG, "ForegroundService onCreate")
         startForegroundService()
         registerUnlockReceiver()
     }
@@ -91,7 +90,6 @@ class ForegroundService : Service() {
     // Unlock 리시버 등록 (onCreate에서 1회만 호출)
     private fun registerUnlockReceiver() {
         if (!isReceiverRegistered) {
-            Log.d(TAG, "Registering UnlockReceiver with ACTION_USER_PRESENT")
             registerReceiver(
                 unlockReceiver,
                 IntentFilter().apply {
@@ -100,9 +98,6 @@ class ForegroundService : Service() {
                 Context.RECEIVER_EXPORTED
             )
             isReceiverRegistered = true
-            Log.d(TAG, "UnlockReceiver registered successfully")
-        } else {
-            Log.d(TAG, "UnlockReceiver already registered")
         }
     }
 

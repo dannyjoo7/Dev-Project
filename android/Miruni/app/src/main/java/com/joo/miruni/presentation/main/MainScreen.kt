@@ -77,9 +77,12 @@ fun MainScreen(
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        scrimColor = Color.Black.copy(alpha = 0.3f),
         drawerContent = {
             // 메뉴
-            ModalDrawerSheet {
+            ModalDrawerSheet(
+                drawerContainerColor = Color.White,
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
