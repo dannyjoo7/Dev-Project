@@ -372,7 +372,7 @@ fun AddTodoScreen(
                         ) {
                             Text(
                                 text = addTodoViewModel.formatLocalTimeToString(
-                                    selectTime ?: LocalTime.now()
+                                    selectTime
                                 ),
                                 color = colorResource(id = R.color.ios_blue),
                                 fontSize = 16.sp,
@@ -425,7 +425,7 @@ fun AddTodoScreen(
                                     selectorEffectEnabled = true,
                                     timeFormat = TimeFormat.CLOCK_12H,
                                     startTime = addTodoViewModel.convertLocalTimeToTime(
-                                        selectTime ?: LocalTime.now()
+                                        selectTime
                                     ),
                                     textSize = 19,
                                     onTimeChanged = { hour, minute, format ->
@@ -482,7 +482,7 @@ fun AddTodoScreen(
                         )
 
                         Text(
-                            text = "${selectedAlarmDisplayDate?.amount ?: 1}${selectedAlarmDisplayDate?.unit ?: "일"} 전",
+                            text = "${selectedAlarmDisplayDate.amount ?: 1}${selectedAlarmDisplayDate.unit ?: "일"} 전",
                             modifier = Modifier
                                 .padding(end = 8.dp)
                                 .clickable(
@@ -524,8 +524,8 @@ fun AddTodoScreen(
                                 * 알람 표시 시작일 위젯
                                 * */
                                 AlarmDisplayDatePicker(
-                                    selectedNumber = selectedAlarmDisplayDate?.amount ?: 1,
-                                    selectedText = selectedAlarmDisplayDate?.unit ?: "주",
+                                    selectedNumber = selectedAlarmDisplayDate.amount ?: 1,
+                                    selectedText = selectedAlarmDisplayDate.unit ?: "주",
                                     onDurationAmountChanged = { newAmount ->
                                         addTodoViewModel.updateSelectedAlarmDisplayDate(
                                             newAmount,
