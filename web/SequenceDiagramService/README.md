@@ -34,43 +34,6 @@ https://sequence-diagram-service.vercel.app/
 
 ---
 
-## 🚀 시작하기
-
-### 1️⃣ 의존성 설치
-
-~~~bash
-npm install
-~~~
-
-### 2️⃣ 개발 서버 실행
-
-~~~bash
-npm run dev
-~~~
-
-개발 서버가 실행됩니다.
-
----
-
-## 🛠️ 프로덕션 빌드
-
-~~~bash
-npm run build
-~~~
-
-빌드 완료 후 생성된 정적 파일을 배포할 수 있습니다.
-
----
-
-## 🌐 배포
-
-다음과 같은 정적 호스팅 서비스를 통해 쉽게 배포할 수 있습니다.
-
-- Vercel
-- Netlify
-
----
-
 ## 📦 프로젝트 구조
 
 ~~~
