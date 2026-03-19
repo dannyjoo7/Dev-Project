@@ -1,4 +1,4 @@
-package com.joo.miruni.presentation.main
+1package com.joo.miruni.presentation.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,6 +17,7 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -242,17 +243,15 @@ fun BottomNavigationBar(
                             restoreState = true
                         }
                     },
+                    colors = NavigationBarItemDefaults.colors(
+                        indicatorColor = Color.White,
+                        selectedIconColor = Color.Black,
+                        unselectedIconColor = Color.Gray,
+                        selectedTextColor = Color.Black,
+                        unselectedTextColor = Color.Gray,
+                    ),
                     modifier = Modifier
                         .testTag("main_nav_${item.screen.route}")
-                        .clickable(indication = ripple(
-                            bounded = true,
-                            color = colorResource(R.color.ios_gray),
-                        ),
-                            interactionSource = remember { MutableInteractionSource() },
-                            onClick = {
-
-                            }
-                        )
                 )
 
             }
@@ -275,14 +274,14 @@ fun NavigationHost(navController: NavHostController) {
             arguments = listOf(navArgument("selectDate") { type = NavType.StringType; defaultValue = "" })
         ) { backStackEntry ->
             val selectDate = backStackEntry.arguments?.getString("selectDate")
-            AddTodoScreen(initialDateString = selectDate)
+            AddTodoScreen(initialDateString = selectDate, navController = navController)
         }
         composable(
             Screen.AddSchedule.route,
             arguments = listOf(navArgument("selectDate") { type = NavType.StringType; defaultValue = "" })
         ) { backStackEntry ->
             val selectDate = backStackEntry.arguments?.getString("selectDate")
-            AddScheduleScreen(selectDate = selectDate)
+            AddScheduleScreen(selectDate = selectDate, navController = navController)
         }
         composable(
             Screen.DetailTodo.route,

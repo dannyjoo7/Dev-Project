@@ -197,14 +197,6 @@ class ForegroundService : Service() {
     }
 
     private fun getIcon(): Int {
-        return if (isSamsungDevice()) {
-            R.drawable.ic_notification_samsung
-        } else {
-            R.drawable.ic_notification
-        }
-    }
-
-    private fun isSamsungDevice(): Boolean {
-        return Build.MANUFACTURER.equals("Samsung", ignoreCase = true)
+        return R.mipmap.ic_launcher
     }
 }

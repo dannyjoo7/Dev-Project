@@ -27,6 +27,7 @@ import com.joo.miruni.presentation.widget.DialogMod
 import com.joo.miruni.service.ForegroundService
 import dagger.hilt.android.AndroidEntryPoint
 import android.provider.Settings
+import androidx.appcompat.app.AppCompatDelegate
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -65,6 +66,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // 다크모드 비활성화
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         // 상태바 설정
         enableEdgeToEdge(
