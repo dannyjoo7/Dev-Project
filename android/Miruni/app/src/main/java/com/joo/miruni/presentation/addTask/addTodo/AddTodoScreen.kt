@@ -80,7 +80,7 @@ import java.time.LocalTime
 @Composable
 fun AddTodoScreen(
     addTodoViewModel: AddTodoViewModel = hiltViewModel(),
-    selectDate: String? = null,
+    initialDateString: String? = null,
     navController: NavHostController? = null,
 ) {
     // 현재 컨택스트
@@ -130,8 +130,8 @@ fun AddTodoScreen(
         }
     }
 
-    LaunchedEffect(selectDate) {
-        selectDate?.takeIf { it.isNotEmpty() }?.let {
+    LaunchedEffect(initialDateString) {
+        initialDateString?.takeIf { it.isNotEmpty() }?.let {
             addTodoViewModel.setSelectedDate(java.time.LocalDate.parse(it))
         }
     }

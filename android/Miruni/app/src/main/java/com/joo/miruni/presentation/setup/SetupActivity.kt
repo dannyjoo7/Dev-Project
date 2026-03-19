@@ -10,9 +10,13 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.joo.miruni.presentation.main.MainActivity
 import com.joo.miruni.service.ForegroundService
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SetupActivity : ComponentActivity() {
@@ -78,10 +82,14 @@ class SetupActivity : ComponentActivity() {
 
 
         // 설정 확인
-        isInit.observe(this@SetupActivity) { isInit ->
-            if (!isInit) {
-//                startUnlockService()
-                navigateToActivityMainActivity()
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                isInit.collect { isInit ->
+                    if (!isInit) {
+//                        startUnlockService()
+                        navigateToActivityMainActivity()
+                    }
+                }
             }
         }
     }

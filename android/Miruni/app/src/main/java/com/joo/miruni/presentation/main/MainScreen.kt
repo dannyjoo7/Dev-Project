@@ -275,7 +275,7 @@ fun NavigationHost(navController: NavHostController) {
             arguments = listOf(navArgument("selectDate") { type = NavType.StringType; defaultValue = "" })
         ) { backStackEntry ->
             val selectDate = backStackEntry.arguments?.getString("selectDate")
-            AddTodoScreen(selectDate = selectDate)
+            AddTodoScreen(initialDateString = selectDate)
         }
         composable(
             Screen.AddSchedule.route,

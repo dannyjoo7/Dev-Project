@@ -115,7 +115,7 @@ class DetailTodoViewModel @Inject constructor(
 
                 // 속성 매칭
                 _todoText.value = todoModel.title
-                _descriptionText.value = todoModel.details
+                _descriptionText.value = todoModel.details ?: ""
                 _selectedDate.value =
                     todoModel.deadLine?.toLocalDate() ?: LocalDate.now().plusDays(1)
                 _selectedTime.value = todoModel.deadLine?.toLocalTime() ?: LocalTime.now()
