@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.joo.miruni.data.entities.TaskType
 import com.joo.miruni.domain.usecase.task.GetTasksForDateRangeUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -42,6 +43,9 @@ open class CalendarViewModel @Inject constructor(
     private val _selectedDateTaskList = MutableStateFlow<List<TaskItem>>(emptyList())
     val selectedDateTaskList: StateFlow<List<TaskItem>> = _selectedDateTaskList.asStateFlow()
 
+    // 현재 실행 중인 데이터 로드 Job
+    private var loadJob: Job? = null
+
     init {
         loadTaskListForMonth()
     }
@@ -63,9 +67,15 @@ open class CalendarViewModel @Inject constructor(
         loadTaskListForMonth()
     }
 
+    // 화면 복귀 시 데이터 새로고침
+    fun refreshTasks() {
+        loadTaskListForMonth()
+    }
+
     // 해당 월 Task 여부 메소드
     private fun loadTaskListForMonth() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch {
             val currentDate = _curDate.value ?: LocalDate.now()
 
             val startDate = LocalDate.of(currentDate.year, currentDate.monthValue, 1)
