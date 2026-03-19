@@ -200,7 +200,6 @@ fun BasicDialog(
                                     interactionSource = remember { MutableInteractionSource() }
                                 ) {
                                     onConfirmed()
-                                    onDismiss()
                                 }
                                 .padding(8.dp),
                             verticalArrangement = Arrangement.Center,
@@ -239,7 +238,6 @@ fun BasicDialog(
                                     interactionSource = remember { MutableInteractionSource() }
                                 ) {
                                     onCancel()
-                                    onDismiss()
                                 }
                                 .padding(8.dp),
                             verticalArrangement = Arrangement.Center,
