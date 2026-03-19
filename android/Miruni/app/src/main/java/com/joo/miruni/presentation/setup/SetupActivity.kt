@@ -39,8 +39,15 @@ class SetupActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 상태바 설정 (enableEdgeToEdge로 대체)
-        enableEdgeToEdge()
+        // 상태바 설정
+        enableEdgeToEdge(
+            statusBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.WHITE, android.graphics.Color.WHITE
+            ),
+            navigationBarStyle = androidx.activity.SystemBarStyle.light(
+                android.graphics.Color.WHITE, android.graphics.Color.WHITE
+            )
+        )
 
         // 권한 요청
         requestPermissions()
