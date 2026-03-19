@@ -1,7 +1,5 @@
 # 🗓️ 미루니 - 잠금 해제 시 할 일을 알려주는 나만의 비서
 
-![미루니](https://github.com/user-attachments/assets/ca542088-b651-43f6-9023-e977ac5de767)
-
 ## 🔗 링크
 
 * **Notion (상세 기획 및 문서):** [https://bit.ly/Miruni](https://bit.ly/Miruni)
@@ -27,16 +25,5 @@
 * **Foreground Service**
 * **RoomDB**: 로컬 데이터를 효율적이고 안정적으로 관리
 * **Flow**: 실시간 UI 업데이트와 리소스 최적화
-
-
-## 📸 스크린샷
-
-<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;">
-    <img src="https://github.com/user-attachments/assets/0992dc91-4efc-4cd7-8ebc-6c20867b9c2a" alt="메인 잠금 화면" width="100" height="180"/>
-    <img src="https://github.com/user-attachments/assets/5da03103-6a60-4c27-a9a6-bf3ffd7705cd" alt="기한이 지난 일" width="100" height="180"/>
-    <img src="https://github.com/user-attachments/assets/64568918-2e53-43eb-a6be-c455d52ecde2" alt="메인 화면" width="100" height="180"/>
-    <img src="https://github.com/user-attachments/assets/970be0e1-0412-40aa-91ca-5e6715f6d6fc" alt="캘린더 화면" width="100" height="180"/>
-    <img src="https://github.com/user-attachments/assets/f091eee7-06aa-4ed3-a2c1-920190da0451" alt="일정 추가 화면" width="100" height="180"/>
-</div>
 
 ---
