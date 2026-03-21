@@ -100,8 +100,8 @@ fun UnlockScreen(
 
     Scaffold(
         modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
+            .fillMaxSize(),
+        containerColor = Color.White
     ) { innerPadding ->
         Box(
             modifier = Modifier
