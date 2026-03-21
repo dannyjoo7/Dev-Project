@@ -1,0 +1,181 @@
+﻿<Window x:Class="KakaoMessageObserver.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Messenger Automation Tool"
+        Height="700"
+        Width="1200"
+        Background="#F3F5F7">
+
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ================= System Status ================= -->
+        <Border Grid.Row="0"
+        Background="White"
+        CornerRadius="10"
+        Padding="15"
+        Margin="0 0 0 15"
+        BorderBrush="#D0D5DA"
+        BorderThickness="1">
+
+            <StackPanel>
+
+                <TextBlock Text="[ System Status ]"
+                   FontWeight="Bold"
+                   FontSize="16"
+                   Margin="0 0 0 10"/>
+
+                <!-- Kakao -->
+                <StackPanel Orientation="Horizontal" Margin="0 5">
+                    <TextBlock Text="{Binding KakaoCheckIcon}"
+                       Foreground="{Binding KakaoStatusColor}"
+                       FontSize="16"/>
+
+                    <TextBlock Text="KakaoTalk Window: "
+                       FontWeight="SemiBold"/>
+
+                    <TextBlock Text="{Binding KakaoStatusText}"
+                       Foreground="{Binding KakaoStatusColor}"/>
+                </StackPanel>
+
+                <!-- Monitoring -->
+                <StackPanel Orientation="Horizontal" Margin="0 5">
+                    <TextBlock Text="{Binding MonitoringCheckIcon}"
+                       Foreground="{Binding MonitoringStatusColor}"
+                       FontSize="16"/>
+
+                    <TextBlock Text="Monitoring Status: "
+                       FontWeight="SemiBold"/>
+
+                    <TextBlock Text="{Binding MonitoringStatusText}"
+                       Foreground="{Binding MonitoringStatusColor}"/>
+                </StackPanel>
+
+                <!-- DB -->
+                <StackPanel Orientation="Horizontal" Margin="0 5">
+                    <TextBlock Text="{Binding DbCheckIcon}"
+                       Foreground="{Binding DbStatusColor}"
+                       FontSize="16"/>
+
+                    <TextBlock Text="DB Connection: "
+                       FontWeight="SemiBold"/>
+
+                    <TextBlock Text="{Binding DbStatusText}"
+                       Foreground="{Binding DbStatusColor}"/>
+                </StackPanel>
+
+            </StackPanel>
+        </Border>
+
+        <!-- ================= Main Area ================= -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="1.5*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- ========= LEFT ========= -->
+            <StackPanel Grid.Column="0" Margin="0 0 15 0">
+
+                <!-- Control -->
+                <Border Background="White"
+                        CornerRadius="10"
+                        Padding="15"
+                        Margin="0 0 0 15"
+                        BorderBrush="#D0D5DA"
+                        BorderThickness="1">
+
+                    <StackPanel>
+                        <TextBlock Text="[ Control ]"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   Margin="0 0 0 10"/>
+
+                        <Button Content="▶ Start Monitoring"
+                                Height="40"
+                                Margin="0 5"
+                                Background="#2E7D32"
+                                Foreground="White"
+                                Click="StartMonitoringButton_Click"/>
+
+                        <Button Content="■ Stop Monitoring"
+                                Height="40"
+                                Margin="0 5"
+                                Background="#C62828"
+                                Foreground="White"
+                                Click="StopMonitoringButton_Click"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Log -->
+                <Border Background="White"
+                        CornerRadius="10"
+                        Padding="15"
+                        BorderBrush="#D0D5DA"
+                        BorderThickness="1">
+
+                    <StackPanel>
+                        <TextBlock Text="[ Message Log ]"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   Margin="0 0 0 10"/>
+
+                        <ListBox x:Name="MessageListBox" Height="220" ItemsSource="{Binding MessageLog}" 
+         ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+
+
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+
+            <!-- ========= RIGHT ========= -->
+            <StackPanel Grid.Column="1">
+
+                <Border Background="White"
+                        CornerRadius="10"
+                        Padding="15"
+                        BorderBrush="#D0D5DA"
+                        BorderThickness="1">
+
+                    <StackPanel>
+                        <TextBlock Text="[ Statistics ]"
+                                   FontWeight="Bold"
+                                   FontSize="15"
+                                   Margin="0 0 0 10"/>
+
+                        <TextBlock Text="Captured Messages: 152" Margin="0 5"/>
+                        <TextBlock Text="Saved To DB: 152" Margin="0 5"/>
+                        <TextBlock Text="Errors: 0" Margin="0 5"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Chat Room List -->
+                <Border Background="White"
+                    CornerRadius="10"
+                    Padding="15"
+                    Margin="0 15 0 15"
+                    BorderBrush="#D0D5DA"
+                    BorderThickness="1">
+
+                    <StackPanel>
+                        <TextBlock Text="[ Chat Room List ]"
+                           FontWeight="Bold"
+                           FontSize="15"
+                           Margin="0 0 0 10"/>
+
+                        <ListBox Height="140"
+                             ItemsSource="{Binding ChatRoomList}"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"/>  
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+
+        </Grid>
+
+    </Grid>
+</Window>
