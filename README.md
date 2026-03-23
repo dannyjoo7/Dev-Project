@@ -24,3 +24,4 @@
 | 프로젝트 | 설명 | 기술 스택 |
 |----------|------|-----------|
 | [**KakaoMessageObserver**](./Windows%20Application/KakaoMessageObserver) | 카카오톡 채팅창 OCR 모니터링 도구 | C#, WPF, .NET 10, PaddleOCR, OpenCvSharp4 |
+| [**element-manager**](./Windows%20Application/element-manager) | 태그 기반 요소 관리 및 사용자 권한 시스템 데스크탑 앱 | C#, .NET 6.0, Windows Forms, MySQL, Syncfusion |
