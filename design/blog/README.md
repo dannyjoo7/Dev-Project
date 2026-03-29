@@ -1,0 +1,164 @@
+<div align="center">
+
+# dannyjoo-tistory-skin
+
+**개인 티스토리 블로그를 위한 커스텀 스킨**
+
+[![Live](https://img.shields.io/badge/Live-dannyjoo.tistory.com-000000?style=for-the-badge&logo=google-chrome&logoColor=white)](https://dannyjoo.tistory.com)
+[![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)](LICENSE)
+
+<br>
+
+<img src="img/home-light.png" width="90%" alt="미리보기" />
+
+</div>
+
+<br>
+
+## 미리보기
+
+### 홈
+
+<table>
+  <tr>
+    <th align="center" width="50%">라이트</th>
+    <th align="center" width="50%">다크</th>
+  </tr>
+  <tr>
+    <td><img src="img/home-light.png" alt="홈 - 라이트" /></td>
+    <td><img src="img/home-dark.png" alt="홈 - 다크" /></td>
+  </tr>
+</table>
+
+### 글 목록
+
+<table>
+  <tr>
+    <th align="center" width="50%">라이트</th>
+    <th align="center" width="50%">다크</th>
+  </tr>
+  <tr>
+    <td><img src="img/list-light.png" alt="글 목록 - 라이트" /></td>
+    <td><img src="img/list-dark.png" alt="글 목록 - 다크" /></td>
+  </tr>
+</table>
+
+### 글 상세
+
+<table>
+  <tr>
+    <th align="center" width="50%">라이트</th>
+    <th align="center" width="50%">다크</th>
+  </tr>
+  <tr>
+    <td><img src="img/detail-light.png" alt="글 상세 - 라이트" /></td>
+    <td><img src="img/detail-dark.png" alt="글 상세 - 다크" /></td>
+  </tr>
+</table>
+
+<details>
+<summary><strong>모바일</strong></summary>
+<br>
+<table>
+  <tr>
+    <th align="center" width="50%">글 목록</th>
+    <th align="center" width="50%">글 상세</th>
+  </tr>
+  <tr>
+    <td align="center"><img src="img/mobile-list.png" width="300" alt="모바일 글 목록" /></td>
+    <td align="center"><img src="img/mobile-detail.png" width="300" alt="모바일 글 상세" /></td>
+  </tr>
+</table>
+</details>
+
+---
+
+## 주요 특징
+
+| | 기능 | 설명 |
+|:---|:---|:---|
+| :art: | **다크 모드** | 시스템 설정 자동 감지 + 수동 토글 |
+| :iphone: | **반응형 레이아웃** | 데스크톱 2열 그리드, 모바일 1열 |
+| :bookmark_tabs: | **사이드바** | 프로필, 목차, 아카이브, 최근 글 |
+| :bar_chart: | **읽기 진행률 바** | 상단 스크롤 진행률 표시 |
+| :mag: | **검색** | 전체 검색 오버레이 (`Ctrl+K`) |
+| :framed_picture: | **라이트박스** | 이미지 확대 뷰어 |
+| :performing_arts: | **글래스모피즘** | 반투명 네비게이션 바 |
+
+<details>
+<summary><strong>전체 기능 목록</strong></summary>
+
+**레이아웃 & 네비게이션**
+- 랜딩 페이지 / 히어로 카드
+- 반응형 글 목록 그리드
+- Archive / Info 드롭다운
+- 모바일 햄버거 메뉴
+- 검색 오버레이 (`Ctrl+K`)
+
+**글 상세 페이지**
+- 사이드바 (프로필, 목차, 아카이브, 최근 글)
+- 읽기 진행률 바
+- 글자 크기 조절
+- 이미지 라이트박스
+- 코드 블록 복사 버튼
+- 공유 버튼 (링크 복사, X)
+- 관련 글 추천
+- 이전 / 다음 글 네비게이션
+- 댓글
+
+**테마 & UX**
+- 다크 모드 (시스템 + 수동)
+- 글래스모피즘 네비게이션 바
+- 맨 위로 가기 버튼
+- 스켈레톤 로딩
+- 카테고리 / 최근 글 캐싱
+
+</details>
+
+---
+
+## 설치
+
+```
+1. 티스토리 관리자 > 꾸미기 > 스킨 편집 > html 편집
+2. skin.html과 style.css 내용을 각각 붙여넣기
+3. 파일 업로드 탭에서 필요한 이미지 업로드
+4. 적용 클릭
+```
+
+## 커스터마이징
+
+**프로필** — `skin.html`에서 검색 후 수정:
+
+| 찾기 | 변경 |
+|:---|:---|
+| `dannyjoo.io` | 브랜드명 |
+| `dannyjoo` | 표시 이름 |
+| 프로필 이미지 URL | 본인 이미지 URL |
+| GitHub / YouTube 링크 | 본인 링크 |
+
+**색상** — `style.css` 상단의 CSS Custom Properties 수정
+
+---
+
+## 파일 구조
+
+```
+dannyjoo-tistory-skin/
+├── skin.html      # HTML 템플릿 + JavaScript
+├── style.css      # 스타일시트
+├── index.xml      # 스킨 메타데이터
+└── img/           # 스크린샷
+```
+
+## 기술 스택
+
+`Vanilla JS` · `CSS Custom Properties` · `CSS Grid / Flexbox` · `Inter` · `Tistory Template Engine`
+
+---
+
+<div align="center">
+
+MIT License
+
+</div>
