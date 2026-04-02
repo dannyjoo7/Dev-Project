@@ -19,6 +19,12 @@
 |----------|------|-----------|
 | [**SequenceDiagramService**](./web/SequenceDiagramService) | 시퀀스 다이어그램 생성 및 내보내기 도구 ([Demo](https://sequence-diagram-service.vercel.app/)) | React, TypeScript, Vite, Tailwind CSS, Radix UI |
 
+## Design
+
+| 프로젝트 | 설명 | 기술 스택 |
+|----------|------|-----------|
+| [**dannyjoo-tistory-skin**](./design/blog) | 개인 티스토리 블로그 커스텀 스킨 ([Live](https://dannyjoo.tistory.com)) | Vanilla JS, CSS Custom Properties, CSS Grid/Flexbox, Tistory Template Engine |
+
 ## Windows Application
 
 | 프로젝트 | 설명 | 기술 스택 |
