@@ -13,7 +13,7 @@
 | [**android_authApp**](./android/android_authApp) | 로그인/회원가입 인증 앱 | Kotlin, Jetpack Compose, Material3 |
 | [**nbcmap-todo-list**](./android/nbcmap-todo-list) | 할 일 목록 관리 앱 | Kotlin, ViewBinding, Material |
 
-## Web
+## Web / App
 
 | 프로젝트 | 설명 | 기술 스택 |
 |----------|------|-----------|
