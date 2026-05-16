@@ -4,15 +4,6 @@
 
 Kakao Api를 사용해 이미지와 동영상을 검색하고 내 보관함에 저장할 수 있는 앱
 
-# 🔎 이미지 및 동영상 검색
-![이미지 동영상 검색](https://github.com/dannyjoo7/SearchImageApp/assets/58664438/d84bd917-e16e-496a-925c-0f2641747d73)
-
-<br>
-
-# ☑️ 내 보관함
-![내 보관함](https://github.com/dannyjoo7/SearchImageApp/assets/58664438/e278a5d0-6e71-43cd-a36c-a6c0a92a8d13)
-
-
 <br>
 
 # 🛠️ 기능
