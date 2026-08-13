@@ -662,6 +662,57 @@ button {
 }
 
 
+/* -- 2열 그리드(≥1400px)에서만 적용되는 보정 -- */
+/* 900~1399px 은 1열이라 아래 문제가 생기지 않으므로 건드리지 않는다. */
+
+@media (min-width: 1400px) {
+  /* 좌우 칸의 구분선 정렬
+     선이 그리드 칸(.article-card)이 아니라 안쪽 링크에 붙어 있어서,
+     한쪽 제목이 두 줄이 되는 행만 선이 위로 떴다(실측 23px).
+     선을 칸으로 옮기면 칸은 항상 행 높이만큼이라 좌우가 맞는다. */
+  .main.is-list > .article-card:not(.article-card--hero) > .article-card__link {
+    border-bottom: 0;
+  }
+
+  .main.is-list > .article-card:not(.article-card--hero) {
+    border-bottom: 1px solid var(--outline-variant);
+  }
+
+  /* 히어로를 가로형으로
+     썸네일이 width:100% + aspect-ratio:2/1 이라 화면이 넓을수록 같이 커졌다.
+     1600px 화면에서 이미지만 1312x656, 카드 전체 886px 이라
+     첫 화면이 통째로 글 하나였다.
+     실측: 썸네일 1312x656 -> 352x220, 카드 886px -> 277px */
+  .article-card--hero .article-card__link {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.75rem;
+    padding: 0 0 1.5rem;
+  }
+
+  .article-card--hero .article-card__thumb {
+    width: 22rem;
+    flex: 0 0 22rem;
+    aspect-ratio: 16 / 10;
+    height: auto;
+    margin-bottom: 0;
+  }
+
+  .article-card--hero .article-card__body {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .article-card--hero .article-card__title {
+    font-size: 1.5rem;
+  }
+
+  .article-card--hero .article-card__summary {
+    -webkit-line-clamp: 3;
+  }
+}
+
+
 /* ==========================================================================
    PAGINATION
    ========================================================================== */
@@ -2870,5 +2921,26 @@ body.tt-body-page .main {
 
   .error-page__desc {
     font-size: 1rem;
+  }
+}
+
+/* ── 본문 폭 확장 + 사이드바 쏠림 보정 ── */
+
+/* 안쪽 요소 폭 통일 (본문·제목·태그·이전다음·댓글) */
+.article-detail__hero-inner,
+.article-detail__content,
+.article-detail__tags,
+.post-nav,
+.comments {
+  max-width: 52rem;
+}
+
+/* 사이드바(15rem)가 표시되는 화면(≥1200px):
+   바깥 컨테이너도 함께 넓히고, 사이드바 절반만큼 오른쪽으로 이동해
+   "사이드바를 뺀 나머지 공간"의 정중앙에 오게 한다 */
+@media (min-width: 1200px) {
+  .article-detail-wrapper.is-visible .article-detail {
+    max-width: 56rem;
+    transform: translateX(7.5rem);
   }
 }
