@@ -1,4 +1,4 @@
-1package com.joo.miruni.presentation.main
+package com.joo.miruni.presentation.main
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
