@@ -888,10 +888,16 @@ button {
   text-decoration-color: var(--primary);
 }
 
+/* 이미지는 제 비율대로 두고, 세로로 긴 것만 화면 높이로 제한한다.
+   width:100% 로 강제하면 1248x1972 같은 폰 캡처가 1365px 높이로 늘어난다. */
 .article-detail__content img {
-  width: 100%;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 70vh;
+  display: block;
+  margin: 2rem auto;
   border-radius: 12px;
-  margin: 2rem 0;
 }
 
 .article-detail__content figure {
@@ -1484,17 +1490,18 @@ button {
 }
 
 /* Desktop — wider article images */
+/* figure 를 본문보다 좌우로 넓게 잡고, 이미지는 그 안에서 가운데 정렬한다.
+   가로로 긴 이미지는 넓게 차고, 세로로 긴 이미지는 max-height 에 걸려 작아진다. */
 @media (min-width: 1024px) {
-  .article-detail__content img,
   .article-detail__content figure {
     margin-left: -3rem;
     margin-right: -3rem;
-    max-width: calc(100% + 6rem);
     width: calc(100% + 6rem);
+    max-width: none;
   }
 
-  .article-detail__content figure img {
-    width: 100%;
+  .article-detail__content img:not(figure img) {
+    max-width: calc(100% + 6rem);
   }
 }
 

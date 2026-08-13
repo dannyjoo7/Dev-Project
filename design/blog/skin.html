@@ -616,6 +616,89 @@
   });
 
   /* =============================================
+     페이지 이동 UI 직접 생성
+
+     목록을 s_article_rep 로 그리는 구조라 티스토리가 s_paging 을 채워주지 않는다.
+     그래서 .pagination 껍데기만 남고 숫자·이전다음이 전부 비어 있었다.
+     = 2페이지 이후 글(4·6·7·8번)로 목록에서 갈 방법이 없었다.
+     ============================================= */
+  function pageHref(n) {
+    var p = new URLSearchParams(window.location.search);
+    if (n <= 1) { p.delete('page'); } else { p.set('page', String(n)); }
+    var q = p.toString();
+    return window.location.pathname + (q ? '?' + q : '');
+  }
+
+  var ARROW_L = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>';
+  var ARROW_R = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>';
+
+  function renderPaging(cur, last) {
+    var box = document.querySelector('.pagination');
+    if (!box || last < 2) return;
+    var nums = box.querySelector('.pagination__nums');
+    if (!nums) return;
+    nums.innerHTML = '';
+
+    if (cur > 1) {
+      var prev = document.createElement('a');
+      prev.href = pageHref(cur - 1);
+      prev.className = 'pagination__btn';
+      prev.setAttribute('aria-label', '이전 페이지');
+      prev.innerHTML = ARROW_L;
+      box.insertBefore(prev, nums);
+    }
+    for (var n = 1; n <= last; n++) {
+      var a = document.createElement('a');
+      a.href = pageHref(n);
+      a.className = 'pagination__num' + (n === cur ? ' selected' : '');
+      a.textContent = String(n);
+      nums.appendChild(a);
+    }
+    if (cur < last) {
+      var next = document.createElement('a');
+      next.href = pageHref(cur + 1);
+      next.className = 'pagination__btn';
+      next.setAttribute('aria-label', '다음 페이지');
+      next.innerHTML = ARROW_R;
+      box.appendChild(next);
+    }
+  }
+
+  /* 뒤 페이지에 글이 있는지 하나씩 확인해서 마지막 페이지를 찾는다 */
+  function findLastPage(probe, limit, cb) {
+    if (probe > limit) { cb(probe - 1); return; }
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', pageHref(probe), true);
+    xhr.timeout = 8000;
+    xhr.onerror = function() { cb(probe - 1); };
+    xhr.ontimeout = function() { cb(probe - 1); };
+    xhr.onload = function() {
+      // ★ 문자열 검색은 안 된다. 'article-card' 는 스킨 CSS·JS 안에도 들어 있어서
+      //   빈 페이지도 "글 있음" 으로 판정된다. 반드시 DOM 으로 파싱해 요소를 센다.
+      var has = false;
+      if (xhr.status === 200) {
+        try {
+          var doc = new DOMParser().parseFromString(xhr.responseText, 'text/html');
+          has = doc.querySelectorAll('article.article-card').length > 0;
+        } catch (e) { has = false; }
+      }
+      if (has) {
+        findLastPage(probe + 1, limit, cb);
+      } else {
+        cb(probe - 1);
+      }
+    };
+    xhr.send();
+  }
+
+  function buildPaging() {
+    var params = new URLSearchParams(window.location.search);
+    var cur = parseInt(params.get('page') || '1', 10);
+    if (isNaN(cur) || cur < 1) cur = 1;
+    findLastPage(cur + 1, cur + 20, function(last) { renderPaging(cur, last); });
+  }
+
+  /* =============================================
      List vs Detail 레이아웃
      URL 기반 판단 (body 클래스 신뢰 불가)
      - 글 상세: /숫자 (예: /12)
@@ -660,6 +743,7 @@
     for (var i = 0; i < cards.length; i++) cards[i].style.display = 'block';
     if (cards.length > 0) cards[0].classList.add('article-card--hero');
     document.querySelector('.main').classList.add('is-list');
+    buildPaging();
   }
 
   /* =============================================
@@ -745,6 +829,11 @@
     function renderRecentPosts(posts) {
       var nav = document.getElementById('sidebar-recent');
       if (!nav || !posts || posts.length === 0) return;
+      // 스켈레톤은 여기서 직접 지운다.
+      // 바깥에서 이 함수를 감싸는 방식은 동작하지 않는다 — 블록 안에서 선언된 함수라
+      // 블록 바깥의 var 바인딩을 교체해도 블록 안 코드(xhr.onload)는 원본을 부른다.
+      var skels = nav.querySelectorAll('.skeleton-line');
+      for (var k = 0; k < skels.length; k++) skels[k].remove();
       for (var i = 0; i < posts.length; i++) {
         var a = document.createElement('a');
         a.href = posts[i].href;
@@ -1038,17 +1127,9 @@
     origRenderCategories(categories);
   };
 
-  var origRenderRecent = (typeof renderRecentPosts !== 'undefined') ? renderRecentPosts : null;
-  if (origRenderRecent) {
-    renderRecentPosts = function(posts) {
-      var sidebarRecent = document.getElementById('sidebar-recent');
-      if (sidebarRecent) {
-        var skels = sidebarRecent.querySelectorAll('.skeleton-line');
-        for (var i = 0; i < skels.length; i++) skels[i].remove();
-      }
-      origRenderRecent(posts);
-    };
-  }
+  // 최근 글 쪽은 renderRecentPosts 안에서 직접 지운다.
+  // 여기서 감싸도 소용이 없다 — renderRecentPosts 는 if 블록 안에서 선언돼 있어
+  // 바깥의 var 바인딩을 바꿔봐야 블록 안 코드는 원본을 호출한다.
 })();
 </script>
 
