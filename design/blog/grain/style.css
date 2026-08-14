@@ -1235,6 +1235,17 @@ button { cursor: pointer; }
 
 /* ===== 스킨 전용 ===== */
 
+/* 애플식 라운디드 스퀘어. border-radius 는 원호라 모서리가 갑자기 꺾이는데,
+   corner-shape: squircle 은 연속 곡률이라 아이콘·카드처럼 부드럽게 이어진다.
+   지원 안 하는 브라우저는 지금처럼 원호로 그려진다 */
+@supports (corner-shape: squircle) {
+  * { corner-shape: squircle; }
+  /* 완전한 원인 것들은 그대로 둔다 */
+  .cat-new,
+  .code-block__lights i,
+  .site-search__glass { corner-shape: round; }
+}
+
 /* 화면 전환용. UA 의 [hidden] 은 display:grid 같은 규칙에 밀린다.
    이게 없으면 글 상세 위에 목록이 그대로 남는다 */
 [hidden] { display: none !important; }
@@ -1306,9 +1317,9 @@ button { cursor: pointer; }
 .post-body .contents_style > * + * { margin-top: var(--post-gap); }
 .post-body .contents_style > *:first-child { margin-top: 0; }
 .post-body .contents_style > h2 { margin-top: var(--post-h2-top); }
-.post-body .contents_style > h2 + * { margin-top: var(--post-h2-bottom); }
+.post-body .contents_style > h2 + * { margin-top: var(--sp-6); }   /* 34px. 26px 는 붙어 보였다 */
 .post-body .contents_style > h3 { margin-top: var(--post-h3-top); }
-.post-body .contents_style > h3 + * { margin-top: var(--post-h3-bottom); }
+.post-body .contents_style > h3 + * { margin-top: var(--sp-5); }   /* 24px */
 
 /* 사이드바 자체 스크롤바가 본문 옆에 그어져 거슬린다. 스크롤은 살리고 막대만 숨긴다 */
 .sidebar { scrollbar-width: none; }
