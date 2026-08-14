@@ -1300,6 +1300,23 @@ button { cursor: pointer; }
 .profile-card__avatar { overflow: hidden; background: var(--fill); flex: none; }
 .profile-card__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+/* ★ 티스토리는 본문을 <div class="contents_style"> 로 한 겹 싼다.
+   그래서 목업의 `.post-body > * + *` 가 그 래퍼 하나에만 걸리고
+   문단 사이 간격이 통째로 사라진다. 한 단계 안쪽에 다시 건다 */
+.post-body .contents_style > * + * { margin-top: var(--post-gap); }
+.post-body .contents_style > *:first-child { margin-top: 0; }
+.post-body .contents_style > h2 { margin-top: var(--post-h2-top); }
+.post-body .contents_style > h2 + * { margin-top: var(--post-h2-bottom); }
+.post-body .contents_style > h3 { margin-top: var(--post-h3-top); }
+.post-body .contents_style > h3 + * { margin-top: var(--post-h3-bottom); }
+
+/* 사이드바 자체 스크롤바가 본문 옆에 그어져 거슬린다. 스크롤은 살리고 막대만 숨긴다 */
+.sidebar { scrollbar-width: none; }
+.sidebar::-webkit-scrollbar { display: none; }
+
+/* 현재 페이지 — 티스토리가 span.selected 로 표시해 준다 */
+.pagination__num .selected { color: inherit; font-weight: inherit; }
+
 /* ----- 본문 요소 -----
    티스토리 에디터는 클래스 없는 table·blockquote·hr 을 뱉는다.
    목업의 .post-* 스타일을 맨몸 태그에도 걸어준다 */
