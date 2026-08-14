@@ -147,7 +147,7 @@
     <div class="widget">
       <p class="widget__title">Categories</p>
       <nav class="widget__body cat-tree">
-        <s_sidebar_element>[##_category_##]</s_sidebar_element>
+        <s_sidebar_element>[##_category_list_##]</s_sidebar_element>
       </nav>
     </div>
   </aside>
@@ -170,7 +170,7 @@
               <p class="article-card__cat">[##_list_rep_category_##]</p>
               <h2 class="article-card__title">[##_list_rep_title_text_##]</h2>
               <p class="article-card__excerpt">[##_list_rep_summary_##]</p>
-              <p class="article-card__meta">[##_list_rep_regdate_##]<i>·</i>댓글 [##_list_rep_rp_cnt_##]</p>
+              <p class="article-card__meta">[##_list_rep_regdate_##]</p>
             </div>
           </a>
         </s_list_rep>
@@ -192,6 +192,7 @@
 
 <!-- ==================== 글 상세 ====================
      s_permalink_article_rep 은 글 페이지에서만 그려진다 -->
+<s_article_rep>
 <s_permalink_article_rep>
 <main class="wrap post-layout">
   <aside class="sidebar">
@@ -213,7 +214,7 @@
     <div class="widget">
       <p class="widget__title">Archive</p>
       <nav class="widget__body cat-tree">
-        <s_sidebar_element>[##_category_##]</s_sidebar_element>
+        <s_sidebar_element>[##_category_list_##]</s_sidebar_element>
       </nav>
     </div>
   </aside>
@@ -285,6 +286,7 @@
   </article>
 </main>
 </s_permalink_article_rep>
+</s_article_rep>
 
 <!-- ==================== 방명록 ==================== -->
 <s_guest>
@@ -440,7 +442,19 @@
     }).catch(function () { /* 마크업에 적힌 값을 그대로 둔다 */ });
   }
 
-  /* ---------- 5. 목록 1페이지 첫 글은 크게 ---------- */
+  /* ---------- 5. 썸네일 없는 글 ---------- */
+  // 티스토리는 대표 이미지가 없으면 s_list_rep_thumbnail 블록 자체를 안 그린다.
+  // 그대로 두면 카드 높이가 들쭉날쭉해서 옅은 자리표시자를 넣는다
+  $$('.article-card').forEach(function (card) {
+    if ($('.article-card__thumb', card)) return;
+    var ph = document.createElement('div');
+    ph.className = 'article-card__thumb article-card__thumb--none';
+    ph.setAttribute('aria-hidden', 'true');
+    ph.textContent = 'dannyjoo.io';
+    card.insertBefore(ph, card.firstChild);
+  });
+
+  /* ---------- 6. 목록 1페이지 첫 글은 크게 ---------- */
   if (page === 'list' && (new URLSearchParams(location.search).get('page') || '1') === '1') {
     var lead = $('.article-grid .article-card');
     if (lead && $('.article-card__thumb', lead)) lead.classList.add('article-card--hero');
