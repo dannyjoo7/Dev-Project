@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>[##_page_title_##]</title>
+  <link rel="stylesheet" href="./style.css" />
+  <!-- 테마를 먼저 정한다. 아래로 내리면 흰 화면이 한 번 번쩍인다 -->
+  <script>
+    (function () {
+      var t = localStorage.getItem('theme');
+      if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+
+<div class="read-progress" aria-hidden="true"><div class="read-progress__bar"></div></div>
+
+<!-- ==================== 헤더 ==================== -->
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a href="[##_blog_link_##]" class="site-brand">dannyjoo<span class="site-brand__dot">.</span>io</a>
+
+    <nav class="site-nav">
+      <div class="nav-dropdown">
+        <a href="#" class="nav-item">Info<span class="nav-item__caret"></span></a>
+        <div class="nav-dropdown__panel">
+          <a href="[##_blog_link_##]" class="nav-dropdown__item">소개</a>
+          <a href="https://github.com/dannyjoo7" class="nav-dropdown__item">GitHub<span class="nav-dropdown__count">@dannyjoo7</span></a>
+          <a href="[##_blog_link_##]guestbook" class="nav-dropdown__item">방명록</a>
+        </div>
+      </div>
+
+      <!-- 카테고리 메가 패널 — 티스토리 카테고리를 그대로 얹는다 -->
+      <div class="nav-dropdown nav-dropdown--mega">
+        <a href="[##_blog_link_##]category" class="nav-item">Archive<span class="nav-item__caret"></span></a>
+        <div class="nav-dropdown__panel">
+          <div class="mega-group cat-tree" id="mega-cats"></div>
+          <div class="nav-dropdown__panel--mega-foot">
+            <span data-stat="summary"></span>
+            <a href="[##_blog_link_##]category" class="section-head__more" style="margin-left:auto">전체 글 보기</a>
+          </div>
+        </div>
+      </div>
+
+      <a href="[##_blog_link_##]category" class="nav-item" data-nav="list">글</a>
+    </nav>
+
+    <div class="site-header__tools">
+      <!-- 티스토리 검색은 /search/키워드 형식이다. ?search= 로 넘기면 빈 결과가 나온다 -->
+      <form class="site-search" role="search" id="site-search">
+        <span class="site-search__glass" aria-hidden="true"></span>
+        <input type="search" name="q" placeholder="글 검색" aria-label="글 검색" />
+      </form>
+      <button class="icon-btn" type="button" id="theme-toggle" aria-label="다크모드 전환">
+        <span class="theme-glyph" aria-hidden="true"></span>
+      </button>
+      <button class="icon-btn nav-burger" type="button" aria-label="메뉴 열기">
+        <span class="burger-glyph" aria-hidden="true"><span></span><span></span><span></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ==================== 홈 히어로 ====================
+     홈에서만 보인다. 숫자 세 칸은 전부 자동으로 채워진다 -->
+<section class="hero" data-page-only="home">
+  <div class="wrap hero__grid">
+    <div>
+      <p class="eyebrow">Android · Web · Seoul</p>
+      <h1 class="hero__title">만든 것보다 고친 것을 더 많이 씁니다<em>.</em></h1>
+      <p class="hero__lede">안드로이드 앱과 웹을 함께 만듭니다. 프로덕션에서 실제로 터진 문제와 그걸 고친 과정을 남깁니다. 잘 된 이야기보다 잘못됐던 이야기가 많습니다.</p>
+      <div class="hero__actions">
+        <a href="[##_blog_link_##]category" class="btn btn--primary">글 보러 가기</a>
+        <a href="https://github.com/dannyjoo7" class="btn btn--ghost">GitHub</a>
+      </div>
+      <div class="hero__now">
+        <span>글<b data-stat="posts">14편</b></span>
+        <span>마지막 글<b data-stat="last">2026.08.13</b></span>
+        <span>기록<b data-stat="days">1,186일째</b></span>
+      </div>
+    </div>
+    <aside class="profile-card">
+      <div class="profile-card__avatar">
+        <img src="https://raw.githubusercontent.com/dannyjoo7/Dev-Project/main/design/blog/assets/profile.png" alt="dannyjoo" />
+      </div>
+      <div>
+        <h2 class="profile-card__name">Danny Joo</h2>
+        <p class="profile-card__role">Android · Web Developer</p>
+      </div>
+      <p class="profile-card__bio">개발, 기술, 그리고 일상에 대한 기록.</p>
+      <div class="profile-card__stats">
+        <div class="profile-card__stat"><b data-stat="posts-n">14</b><span>글</span></div>
+        <div class="profile-card__stat"><b data-stat="cats-n">4</b><span>카테고리</span></div>
+        <div class="profile-card__stat"><b data-stat="years">3년</b><span>기록</span></div>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ==================== 홈: 관심사·링크·최근 글 ====================
+     목록 그리드 안에 두면 244px 열에 끼어 짓눌린다. 반드시 바깥에 -->
+<section class="band" data-page-only="home">
+  <div class="wrap band__grid">
+    <div>
+      <div class="section-head"><h2 class="eyebrow label-ko">관심사</h2></div>
+      <div class="tag-list">
+        <a href="[##_blog_link_##]tag/Android" class="tag">Android</a>
+        <a href="[##_blog_link_##]tag/Kotlin" class="tag">Kotlin</a>
+        <a href="[##_blog_link_##]tag/Flutter" class="tag">Flutter</a>
+        <a href="[##_blog_link_##]tag/Web" class="tag">Web</a>
+      </div>
+      <div class="section-head" style="margin-top:34px"><h2 class="eyebrow label-ko">링크</h2></div>
+      <div class="link-list">
+        <a href="https://github.com/dannyjoo7" class="link-list__item">GitHub<span class="link-list__handle">@dannyjoo7</span></a>
+        <a href="https://www.youtube.com/@danny_joo" class="link-list__item">YouTube<span class="link-list__handle">@danny_joo</span></a>
+        <a href="[##_blog_link_##]rss" class="link-list__item">RSS<span class="link-list__handle">/rss</span></a>
+      </div>
+    </div>
+    <div>
+      <div class="section-head">
+        <h2 class="eyebrow label-ko">최근 글</h2>
+        <a href="[##_blog_link_##]category" class="section-head__more">전체 보기</a>
+      </div>
+      <div class="recent-list" id="home-recent"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 글 목록 ====================
+     홈에서는 통째로 숨는다. 다만 DOM 에는 남아서 위 "최근 글" 의 재료가 된다 -->
+<main class="wrap list-layout" data-page-only="list">
+  <div class="list-head" data-page-only="list">
+    <p class="eyebrow">Archive</p>
+    <h1 class="list-head__title">[##_page_title_##]</h1>
+    <p class="list-head__count">
+      전체 <span data-stat="posts">14편</span> ·
+      <span data-stat="cats">4개</span> 카테고리 ·
+      <span data-stat="pages">2페이지</span>
+    </p>
+  </div>
+
+  <!-- 사이드바 -->
+  <aside class="sidebar" data-page-only="list">
+    <div class="widget">
+      <p class="widget__title">Categories</p>
+      <nav class="widget__body cat-tree">
+        <s_sidebar_element>[##_category_##]</s_sidebar_element>
+      </nav>
+    </div>
+  </aside>
+
+  <div>
+
+    <!-- ==================== 글 목록 ====================
+         s_list_rep 은 본문을 물어오지 않는다. 상세용 s_article_rep 로 목록을
+         그리면 안 보이는 본문까지 전부 내려받는다 (예전 스킨이 그래서 339KB 였다) -->
+    <div class="article-grid" data-page-only="list">
+      <s_list>
+        <s_list_rep>
+          <a href="[##_list_rep_link_##]" class="article-card">
+            <s_list_rep_thumbnail>
+              <div class="article-card__thumb">
+                <img src="[##_list_rep_thumbnail_url_##]" alt="" loading="lazy" />
+              </div>
+            </s_list_rep_thumbnail>
+            <div class="article-card__body">
+              <p class="article-card__cat">[##_list_rep_category_##]</p>
+              <h2 class="article-card__title">[##_list_rep_title_text_##]</h2>
+              <p class="article-card__excerpt">[##_list_rep_summary_##]</p>
+              <p class="article-card__meta">[##_list_rep_regdate_##]<i>·</i>댓글 [##_list_rep_rp_cnt_##]</p>
+            </div>
+          </a>
+        </s_list_rep>
+      </s_list>
+    </div>
+
+    <!-- 페이지 이동 -->
+    <s_paging>
+      <nav class="pagination" aria-label="페이지 이동">
+        <a href="[##_prev_page_##]" class="pagination__link" data-nomore="[##_no_more_prev_##]">이전</a>
+        <s_paging_rep>
+          <a href="[##_paging_rep_link_##]" class="pagination__num">[##_paging_rep_link_num_##]</a>
+        </s_paging_rep>
+        <a href="[##_next_page_##]" class="pagination__link" data-nomore="[##_no_more_next_##]">다음</a>
+      </nav>
+    </s_paging>
+  </div>
+</main>
+
+<!-- ==================== 글 상세 ====================
+     s_permalink_article_rep 은 글 페이지에서만 그려진다 -->
+<s_permalink_article_rep>
+<main class="wrap post-layout">
+  <aside class="sidebar">
+    <div class="widget widget--profile">
+      <div class="profile-card__avatar">
+        <img src="https://raw.githubusercontent.com/dannyjoo7/Dev-Project/main/design/blog/assets/profile.png" alt="dannyjoo" />
+      </div>
+      <div>
+        <p class="profile-card__name">Danny Joo</p>
+        <p class="profile-card__role">Android · Web Developer</p>
+      </div>
+    </div>
+
+    <div class="widget" id="toc-widget" hidden>
+      <p class="widget__title label-ko">이 글의 목차</p>
+      <nav class="widget__body toc-nav" id="toc-nav"></nav>
+    </div>
+
+    <div class="widget">
+      <p class="widget__title">Archive</p>
+      <nav class="widget__body cat-tree">
+        <s_sidebar_element>[##_category_##]</s_sidebar_element>
+      </nav>
+    </div>
+  </aside>
+
+  <article class="post">
+    <header class="post__header">
+      <a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a>
+      <h1 class="post__title">[##_article_rep_title_##]</h1>
+      <p class="post__meta">[##_article_rep_date_##]<i>·</i><span id="read-time"></span></p>
+    </header>
+
+    <div class="post-body">
+      [##_article_rep_desc_##]
+    </div>
+
+    <s_tag_label>
+      <div class="post-tags">
+        <p class="post-tags__label label-ko">태그</p>
+        <div class="post-tags__list">
+          <s_tag_rep>
+            <a href="[##_tag_link_##]" class="post-tags__item">[##_tag_name_##]</a>
+          </s_tag_rep>
+        </div>
+      </div>
+    </s_tag_label>
+
+    <nav class="post-nav" aria-label="이전 다음 글">
+      <s_article_prev>
+        <a href="[##_article_prev_link_##]" class="post-nav__item">
+          <span class="post-nav__arrow" aria-hidden="true"></span>
+          <span class="post-nav__text">
+            <span class="post-nav__dir">이전 글</span>
+            <span class="post-nav__title">[##_article_prev_title_##]</span>
+          </span>
+        </a>
+      </s_article_prev>
+      <s_article_next>
+        <a href="[##_article_next_link_##]" class="post-nav__item post-nav__item--next">
+          <span class="post-nav__arrow" aria-hidden="true"></span>
+          <span class="post-nav__text">
+            <span class="post-nav__dir">다음 글</span>
+            <span class="post-nav__title">[##_article_next_title_##]</span>
+          </span>
+        </a>
+      </s_article_next>
+    </nav>
+
+    <s_rp>
+      <section class="comments">
+        <div class="comments__head">
+          <h2 class="comments__title">댓글</h2>
+          <span class="comments__count"><s_rp_count>[##_article_rep_rp_cnt_##]</s_rp_count></span>
+        </div>
+        <s_rp_rep>
+          <div class="comment" id="[##_rp_rep_id_##]">
+            <div class="comment__head">
+              <span class="comment__author">[##_rp_rep_name_##]</span>
+              <time class="comment__date">[##_rp_rep_date_##]</time>
+              <span class="comment__actions">[##_rp_rep_modify_##]</span>
+            </div>
+            <div class="comment__body">[##_rp_rep_desc_##]</div>
+          </div>
+        </s_rp_rep>
+        <s_rp_input_form>
+          <div class="comment-form">[##_rp_input_comment_##]</div>
+        </s_rp_input_form>
+      </section>
+    </s_rp>
+  </article>
+</main>
+</s_permalink_article_rep>
+
+<!-- ==================== 방명록 ==================== -->
+<s_guest>
+  <main class="wrap post-layout">
+    <article class="post">
+      <header class="post__header">
+        <h1 class="post__title">방명록</h1>
+      </header>
+      <section class="comments">
+        <s_guest_rep>
+          <div class="comment" id="[##_guest_rep_id_##]">
+            <div class="comment__head">
+              <span class="comment__author">[##_guest_rep_name_##]</span>
+              <time class="comment__date">[##_guest_rep_date_##]</time>
+              <span class="comment__actions">[##_guest_rep_modify_##]</span>
+            </div>
+            <div class="comment__body">[##_guest_rep_desc_##]</div>
+          </div>
+        </s_guest_rep>
+        <s_guest_input_form>
+          <div class="comment-form">[##_guest_input_comment_##]</div>
+        </s_guest_input_form>
+      </section>
+    </article>
+  </main>
+</s_guest>
+
+<!-- ==================== 푸터 ==================== -->
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <p class="site-footer__note">© 2026 Danny Joo</p>
+    <div class="site-footer__links">
+      <a href="[##_blog_link_##]rss">RSS</a>
+      <a href="[##_blog_link_##]sitemap.xml">Sitemap</a>
+      <a href="#" id="to-top">위로</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  // 관리 > 블로그 의 "글 목록 개수". 목록을 훑어 10 으로 확인했다
+  var PER_PAGE = 10;
+  var START = '2023/05/16';   // 가장 오래된 공개 글(/4)
+
+  var $  = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- 1. 페이지 종류 ---------- */
+  var path = location.pathname;
+  // data-page 가 미리 박혀 있으면 그걸 쓴다 (미리보기.py 가 이걸로 화면을 고른다)
+  var page = document.body.dataset.page
+           || ($('.post-layout') ? 'post'
+              : (path === '/' || path === '') ? 'home'
+              : 'list');
+  document.body.dataset.page = page;
+
+  $$('[data-page-only]').forEach(function (el) {
+    if (el.dataset.pageOnly.split(' ').indexOf(page) === -1) el.hidden = true;
+  });
+  var navList = $('[data-nav="list"]');
+  if (navList && page !== 'home') navList.setAttribute('aria-current', 'page');
+
+  /* ---------- 2. 테마 ---------- */
+  $('#theme-toggle').addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    localStorage.setItem('theme', next);
+  });
+  var burger = $('.nav-burger');
+  if (burger) burger.addEventListener('click', function () {
+    document.body.classList.toggle('is-nav-open');
+  });
+  $('#site-search').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var q = this.q.value.trim();
+    if (q) location.href = '/search/' + encodeURIComponent(q);
+  });
+
+  var top = $('#to-top');
+  if (top) top.addEventListener('click', function (e) {
+    e.preventDefault();
+    scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  /* ---------- 3. 카테고리 트리 ---------- */
+  // 트리는 한 페이지에 여러 벌 있다 (목록 사이드바 · 글 상세 Archive).
+  // 첫 벌만 손보면 글 상세에 괄호가 그대로 남는다
+  var trees = $$('.cat-tree .tt_category');
+  trees.forEach(function (t) {
+    $$('.c_cnt', t).forEach(function (el) {      // (872) -> 872
+      var n = el.textContent.match(/\d+/);
+      el.textContent = n ? n[0] : '';
+    });
+  });
+  var tree = trees[0];
+  var mega = $('#mega-cats');
+  if (tree && mega) mega.appendChild(tree.cloneNode(true));   // 헤더 메가 패널
+
+  /* ---------- 4. 통계 ---------- */
+  function put(key, text) {
+    $$('[data-stat="' + key + '"]').forEach(function (el) { el.textContent = text; });
+  }
+
+  var days = Math.floor((Date.now() - new Date(START).getTime()) / 86400000);
+  put('days', days.toLocaleString() + '일째');
+  put('years', Math.max(1, Math.floor(days / 365)) + '년');
+
+  // 마지막 글 — 목록 첫 카드의 날짜. 추가 요청 없음
+  var firstMeta = $('.article-card__meta');
+  if (firstMeta) {
+    var d = firstMeta.textContent.match(/\d{4}[.\-]\d{1,2}[.\-]\d{1,2}/);
+    if (d) put('last', d[0].replace(/-/g, '.'));
+  }
+
+  function paint(posts, cats) {
+    if (posts) {
+      put('posts', posts + '편');
+      put('posts-n', posts);
+      put('pages', Math.ceil(posts / PER_PAGE) + '페이지');
+    }
+    if (cats) { put('cats', cats + '개'); put('cats-n', cats); }
+    if (posts) put('summary', '전체 ' + posts + '편 · ' + (cats || 0) + '개 카테고리');
+  }
+
+  // 카테고리·태그·검색 화면에서 블로그 전체 숫자를 그대로 보여주면 거짓말이 된다.
+  // 3편 띄워놓고 "전체 14편" 이라고 적히는 식
+  var seg = path.split('/').filter(Boolean);
+  var headCount = $('.list-head__count');
+  if (headCount && (seg[0] === 'tag' || seg[0] === 'search')) {
+    headCount.hidden = true;               // 걸러진 개수를 티스토리가 주지 않는다
+  } else if (headCount && seg[0] === 'category' && seg.length > 1) {
+    var sel = tree && tree.querySelector('.selected > a .c_cnt');
+    headCount.textContent = sel ? '이 카테고리 ' + sel.textContent + '편' : '';
+  }
+
+  var totalEl = tree && tree.querySelector('.link_tit .c_cnt');
+  var total = totalEl ? parseInt(totalEl.textContent, 10) : 0;
+
+  if (total) {
+    paint(total, tree.querySelectorAll('.category_list > li').length);
+  } else {
+    // 카테고리 글 수 표시가 꺼져 있을 때. sitemap 2.8KB 한 번
+    fetch('/sitemap.xml').then(function (r) { return r.text(); }).then(function (xml) {
+      var doc = new DOMParser().parseFromString(xml, 'application/xml');
+      var urls = $$('loc', doc).map(function (n) { return n.textContent; });
+      paint(
+        urls.filter(function (u) { return /\/\d+$/.test(u); }).length,
+        urls.filter(function (u) { return /\/category\/[^\/]+$/.test(u); }).length
+      );
+    }).catch(function () { /* 마크업에 적힌 값을 그대로 둔다 */ });
+  }
+
+  /* ---------- 5. 목록 1페이지 첫 글은 크게 ---------- */
+  if (page === 'list' && (new URLSearchParams(location.search).get('page') || '1') === '1') {
+    var lead = $('.article-grid .article-card');
+    if (lead && $('.article-card__thumb', lead)) lead.classList.add('article-card--hero');
+  }
+
+  /* ---------- 6. 홈 최근 글 ---------- */
+  var recent = $('#home-recent');
+  if (recent) {
+    $$('.article-card').slice(0, 4).forEach(function (card) {
+      var a = document.createElement('a');
+      a.href = card.getAttribute('href');
+      a.className = 'recent-list__item';
+      var img = $('.article-card__thumb img', card);
+      a.innerHTML =
+        '<div class="recent-list__thumb">' + (img ? '<img src="' + img.src + '" alt="" loading="lazy">' : '') + '</div>' +
+        '<div><p class="recent-list__title"></p><p class="recent-list__date"></p></div>';
+      $('.recent-list__title', a).textContent = $('.article-card__title', card).textContent;
+      $('.recent-list__date', a).textContent = $('.article-card__meta', card).textContent.split('·')[0].trim();
+      recent.appendChild(a);
+    });
+  }
+
+  /* ---------- 7. 페이지 이동 — 더 없는 쪽은 흐리게 ---------- */
+  $$('.pagination__link').forEach(function (el) {
+    if (el.dataset.nomore) { el.setAttribute('aria-disabled', 'true'); el.removeAttribute('href'); }
+  });
+  var here = new URLSearchParams(location.search).get('page') || '1';
+  $$('.pagination__num').forEach(function (el) {
+    if (el.textContent.trim() === here) {
+      el.classList.add('pagination__num--on');
+      el.setAttribute('aria-current', 'page');
+    }
+  });
+
+  /* ---------- 8. 글 상세 — 목차·읽는 시간·진행률 ---------- */
+  var body = $('.post-body');
+  if (body) {
+    var words = body.textContent.trim().length;
+    var rt = $('#read-time');
+    if (rt) rt.textContent = '읽는 시간 ' + Math.max(1, Math.round(words / 500)) + '분';
+
+    var heads = $$('h2, h3', body).filter(function (h) { return h.textContent.trim(); });
+    if (heads.length > 1) {
+      var nav = $('#toc-nav');
+      heads.forEach(function (h, i) {
+        if (!h.id) h.id = 'h' + i;
+        var a = document.createElement('a');
+        a.href = '#' + h.id;
+        a.className = 'toc-nav__link' + (h.tagName === 'H3' ? ' toc-nav__link--h3' : '');
+        a.textContent = h.textContent.trim();
+        nav.appendChild(a);
+      });
+      $('#toc-widget').hidden = false;
+
+      var links = $$('.toc-nav__link', nav);
+      var spy = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var i = heads.indexOf(e.target);
+          links.forEach(function (l, j) {
+            if (j === i) l.setAttribute('aria-current', 'true');
+            else l.removeAttribute('aria-current');
+          });
+        });
+      }, { rootMargin: '-80px 0px -70% 0px' });
+      heads.forEach(function (h) { spy.observe(h); });
+    }
+
+    var bar = $('.read-progress__bar');
+    addEventListener('scroll', function () {
+      var r = body.getBoundingClientRect();
+      var done = Math.min(1, Math.max(0, -r.top / Math.max(1, r.height - innerHeight)));
+      bar.style.transform = 'scaleX(' + done + ')';
+    }, { passive: true });
+  }
+
+  /* ---------- 9. 코드 블록 복사 ---------- */
+  var COPY = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2.5"/><path d="M5 15V6.5A2.5 2.5 0 0 1 7.5 4H16"/></svg>';
+  var CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>';
+
+  $$('.post-body pre').forEach(function (pre) {
+    var wrap = document.createElement('div');
+    wrap.className = 'code-block';
+    wrap.innerHTML = '<div class="code-block__bar"><span class="code-block__dots" aria-hidden="true">' +
+      '<i></i><i></i><i></i></span><span class="code-block__lang">' +
+      (pre.getAttribute('data-ke-language') || 'code') +
+      '</span><button class="code-block__copy" type="button" aria-label="코드 복사">' + COPY + '</button></div>';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+
+    $('.code-block__copy', wrap).addEventListener('click', function () {
+      var btn = this;
+      navigator.clipboard.writeText(pre.textContent).then(function () {
+        // 글자로 바꾸면 폰트가 튀고 버튼 폭이 흔들린다. 아이콘만 바꾼다
+        btn.innerHTML = CHECK;
+        btn.classList.add('is-done');
+        setTimeout(function () { btn.innerHTML = COPY; btn.classList.remove('is-done'); }, 1400);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

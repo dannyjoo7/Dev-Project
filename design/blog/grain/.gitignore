@@ -1,0 +1,13 @@
+# 올라가는 건 결과물 넷뿐이다.
+#   skin.html  style.css  index.xml  preview/*.png
+# 아래는 그걸 만들어내는 작업 파일이라 로컬에만 둔다.
+
+# 시안 -> style.css 파이프라인
+apply-fixes.py
+build-css.py
+preview.py
+category-sample.html
+mockup/
+
+# preview.py 가 만드는 중간 html (png 는 README 가 쓰니 커밋한다)
+preview/_*.html

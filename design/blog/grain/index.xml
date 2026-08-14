@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<skin>
+  <information>
+    <name>dannyjoo.io Grain</name>
+    <version>1.0.0</version>
+    <description>Thin rules and whitespace. Blue palette, dark mode, auto category tree and stats</description>
+    <license>MIT</license>
+  </information>
+  <author>
+    <name>dannyjoo</name>
+    <homepage>https://dannyjoo.tistory.com</homepage>
+    <email></email>
+  </author>
+  <default>
+    <recentEntries>4</recentEntries>
+    <recentComments>5</recentComments>
+    <recentTrackbacks>0</recentTrackbacks>
+    <itemsOnGuestbook>10</itemsOnGuestbook>
+    <tagsInCloud>30</tagsInCloud>
+    <sortInCloud>3</sortInCloud>
+    <expandComment>1</expandComment>
+    <expandTrackback>0</expandTrackback>
+    <lengthOfRecentComment>30</lengthOfRecentComment>
+    <lengthOfRecentTrackback>30</lengthOfRecentTrackback>
+    <showListOnCategory>1</showListOnCategory>
+    <showListOnArchive>1</showListOnArchive>
+    <showListOnTag>1</showListOnTag>
+    <showListOnSearch>1</showListOnSearch>
+    <showListOnGuestbook>1</showListOnGuestbook>
+    <commentMessage />
+    <trackbackMessage />
+  </default>
+</skin>
