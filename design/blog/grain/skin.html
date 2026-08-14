@@ -249,9 +249,9 @@
       <div class="post-tags">
         <p class="post-tags__label label-ko">태그</p>
         <div class="post-tags__list">
-          <s_tag_rep>
-            <a href="[##_tag_link_##]" class="post-tags__item">[##_tag_name_##]</a>
-          </s_tag_rep>
+          <s_tag_label_rep>
+            <a href="[##_tag_label_rep_link_##]" class="post-tags__item">[##_tag_label_rep_##]</a>
+          </s_tag_label_rep>
         </div>
       </div>
     </s_tag_label>
@@ -493,6 +493,18 @@
   /* ---------- 8. 글 상세 — 목차·읽는 시간·진행률 ---------- */
   var body = $('.post-body');
   if (body) {
+    // 에디터가 남긴 빈 문단(23개까지 나온다)이 각각 여백을 먹어 제목 앞이 텅 빈다
+    $$('p', body).forEach(function (el) {
+      if (!el.children.length && !el.textContent.replace(/ |\s/g, '')) el.remove();
+    });
+    // 표는 감싸서 스크롤시킨다. table 자체에 display:block 을 주면 폭이 안 늘어난다
+    $$('table', body).forEach(function (t) {
+      if (t.parentNode.classList.contains('table-wrap')) return;
+      var w = document.createElement('div');
+      w.className = 'table-wrap';
+      t.parentNode.insertBefore(w, t);
+      w.appendChild(t);
+    });
     var words = body.textContent.trim().length;
     var rt = $('#read-time');
     if (rt) rt.textContent = '읽는 시간 ' + Math.max(1, Math.round(words / 500)) + '분';

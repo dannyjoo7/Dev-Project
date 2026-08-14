@@ -1332,14 +1332,20 @@ button { cursor: pointer; }
 }
 .post-body figure { margin: var(--post-gap) 0; }
 
+/* 표. display:block 을 주면 표가 아니게 돼서 폭이 안 늘어난다.
+   가로 스크롤은 감싼 div 가 맡는다 (JS 가 .table-wrap 을 씌운다) */
+.post-body .table-wrap { overflow-x: auto; margin: var(--post-gap) 0; }
 .post-body table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-sm);
-  margin: var(--post-gap) 0;
-  display: block;
-  overflow-x: auto;          /* 좁은 화면에서 표만 가로 스크롤 */
+  table-layout: auto;
 }
+
+/* 티스토리가 본문 끝에 끼워 넣는 블록들. 디자인에 없어서 걷어낸다.
+   이전·다음 글은 스킨이 따로 그리고, 카테고리는 사이드바에 있다 */
+.another_category { display: none !important; }
+.container_postbtn { margin: var(--sp-7) 0 0; }
 .post-body th, .post-body td { padding: 11px var(--sp-4); text-align: left; }
 .post-body thead th {
   background: var(--fill);
