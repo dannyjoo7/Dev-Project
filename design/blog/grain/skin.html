@@ -191,10 +191,9 @@
 </main>
 
 <!-- ==================== 글 상세 ====================
-     s_permalink_article_rep 은 글 페이지에서만 그려진다 -->
-<s_article_rep>
-<s_permalink_article_rep>
-<main class="wrap post-layout">
+     사이드바는 반복 블록 바깥에 둔다. 안에 넣으면 최근 글 치환자가
+     현재 글로 채워져서 같은 글이 여러 번 나온다 -->
+<main class="wrap post-layout" data-page-only="post">
   <aside class="sidebar">
     <div class="widget widget--profile">
       <div class="profile-card__avatar">
@@ -218,8 +217,23 @@
       </nav>
     </div>
 
+    <div class="widget">
+      <p class="widget__title label-ko">최근 글</p>
+      <div class="widget__body recent-list">
+        <s_rctps_rep>
+          <a href="[##_rctps_rep_link_##]" class="recent-list__item">
+            <div>
+              <p class="recent-list__title">[##_rctps_rep_title_##]</p>
+              <p class="recent-list__date">[##_rctps_rep_simple_date_##]</p>
+            </div>
+          </a>
+        </s_rctps_rep>
+      </div>
+    </div>
   </aside>
 
+<s_article_rep>
+<s_permalink_article_rep>
   <article class="post">
     <header class="post__header">
       <a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a>
@@ -285,9 +299,10 @@
       </section>
     </s_rp>
   </article>
-</main>
 </s_permalink_article_rep>
 </s_article_rep>
+</main>
+
 
 <!-- ==================== 푸터 ==================== -->
 <footer class="site-footer">
@@ -313,7 +328,7 @@
   var path = location.pathname;
   // data-page 가 미리 박혀 있으면 그걸 쓴다 (미리보기.py 가 이걸로 화면을 고른다)
   var page = document.body.dataset.page
-           || ($('.post-layout') ? 'post'
+           || ($('.post-layout .post') ? 'post'
               : (path === '/' || path === '') ? 'home'
               : 'list');
   document.body.dataset.page = page;
