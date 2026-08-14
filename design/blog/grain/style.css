@@ -1259,9 +1259,18 @@ button { cursor: pointer; }
 /* 첫 글(큰 카드) 썸네일. 비율을 안 잡으면 세로로 긴 이미지가 카드를 통째로 늘린다 */
 .article-card--hero .article-card__thumb { aspect-ratio: 4 / 3; max-height: 340px; }
 
-/* 프로필 카드 숫자. 폭이 제각각이라 아래 라벨이 안 맞았다. 3등분으로 고정 */
+/* 프로필 카드 숫자를 3등분으로 고정.
+   tabular-nums 는 뺀다. 모든 숫자를 같은 폭으로 맞추느라 4 처럼 좁은 글자에
+   좌우 여백이 붙어서, 상자는 맞는데 글자가 라벨보다 안쪽으로 밀려 보인다 */
 .profile-card__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
 .profile-card__stat { min-width: 0; }
+.profile-card__stat b { font-variant-numeric: normal; }
+
+/* 최근 글. 썸네일이 48x48 상자인데 잘라내질 않아 찌그러졌다.
+   줄 간격도 좁아 위아래 글이 붙어 보인다 */
+.recent-list__item { padding: var(--sp-4) 0; }
+.recent-list__thumb { overflow: hidden; background: var(--fill); }
+.recent-list__thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
 /* 카테고리 새 글 표시. 티스토리 gif 를 걷어내고 점으로 */
 .cat-tree .tt_category a { justify-content: flex-start; }
