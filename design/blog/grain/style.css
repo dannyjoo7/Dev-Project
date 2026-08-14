@@ -1334,12 +1334,18 @@ button { cursor: pointer; }
 
 /* 표. display:block 을 주면 표가 아니게 돼서 폭이 안 늘어난다.
    가로 스크롤은 감싼 div 가 맡는다 (JS 가 .table-wrap 을 씌운다) */
-.post-body .table-wrap { overflow-x: auto; margin: var(--post-gap) 0; }
+.post-body .table-wrap {
+  overflow-x: auto;
+  margin: var(--post-gap) 0;
+  border: 1px solid var(--ln);
+  border-radius: var(--r);
+}
 .post-body table {
   width: 100%;
   border-collapse: collapse;
   font-size: var(--fs-sm);
   table-layout: auto;
+  font-variant-numeric: tabular-nums;
 }
 
 /* 티스토리가 본문 끝에 끼워 넣는 블록들. 디자인에 없어서 걷어낸다.
@@ -1351,25 +1357,39 @@ button { cursor: pointer; }
    사이드바에 프로필이 이미 있어서 겹치고, 안쪽 여백을 손댈 수 없다.
    걷어내면 댓글이 자연히 위로 온다 */
 [data-tistory-react-app="Namecard"] { display: none !important; }
-.post-body th, .post-body td { padding: 11px var(--sp-4); text-align: left; }
+.post-body th, .post-body td { padding: 13px var(--sp-5); text-align: left; }
 .post-body thead th {
   background: var(--fill);
   font-weight: 700;
   font-size: var(--fs-xs);
   letter-spacing: -0.01em;
   color: var(--ink-3);
+  white-space: nowrap;
 }
 .post-body tbody tr { border-top: 1px solid var(--ln); }
+.post-body tbody tr:hover { background: var(--fill); }
 .post-body td { color: var(--ink-2); }
 .post-body td:first-child { color: var(--ink); font-weight: 700; }
 
+/* 인용. 회색 선 하나로는 본문에 묻힌다. 강조색 선과 옅은 면을 준다 */
 .post-body blockquote {
-  margin: var(--post-gap) 0 var(--post-gap) 0;
-  padding-left: var(--sp-5);
-  box-shadow: inset 2px 0 0 var(--ln-strong);
+  margin: var(--post-gap) 0;
+  padding: var(--sp-4) var(--sp-5);
+  border-left: 3px solid var(--acc);
+  border-radius: 0 var(--r) var(--r) 0;
+  background: var(--box-blue-bg);
+  box-shadow: none;
   font-size: 16.5px;
   line-height: 1.72;
   color: var(--ink-2);
+}
+.post-body blockquote > *:first-child { margin-top: 0; }
+.post-body blockquote cite {
+  display: block;
+  margin-top: var(--sp-3);
+  font-size: var(--fs-xs);
+  font-style: normal;
+  color: var(--ink-3);
 }
 /* 구분선. 티스토리는 hr[data-ke-style] 을 64px 짜리 점 스프라이트 이미지로 그린다.
    (background-image + height:20px) 얇은 선으로 되돌린다 */
