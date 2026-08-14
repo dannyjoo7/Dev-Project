@@ -1256,6 +1256,37 @@ button { cursor: pointer; }
   opacity: 0.4;
 }
 
+/* 첫 글(큰 카드) 썸네일. 비율을 안 잡으면 세로로 긴 이미지가 카드를 통째로 늘린다 */
+.article-card--hero .article-card__thumb { aspect-ratio: 4 / 3; max-height: 340px; }
+
+/* 프로필 카드 숫자. 폭이 제각각이라 아래 라벨이 안 맞았다. 3등분으로 고정 */
+.profile-card__stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3); }
+.profile-card__stat { min-width: 0; }
+
+/* 카테고리 새 글 표시. 티스토리 gif 를 걷어내고 점으로 */
+.cat-tree .tt_category a { justify-content: flex-start; }
+.cat-tree .tt_category .c_cnt { margin-left: auto; }
+.cat-tree .tt_category .cat-new {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--acc);
+  flex: none;
+  margin-left: 6px;
+}
+
+/* 검색·태그 결과 없음 */
+.list-empty {
+  padding: var(--sp-8) 0;
+  text-align: center;
+  color: var(--ink-3);
+  font-size: var(--fs-sm);
+}
+
+/* 푸터는 위로 버튼만 남겼다. margin-left:auto 때문에 오른쪽으로 밀려 있었다 */
+.site-footer__inner { justify-content: center; }
+.site-footer__links { margin-left: 0; }
+
 /* 아바타 — 목업에선 회색 자리표시자였다. 실제로는 img 가 들어간다 */
 .profile-card__avatar { overflow: hidden; background: var(--fill); flex: none; }
 .profile-card__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -1263,7 +1294,16 @@ button { cursor: pointer; }
 /* ----- 본문 요소 -----
    티스토리 에디터는 클래스 없는 table·blockquote·hr 을 뱉는다.
    목업의 .post-* 스타일을 맨몸 태그에도 걸어준다 */
-.post-body img { max-width: 100%; height: auto; }
+/* 본문 이미지. 폰 스크린샷처럼 세로로 긴 것이 화면을 다 잡아먹지 않게 상한을 둔다 */
+.post-body img {
+  max-width: 100%;
+  height: auto;
+  max-height: 78vh;
+  width: auto;
+  display: block;
+  margin: var(--post-gap) auto;
+  border-radius: var(--r);
+}
 .post-body figure { margin: var(--post-gap) 0; }
 
 .post-body table {

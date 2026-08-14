@@ -69,9 +69,9 @@
 <section class="hero" data-page-only="home">
   <div class="wrap hero__grid">
     <div>
-      <p class="eyebrow">Android · Web · Seoul</p>
-      <h1 class="hero__title">만든 것보다 고친 것을 더 많이 씁니다<em>.</em></h1>
-      <p class="hero__lede">안드로이드 앱과 웹을 함께 만듭니다. 프로덕션에서 실제로 터진 문제와 그걸 고친 과정을 남깁니다. 잘 된 이야기보다 잘못됐던 이야기가 많습니다.</p>
+      <p class="eyebrow">About</p>
+      <h1 class="hero__title">기록하고, 공유합니다<em>.</em></h1>
+      <p class="hero__lede">이 블로그는 개발하며 마주치는 문제들과 해결 과정, 그리고 일상의 소소한 이야기를 담는 공간입니다. 복잡한 것을 단순하게 정리하고, 나중의 나를 위해 기록합니다.</p>
       <div class="hero__actions">
         <a href="[##_blog_link_##]category" class="btn btn--primary">글 보러 가기</a>
         <a href="https://github.com/dannyjoo7" class="btn btn--ghost">GitHub</a>
@@ -88,7 +88,7 @@
       </div>
       <div>
         <h2 class="profile-card__name">Danny Joo</h2>
-        <p class="profile-card__role">Android · Web Developer</p>
+        <p class="profile-card__role">Developer</p>
       </div>
       <p class="profile-card__bio">개발, 기술, 그리고 일상에 대한 기록.</p>
       <div class="profile-card__stats">
@@ -116,7 +116,6 @@
       <div class="link-list">
         <a href="https://github.com/dannyjoo7" class="link-list__item">GitHub<span class="link-list__handle">@dannyjoo7</span></a>
         <a href="https://www.youtube.com/@danny_joo" class="link-list__item">YouTube<span class="link-list__handle">@danny_joo</span></a>
-        <a href="[##_blog_link_##]rss" class="link-list__item">RSS<span class="link-list__handle">/rss</span></a>
       </div>
     </div>
     <div>
@@ -177,6 +176,8 @@
       </s_list>
     </div>
 
+    <p class="list-empty" hidden></p>
+
     <!-- 페이지 이동 -->
     <s_paging>
       <nav class="pagination" aria-label="페이지 이동">
@@ -202,7 +203,7 @@
       </div>
       <div>
         <p class="profile-card__name">Danny Joo</p>
-        <p class="profile-card__role">Android · Web Developer</p>
+        <p class="profile-card__role">Developer</p>
       </div>
     </div>
 
@@ -216,6 +217,22 @@
       <nav class="widget__body cat-tree">
         <s_sidebar_element>[##_category_list_##]</s_sidebar_element>
       </nav>
+    </div>
+
+    <div class="widget">
+      <p class="widget__title label-ko">최근 글</p>
+      <div class="widget__body recent-list">
+        <s_sidebar_element>
+          <s_rctps_rep>
+            <a href="[##_rctps_rep_link_##]" class="recent-list__item">
+              <div>
+                <p class="recent-list__title">[##_rctps_rep_title_##]</p>
+                <p class="recent-list__date">[##_rctps_rep_simple_date_##]</p>
+              </div>
+            </a>
+          </s_rctps_rep>
+        </s_sidebar_element>
+      </div>
     </div>
   </aside>
 
@@ -317,10 +334,7 @@
 <!-- ==================== 푸터 ==================== -->
 <footer class="site-footer">
   <div class="wrap site-footer__inner">
-    <p class="site-footer__note">© 2026 Danny Joo</p>
     <div class="site-footer__links">
-      <a href="[##_blog_link_##]rss">RSS</a>
-      <a href="[##_blog_link_##]sitemap.xml">Sitemap</a>
       <a href="#" id="to-top">위로</a>
     </div>
   </div>
@@ -383,6 +397,15 @@
       var n = el.textContent.match(/\d+/);
       el.textContent = n ? n[0] : '';
     });
+    // 티스토리가 끼워 넣는 새 글 표시(new_ico_1.gif). 라벨 옆 작은 점으로 바꾼다
+    $$('img[alt="N"]', t).forEach(function (img) {
+      var dot = document.createElement('i');
+      dot.className = 'cat-new';
+      dot.title = '새 글';
+      var cnt = img.parentNode.querySelector('.c_cnt');
+      img.parentNode.insertBefore(dot, cnt || img);
+      img.remove();
+    });
   });
   var tree = trees[0];
   var mega = $('#mega-cats');
@@ -423,6 +446,15 @@
   } else if (headCount && seg[0] === 'category' && seg.length > 1) {
     var sel = tree && tree.querySelector('.selected > a .c_cnt');
     headCount.textContent = sel ? '이 카테고리 ' + sel.textContent + '편' : '';
+  }
+
+  // 검색·태그에서 걸리는 글이 없으면 화면이 통째로 비어 버린다
+  var empty = $('.list-empty');
+  if (page === 'list' && empty && !$('.article-grid .article-card')) {
+    empty.textContent = seg[0] === 'search' ? '검색 결과가 없습니다'
+                      : seg[0] === 'tag'    ? '이 태그로 쓴 글이 없습니다'
+                      : '아직 글이 없습니다';
+    empty.hidden = false;
   }
 
   var totalEl = tree && tree.querySelector('.link_tit .c_cnt');
@@ -538,8 +570,8 @@
   $$('.post-body pre').forEach(function (pre) {
     var wrap = document.createElement('div');
     wrap.className = 'code-block';
-    wrap.innerHTML = '<div class="code-block__bar"><span class="code-block__dots" aria-hidden="true">' +
-      '<i></i><i></i><i></i></span><span class="code-block__lang">' +
+    wrap.innerHTML = '<div class="code-block__bar"><span class="code-block__lights" aria-hidden="true">' +
+      '<i></i><i></i><i></i></span><span class="code-block__name">' +
       (pre.getAttribute('data-ke-language') || 'code') +
       '</span><button class="code-block__copy" type="button" aria-label="코드 복사">' + COPY + '</button></div>';
     pre.parentNode.insertBefore(wrap, pre);
