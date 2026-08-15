@@ -1235,6 +1235,26 @@ button { cursor: pointer; }
 
 /* ===== 스킨 전용 ===== */
 
+/* 테마를 바꾸는 그 순간만 트랜지션을 끈다.
+   hover 피드백용으로 걸어 둔 color 240ms 가 39곳인데, 테마를 바꿀 때도 같이 걸린다.
+   배경은 즉시 바뀌는 반면(background-color 트랜지션 0곳) 글자만 240ms 동안 옛 색에서
+   출발해서, 그 사이 글자가 배경에 묻는다. 브랜드 글자 명암비가 1.11:1 까지 떨어졌다.
+   JS 가 이 클래스를 붙였다가 두 프레임 뒤에 뗀다 (2026-08-15 실측) */
+html.theme-switching,
+html.theme-switching *,
+html.theme-switching *::before,
+html.theme-switching *::after {
+  transition: none !important;
+}
+
+
+/* 시안 HTML 에는 html,body{margin:0} 이 있는데 blog-skin.css 로는 안 넘어왔다.
+   시안 페이지 안에만 있던 리셋이라 생성된 스킨에서 빠졌다.
+   티스토리가 붙이는 시트 13개에도 body 여백을 되돌리는 규칙이 없어서 브라우저 기본 8px 이 산다.
+   결과: 헤더가 좌우 8px 을 못 채우고, 스크롤 첫 10px 동안 top 이 10 에서 0 으로 흘렀다.
+   (2026-08-15 모션 전수조사에서 잡음) */
+html, body { margin: 0; }
+
 /* 애플식 라운디드 스퀘어. border-radius 는 원호라 모서리가 갑자기 꺾이는데,
    corner-shape: squircle 은 연속 곡률이라 아이콘·카드처럼 부드럽게 이어진다.
    지원 안 하는 브라우저는 지금처럼 원호로 그려진다 */
@@ -1295,6 +1315,28 @@ button { cursor: pointer; }
   margin-left: 6px;
 }
 
+/* 읽기 진행바. scaleX 는 기본 원점이 가운데라 양쪽으로 퍼진다.
+   왼쪽에서 오른쪽으로 차게 원점을 옮긴다 */
+.read-progress__bar { transform-origin: left center; }
+
+/* 진행바를 흐름에서 빼고 헤더 아래에 정확히 붙인다.
+   전에는 sticky 였는데 마크업상 헤더보다 앞이라 흐름에서 헤더를 2px 밀어냈다.
+   그래서 스크롤 0 일 때 헤더가 top=2 에서 시작해 처음 2px 스크롤 동안 흘렀다.
+   붙는 위치도 어긋났다. --header-h 는 60px 인데 헤더는 아래 테두리 1px 이 붙어 61px 이라
+   바가 헤더 마지막 1px 을 파고들었다(2026-08-15 실측: 스크롤 0에서 2px, 이후 1px 겹침).
+   헤더가 sticky top:0 이라 늘 화면 맨 위에 있으므로 fixed 로 둬도 같은 자리다 */
+.read-progress {
+  position: fixed;
+  top: calc(var(--header-h) + 1px);
+  left: 0;
+  right: 0;
+}
+
+/* 이전·다음 글. 2열 그리드는 한쪽만 있을 때 빈 칸이 남거나 배치가 흔들린다.
+   flex 로 두면 둘이면 반씩, 하나면 꽉 찬다 */
+.post-nav { display: flex; flex-wrap: wrap; gap: var(--sp-3); }
+.post-nav__item { flex: 1 1 240px; min-width: 0; }
+
 /* 검색·태그 결과 없음 */
 .list-empty {
   padding: var(--sp-8) 0;
@@ -1311,99 +1353,257 @@ button { cursor: pointer; }
 .profile-card__avatar { overflow: hidden; background: var(--fill); flex: none; }
 .profile-card__avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-/* ★ 티스토리는 본문을 <div class="contents_style"> 로 한 겹 싼다.
-   그래서 목업의 `.post-body > * + *` 가 그 래퍼 하나에만 걸리고
-   문단 사이 간격이 통째로 사라진다. 한 단계 안쪽에 다시 건다 */
-.post-body .contents_style > * + * { margin-top: var(--post-gap); }
-.post-body .contents_style > *:first-child { margin-top: 0; }
-.post-body .contents_style > h2 { margin-top: var(--post-h2-top); }
-.post-body .contents_style > h2 + * { margin-top: var(--sp-6); }   /* 34px. 26px 는 붙어 보였다 */
-.post-body .contents_style > h3 { margin-top: var(--post-h3-top); }
-.post-body .contents_style > h3 + * { margin-top: var(--sp-5); }   /* 24px */
+/* 본문 안쪽(문단 간격·제목·표·인용·구분선·이미지)은 mockup/fmt.css 가 맡는다.
+   여기서 또 정의하면 두 벌이 싸운다. 실제로 fmt.css 가 border-radius 만
+   선언하지 않아서 옛 인용 모서리가 살아남았다(2026-08-14). */
 
-/* 사이드바 자체 스크롤바가 본문 옆에 그어져 거슬린다. 스크롤은 살리고 막대만 숨긴다 */
-.sidebar { scrollbar-width: none; }
-.sidebar::-webkit-scrollbar { display: none; }
+/* 읽는 내내 따라오게. align-self:start 가 없으면 그리드가 본문 높이만큼
+   늘려버려서 sticky 가 안 먹는다 */
+.post-layout .sidebar,
+.list-layout .sidebar {
+  align-self: start;
+  position: sticky;
+  top: calc(var(--header-h) + var(--sp-5));
+  max-height: calc(100vh - var(--header-h) - var(--sp-6));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.sidebar { scrollbar-width: thin; scrollbar-color: transparent transparent; }
+.sidebar:hover { scrollbar-color: var(--ln-strong) transparent; }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: transparent; border-radius: 3px; }
+.sidebar:hover::-webkit-scrollbar-thumb { background: var(--ln-strong); }
+
+/* --- 글 상세 반응형 ---
+   목차는 읽는 내내 쓰고, 정보 묶음(프로필·Archive·최근 글)은 다 읽고 쓴다.
+   폭이 줄면 정보를 먼저 본문 아래로 내리고 목차는 끝까지 왼쪽에 남긴다 */
+@media (min-width: 1300px) {
+  .post-layout {
+    max-width: 1360px;
+    grid-template-columns: 224px minmax(0, 1fr) 244px;
+    gap: var(--sp-7);
+  }
+  .post-layout > .sidebar--toc { order: 1; }
+  .post-layout > .post { order: 2; }
+  .post-layout > .sidebar--info { order: 3; }
+}
+
+/* 큰 화면 — 양쪽 여백이 많이 남는다. 사이드바를 넉넉히 주되
+   본문은 .post 의 max-width(52rem)에서 알아서 멈춘다 */
+@media (min-width: 1620px) {
+  .post-layout {
+    max-width: 1560px;
+    grid-template-columns: 280px minmax(0, 1fr) 300px;
+    gap: var(--sp-8);
+  }
+}
+
+/* 중간 폭 — 목차는 왼쪽에 두고 정보만 아래로 눕힌다 */
+@media (min-width: 1000px) and (max-width: 1299px) {
+  .post-layout { grid-template-columns: 208px minmax(0, 1fr); gap: var(--sp-6); }
+  .post-layout > .sidebar--toc { order: 1; }
+  .post-layout > .post { order: 2; }
+  .post-layout > .sidebar--info {
+    order: 3;
+    grid-column: 1 / -1;
+    position: static;
+    max-height: none;
+    overflow: visible;
+    margin-top: var(--sp-7);
+    padding-top: var(--sp-6);
+    border-top: 1px solid var(--ln);
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-6);
+    align-items: start;
+  }
+  .sidebar--info .widget + .widget { padding-top: 0; border-top: 0; }
+}
+
+/* 좁은 화면 — 목차까지 접는다 */
+@media (max-width: 999px) {
+  .sidebar--toc { display: none; }
+  .post-layout { grid-template-columns: minmax(0, 1fr); }
+  .post-layout > .sidebar--info { position: static; max-height: none; overflow: visible; }
+}
+
+
+/* Archive 는 최상위 분류만. 하위까지 펼치면 748px 이라 사이드바를 혼자 다 먹는다.
+   하위 분류는 헤더 Archive 메가 패널에 전부 있다 */
+.sidebar--info .cat-tree .sub_category_list { display: none; }
+
+/* 댓글은 티스토리가 통째로 그린다. 폭과 위 여백만 잡아준다 */
+.comments { margin-top: var(--sp-7); }
+/* 검색창은 포커스에서 테두리와 글자색이 같이 바뀌는데 시안은 테두리만 이어 준다.
+   글자색만 툭 튄다. 같은 값으로 맞춘다 (2026-08-15 모션 전수조사) */
+.site-search { transition: border-color var(--t-fill) ease, color var(--t-fill) ease; }
+/* ----- 모바일 메뉴 -----
+   햄버거는 body 에 .is-nav-open 을 붙이기만 했고 받는 규칙이 없었다.
+   그래서 눌러도 아무 일이 없었다(2026-08-15). 여기서 받는다.
+   헤더 안쪽을 wrap 시켜 메뉴와 검색을 아래 줄로 흘린다. 띄우지 않으니 겹칠 일이 없다 */
+/* 높이를 auto 로 보내는 트랜지션은 이것 없이는 안 돈다. 값이 아니라 키워드라서다.
+   못 알아듣는 브라우저에선 지금까지처럼 즉시 열린다. 동작은 같고 사이만 안 이어진다.
+   느린 화면 효과를 끄는 설정은 위쪽 prefers-reduced-motion 이 전부 눌러 준다 */
+:root { interpolate-size: allow-keywords; }
+
+@media (max-width: 900px) {
+  /* 메뉴가 팍 튀어나오지 않게 헤더를 늘려서 연다.
+     넘치는 동안 메뉴가 밖으로 비져 나오므로 가려 둔다 */
+  .site-header__inner {
+    overflow: hidden;
+    transition: height var(--t-fill) var(--ease-out),
+                padding-bottom var(--t-fill) var(--ease-out),
+                row-gap var(--t-fill) var(--ease-out);
+  }
+  body.is-nav-open .site-header__inner {
+    height: auto;
+    flex-wrap: wrap;
+    padding-bottom: var(--sp-3);
+    row-gap: var(--sp-3);
+  }
+  body.is-nav-open .site-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    order: 3;
+    flex: 1 0 100%;
+    margin: 0;
+    gap: 0;
+    padding-top: var(--sp-2);
+    border-top: 1px solid var(--ln);
+  }
+  /* 검색은 꺼내지 않는다. .site-header__tools 안에 있어서 헤더 줄에서 못 빠지고,
+     억지로 100% 를 주면 min-width 때문에 오른쪽으로 넘친다 */
+  body.is-nav-open .nav-dropdown { display: block; align-self: stretch; }
+
+  /* ----- 하위는 접어 둔다 -----
+     처음엔 전부 펼쳐 뒀더니 카테고리가 다 들어와 메뉴가 951px 이었다(2026-08-15).
+     390x844 화면을 넘겨서 접었다 펴는 방식으로 바꿨다. 펼침은 JS 가 .is-open 으로 알린다.
+     접힘·펼침 둘 다 제자리에 두고 높이만 바꾼다. 띄워 두면(position:absolute) 사이가 안 이어진다 */
+  body.is-nav-open .nav-dropdown__panel {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: none;
+    min-width: 0;
+    padding: 0 0 0 var(--sp-4);
+    border: 0;
+    background: none;
+    box-shadow: none;
+    height: 0;
+    overflow: hidden;
+    transition: height var(--t-fill) var(--ease-out),
+                padding-bottom var(--t-fill) var(--ease-out);
+  }
+  body.is-nav-open .nav-dropdown.is-open .nav-dropdown__panel {
+    height: auto;
+    padding-bottom: var(--sp-2);
+  }
+  /* 탭이 hover 로 잡히는 기기가 있다. 눌러서 연 것만 열리게 */
+  body.is-nav-open .nav-dropdown:not(.is-open):hover .nav-dropdown__panel {
+    height: 0;
+    padding-bottom: 0;
+  }
+  /* 손가락으로 누르는 곳은 전부 --tap(44px). 하위 링크가 34px 라 빠듯했다 */
+  body.is-nav-open .nav-item,
+  body.is-nav-open .nav-dropdown__item {
+    height: var(--tap);
+    display: flex;
+    align-items: center;
+  }
+  /* 드롭다운 항목은 이름과 부가정보를 양끝으로 미는데, 좁으면 부가정보가 밖으로 나간다 */
+  body.is-nav-open .nav-dropdown__item { min-width: 0; gap: var(--sp-3); }
+  body.is-nav-open .nav-dropdown__count { flex: none; margin-left: auto; }
+  /* 카테고리 메가 패널은 4단이라 좁은 화면에서 가로로 넘친다 */
+  body.is-nav-open .nav-dropdown--mega .nav-dropdown__panel {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--sp-4);
+    left: auto;
+    right: auto;
+  }
+  /* 캐럿은 펼침 표시로 쓴다. 접힘 ∨ / 펼침 ∧
+     오른쪽·아래 테두리만 있는 정사각형이라 45도면 아래, -135도면 위를 가리킨다.
+     180도로 돌리면 화살표가 아니라 대각선이 된다 */
+  body.is-nav-open .nav-item__caret {
+    display: block;
+    margin-left: auto;
+    flex: none;
+    transition: transform var(--t-fill) var(--ease-out);
+  }
+  body.is-nav-open .nav-dropdown.is-open .nav-item__caret {
+    transform: rotate(-135deg) translateY(-3px);
+  }
+  /* 패널 발치의 「전체 글 보기」가 15px 라 손가락으로 못 누른다 */
+  body.is-nav-open .nav-dropdown__panel--mega-foot { min-height: var(--tap); }
+  body.is-nav-open .nav-dropdown__panel--mega-foot .section-head__more {
+    display: flex;
+    align-items: center;
+    min-height: var(--tap);
+  }
+  /* 열렸을 때 햄버거는 X 로 */
+  .nav-burger .burger-glyph { transition: transform var(--t-fill) var(--ease-out); }
+  body.is-nav-open .burger-glyph span:nth-child(1) { transform: translateY(5.5px) rotate(45deg); }
+  body.is-nav-open .burger-glyph span:nth-child(2) { opacity: 0; }
+  body.is-nav-open .burger-glyph span:nth-child(3) { transform: translateY(-5.5px) rotate(-45deg); }
+  .burger-glyph span { transition: transform var(--t-fill) var(--ease-out), opacity var(--t-fill) var(--ease-out); }
+}
+
+.comment-form { display: flex; flex-direction: column; gap: var(--sp-3); }
+.comment-form__guest { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.comment-form input[type="text"],
+.comment-form input[type="password"],
+.comment-form textarea {
+  flex: 1 1 160px;
+  min-width: 0;
+  padding: 10px var(--sp-4);
+  border: 1px solid var(--ln);
+  border-radius: var(--r-sm);
+  background: var(--sf);
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--fs-sm);
+}
+.comment-form textarea { width: 100%; resize: vertical; line-height: 1.7; }
+.comment-form__actions { display: flex; align-items: center; gap: var(--sp-4); }
+.comment-form__secret { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-3); }
+.comment-form__actions .btn { margin-left: auto; }
+
+.comment { padding: var(--sp-4) 0; border-top: 1px solid var(--ln); }
+.comment__head { display: flex; align-items: baseline; gap: var(--sp-3); font-size: var(--fs-xs); }
+.comment__author { font-weight: 700; color: var(--ink); }
+.comment__date { color: var(--ink-3); }
+.comment__actions { margin-left: auto; color: var(--ink-3); }
+.comment__body { margin-top: 6px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.72; }
 
 /* 현재 페이지 — 티스토리가 span.selected 로 표시해 준다 */
 .pagination__num .selected { color: inherit; font-weight: inherit; }
 
-/* ----- 본문 요소 -----
-   티스토리 에디터는 클래스 없는 table·blockquote·hr 을 뱉는다.
-   목업의 .post-* 스타일을 맨몸 태그에도 걸어준다 */
-/* 본문 이미지. 폰 스크린샷처럼 세로로 긴 것이 화면을 다 잡아먹지 않게 상한을 둔다 */
-.post-body img {
-  max-width: 100%;
-  height: auto;
-  max-height: 78vh;
-  width: auto;
-  display: block;
-  margin: var(--post-gap) auto;
-  border-radius: var(--r);
-}
-.post-body figure { margin: var(--post-gap) 0; }
-
-/* 표. display:block 을 주면 표가 아니게 돼서 폭이 안 늘어난다.
-   가로 스크롤은 감싼 div 가 맡는다 (JS 가 .table-wrap 을 씌운다) */
-.post-body .table-wrap {
-  overflow-x: auto;
-  margin: var(--post-gap) 0;
-  border: 1px solid var(--ln);
-  border-radius: var(--r);
-}
-.post-body table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: var(--fs-sm);
-  table-layout: auto;
-  font-variant-numeric: tabular-nums;
-}
+/* 표를 감싸는 스크롤 상자. JS 가 .table-wrap 을 씌운다.
+   표 자체의 모양(padding·머리줄·선)은 fmt.css 가 맡는다 */
+.post-body .table-wrap { overflow-x: auto; }
 
 /* 티스토리가 본문 끝에 끼워 넣는 블록들. 디자인에 없어서 걷어낸다.
    이전·다음 글은 스킨이 따로 그리고, 카테고리는 사이드바에 있다 */
 .another_category { display: none !important; }
-.container_postbtn { margin: var(--sp-7) 0 0; }
+/* 공감·공유 줄. 공감 버튼은 data-tistory-react-app 이라 안쪽을 못 건드린다.
+   바깥 버튼(공유·통계·더보기)만 스킨 톤으로 맞춘다.
+   .ico_postbtn 은 스프라이트 아이콘이라 background 를 건드리면 아이콘이 사라진다 */
+.container_postbtn {
+  margin: var(--sp-7) 0 0;
+  display: flex;
+  justify-content: center;
+}
+/* 버튼마다 테두리를 두르면 네 개가 따로 놀아서 더 지저분하다.
+   티스토리가 이미 하나의 묶음으로 그려 놓았으니 자리만 잡아준다 */
 
 /* 글 아래 프로필 명함(티스토리가 클라이언트에서 그리는 Namecard).
    사이드바에 프로필이 이미 있어서 겹치고, 안쪽 여백을 손댈 수 없다.
    걷어내면 댓글이 자연히 위로 온다 */
 [data-tistory-react-app="Namecard"] { display: none !important; }
-.post-body th, .post-body td { padding: 13px var(--sp-5); text-align: left; }
-.post-body thead th {
-  background: var(--fill);
-  font-weight: 700;
-  font-size: var(--fs-xs);
-  letter-spacing: -0.01em;
-  color: var(--ink-3);
-  white-space: nowrap;
-}
-.post-body tbody tr { border-top: 1px solid var(--ln); }
-.post-body tbody tr:hover { background: var(--fill); }
-.post-body td { color: var(--ink-2); }
-.post-body td:first-child { color: var(--ink); font-weight: 700; }
-
-/* 인용. 회색 선 하나로는 본문에 묻힌다. 강조색 선과 옅은 면을 준다 */
-.post-body blockquote {
-  margin: var(--post-gap) 0;
-  padding: var(--sp-4) var(--sp-5);
-  border-left: 3px solid var(--acc);
-  border-radius: 0 var(--r) var(--r) 0;
-  background: var(--box-blue-bg);
-  box-shadow: none;
-  font-size: 16.5px;
-  line-height: 1.72;
-  color: var(--ink-2);
-}
-.post-body blockquote > *:first-child { margin-top: 0; }
-.post-body blockquote cite {
-  display: block;
-  margin-top: var(--sp-3);
-  font-size: var(--fs-xs);
-  font-style: normal;
-  color: var(--ink-3);
-}
 /* 구분선. 티스토리는 hr[data-ke-style] 을 64px 짜리 점 스프라이트 이미지로 그린다.
-   (background-image + height:20px) 얇은 선으로 되돌린다 */
+   (background-image + height:20px) 얇은 선으로 되돌린다.
+   fmt.css 는 .contents_style 안쪽만 잡으므로 바깥에 나온 hr 을 위해 남긴다 */
 .post-body hr,
 .post-body hr[data-ke-style] {
   width: 100%;
@@ -1417,3 +1617,867 @@ button { cursor: pointer; }
 /* 댓글 입력 폼은 티스토리가 통째로 그린다. 폭만 잡아준다 */
 .comment-form { margin-top: var(--sp-5); }
 .comment-form textarea, .comment-form input { max-width: 100%; }
+
+
+/* ===== 본문 서식 fmt-* ===== */
+/* ============================================================
+   본문 서식 시스템 — fmt-*
+   글 본문(.post-body .contents_style) 안에서만 쓰는 서식 레이어.
+   스킨(grain/style.css) 뒤에 붙입니다.
+
+   규칙
+   - 고정 글자색 없음. 글자색은 스킨 변수(--ink/--ink-2/--ink-3)만 씀
+   - 밝은 배경 없음. 면은 전부 반투명(투명도 0.09 이상)
+   - 고정색: 링크 --acc, 경고 --warn, 코드 블록(테마 무관 어둡게) 뿐
+   - SVG 없음. 표식은 문자(✗ ✓ · $)로만
+   - 티스토리 스타일시트가 뒤에 6개 더 붙으므로 간격·글자크기에 !important
+   ============================================================ */
+
+/* ---------- 추가 토큰 (라이트) ---------- */
+:root,
+:root {
+  --warn: #ee2323;
+  --box-warn-bg: rgba(238, 35, 35, 0.09);
+  --box-warn-ln: rgba(238, 35, 35, 0.42);
+
+  --fmt-pad: 18px;
+  --fmt-mono: 0.88em;
+  --fmt-gap-tight: 14px;
+}
+
+/* ---------- 추가 토큰 (다크) ----------
+   #ee2323 은 다크 배경에서 4.1:1 로 본문 크기에 모자랍니다.
+   같은 빨강의 밝은 짝만 씁니다. 새 색이 아닙니다. */
+html[data-theme="dark"],
+html[data-theme="dark"] {
+  --warn: #ff6b6b;
+  --box-warn-bg: rgba(255, 107, 107, 0.13);
+  --box-warn-ln: rgba(255, 107, 107, 0.45);
+}
+
+/* ============================================================
+   1. 글 뼈대 — 문단 · 제목 · 구분선                      [TS]
+   ============================================================ */
+
+.post-body .contents_style {
+  font-size: var(--fs-post) !important;
+  line-height: var(--lh-body) !important;
+  letter-spacing: var(--tr-body);
+  color: var(--ink);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+
+/* 블록 사이 기본 간격 하나로 통일. data-ke-size 무시 */
+.post-body .contents_style > * {
+  margin: 0 !important;
+  font-size: var(--fs-post) !important;
+}
+.post-body .contents_style > * + * {
+  margin-top: var(--post-gap) !important;
+}
+
+.post-body .contents_style p {
+  color: var(--ink);
+}
+/* 빈 문단(티스토리가 줄바꿈으로 뱉는 <p>&nbsp;</p>)은 간격만 먹고 사라지게 */
+.post-body .contents_style p:empty {
+  display: none;
+}
+
+.post-body .contents_style h2 {
+  margin-top: var(--post-h2-top) !important;
+  font-size: var(--fs-h2) !important;
+  font-weight: 800;
+  letter-spacing: var(--tr-tight);
+  line-height: 1.35;
+  color: var(--ink);
+  scroll-margin-top: calc(var(--header-h) + 24px);
+}
+.post-body .contents_style h2 + * {
+  margin-top: var(--post-h2-bottom) !important;
+}
+.post-body .contents_style h3 {
+  margin-top: var(--post-h3-top) !important;
+  font-size: var(--fs-h3) !important;
+  font-weight: 700;
+  letter-spacing: var(--tr-tight);
+  line-height: 1.45;
+  color: var(--ink);
+  scroll-margin-top: calc(var(--header-h) + 24px);
+}
+.post-body .contents_style h3 + * {
+  margin-top: var(--post-h3-bottom) !important;
+}
+.post-body .contents_style h2:first-child,
+.post-body .contents_style h3:first-child {
+  margin-top: 0 !important;
+}
+
+/* h2 앞의 숫자만 흐리게 — <span class="fmt-n">0.</span> 큰 제목 */
+.post-body .contents_style .fmt-n {
+  color: var(--ink-3);
+  font-weight: 700;
+  margin-right: 0.3em;
+}
+
+/* 구분선 — 티스토리 이미지 스프라이트를 1px 선으로 덮음 */
+.post-body .contents_style hr {
+  margin: var(--sp-8) 0 !important;
+  height: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--ln) !important;
+  background: none !important;
+}
+
+/* ============================================================
+   2. 인라인 강조
+   ============================================================ */
+
+.post-body .contents_style strong,
+.post-body .contents_style b {
+  font-weight: 800;
+  color: var(--ink);
+}
+.post-body .contents_style code {
+  font: 600 var(--fmt-mono) / 1.4 var(--ff-mono);
+  background: var(--icode-bg);
+  color: var(--icode-ink);
+  padding: 0.14em 0.42em;
+  border-radius: 6px;
+  letter-spacing: 0;
+  word-break: break-all;
+}
+/* 경고 강조 — 따라 하면 사고 나는 값 */
+.post-body .contents_style .fmt-warn {
+  color: var(--warn);
+  font-weight: 700;
+}
+/* 흐린 보충 — 문장 끝 덧말 */
+.post-body .contents_style .fmt-dim {
+  color: var(--ink-3);
+}
+
+/* ============================================================
+   3. 목록
+   ============================================================ */
+
+.post-body .contents_style ul,
+.post-body .contents_style ol {
+  padding-left: 1.3em !important;
+}
+.post-body .contents_style li {
+  list-style: inherit;
+  color: var(--ink);
+}
+.post-body .contents_style li + li {
+  margin-top: var(--sp-3);
+}
+.post-body .contents_style ul {
+  list-style: disc;
+}
+.post-body .contents_style ol {
+  list-style: decimal;
+}
+.post-body .contents_style li::marker {
+  color: var(--ink-3);
+}
+.post-body .contents_style li > ul,
+.post-body .contents_style li > ol {
+  margin-top: var(--sp-3) !important;
+}
+.post-body .contents_style li > ul {
+  list-style: circle;
+}
+
+/* 용어 정의 목록 — <b>1. 용어</b>: 설명 반복을 대체.
+   번호는 CSS 가 셉니다. 원고에서 손으로 매기지 않습니다. */
+.post-body .contents_style .fmt-deflist {
+  counter-reset: fmt-def;
+  padding: 0 !important;
+  border-top: 1px solid var(--ln);
+}
+.post-body .contents_style .fmt-deflist dt {
+  counter-increment: fmt-def;
+  margin: 0 !important;
+  padding-top: var(--fmt-gap-tight);
+  font-weight: 800;
+  color: var(--ink);
+}
+.post-body .contents_style .fmt-deflist dt::before {
+  content: counter(fmt-def) ". ";
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.post-body .contents_style .fmt-deflist dd {
+  margin: 4px 0 0 !important;
+  padding-bottom: var(--fmt-gap-tight);
+  border-bottom: 1px solid var(--ln);
+  color: var(--ink-2);
+  font-size: 0.96em !important;
+}
+/* 번호 없이 쓰는 경우 */
+.post-body .contents_style .fmt-deflist--plain dt::before {
+  content: none;
+}
+
+/* ============================================================
+   4. 강조 박스 세 종류
+   회색 = 곁다리 / 파랑 = 결론 / 빨강 = 사고
+   구조는 셋 다 같습니다. 클래스만 바뀝니다.
+   ============================================================ */
+
+.post-body .contents_style .fmt-callout {
+  padding: var(--fmt-pad) calc(var(--fmt-pad) + 2px);
+  border: 1px solid var(--box-gray-ln);
+  border-radius: var(--r);
+  corner-shape: squircle;
+  background: var(--box-gray-bg);
+  color: var(--ink-2);
+  font-size: 0.96em !important;
+}
+.post-body .contents_style .fmt-callout > * {
+  margin: 0 !important;
+  font-size: inherit !important;
+}
+.post-body .contents_style .fmt-callout > * + * {
+  margin-top: var(--sp-3) !important;
+}
+.post-body .contents_style .fmt-callout ul,
+.post-body .contents_style .fmt-callout ol {
+  padding-left: 1.2em !important;
+}
+
+/* 라벨 — 이 박스가 무엇인지 한 단어로. 없어도 됩니다 */
+.post-body .contents_style .fmt-callout__t {
+  font: 700 var(--fs-label) / 1 var(--ff-mono) !important;
+  letter-spacing: var(--tr-label);
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* 핵심 정리 — 결론만 보면 이거다 */
+.post-body .contents_style .fmt-callout--key {
+  border-color: var(--box-blue-ln);
+  background: var(--box-blue-bg);
+  color: var(--ink);
+  font-size: 1em !important;
+}
+.post-body .contents_style .fmt-callout--key .fmt-callout__t {
+  color: var(--acc-d);
+}
+
+/* 주의 · 경고 — 따라 하다 사고 나는 것 */
+.post-body .contents_style .fmt-callout--warn {
+  border-color: var(--box-warn-ln);
+  background: var(--box-warn-bg);
+  color: var(--ink);
+  font-size: 1em !important;
+}
+.post-body .contents_style .fmt-callout--warn .fmt-callout__t {
+  color: var(--warn);
+}
+.post-body .contents_style .fmt-callout--warn .fmt-callout__t::before {
+  content: "! ";
+}
+
+/* ============================================================
+   5. 인용                                                [TS]
+   style2 = 본문 중 인용 (기본)
+   style3 = 한 줄 뽑기
+   style1 = 맨 아래 참고·출처 목록
+   ============================================================ */
+
+.post-body .contents_style blockquote {
+  margin: 0 !important;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-style: normal;
+}
+.post-body .contents_style blockquote > * {
+  margin: 0 !important;
+}
+.post-body .contents_style blockquote > * + * {
+  margin-top: var(--sp-3) !important;
+}
+
+/* 남의 문서·말을 그대로 옮길 때 */
+.post-body .contents_style blockquote[data-ke-style="style2"] {
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--ln-strong);
+  color: var(--ink-2);
+  font-size: 0.97em !important;
+}
+.post-body .contents_style blockquote[data-ke-style="style2"] cite,
+.post-body .contents_style blockquote[data-ke-style="style3"] cite {
+  display: block;
+  margin-top: var(--sp-2) !important;
+  font-style: normal;
+  font-size: var(--fs-xs) !important;
+  font-weight: 600;
+  color: var(--ink-3);
+}
+
+/* 글의 요지를 한 줄로 뽑을 때. 선 없이 크기로만 */
+.post-body .contents_style blockquote[data-ke-style="style3"] {
+  padding: var(--sp-2) 0;
+  font-size: 1.22em !important;
+  font-weight: 700;
+  line-height: 1.55;
+  letter-spacing: var(--tr-tight);
+  color: var(--ink);
+}
+
+/* 맨 아래 References */
+.post-body .contents_style blockquote[data-ke-style="style1"] {
+  margin-top: var(--sp-8) !important;
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--ln);
+}
+.post-body .contents_style blockquote[data-ke-style="style1"]::before {
+  content: "REFERENCES";
+  display: block;
+  margin-bottom: var(--sp-3);
+  font: 700 var(--fs-label) / 1 var(--ff-mono);
+  letter-spacing: var(--tr-label);
+  color: var(--ink-3);
+}
+.post-body .contents_style blockquote[data-ke-style="style1"] ol,
+.post-body .contents_style blockquote[data-ke-style="style1"] ul {
+  padding-left: 1.35em !important;
+}
+.post-body .contents_style blockquote[data-ke-style="style1"] li {
+  font-size: var(--fs-sm) !important;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+
+/* ============================================================
+   6. 코드 · 터미널 · 파일 트리
+   코드 블록은 라이트에서도 어둡게. 하드 제약의 유일한 예외.
+   ============================================================ */
+
+.post-body .contents_style pre[data-ke-type="codeblock"],
+.post-body .contents_style .fmt-term {
+  padding: var(--sp-4) !important;
+  border: 1px solid var(--code-ln);
+  border-radius: var(--r);
+  corner-shape: squircle;
+  background: var(--code-bg);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.post-body .contents_style pre[data-ke-type="codeblock"] code,
+.post-body .contents_style .fmt-term code {
+  display: block;
+  padding: 0;
+  background: none;
+  border-radius: 0;
+  font: 500 14px / 1.75 var(--ff-mono) !important;
+  color: var(--code-ink);
+  white-space: pre;
+  word-break: normal;
+  overflow-wrap: normal;
+  letter-spacing: 0;
+}
+
+/* 터미널 출력 — 입력 줄만 프롬프트 색 */
+.post-body .contents_style .fmt-term .fmt-in {
+  color: var(--code-key);
+}
+.post-body .contents_style .fmt-term .fmt-in::before {
+  content: "$ ";
+  color: var(--code-dim);
+}
+.post-body .contents_style .fmt-term .fmt-out {
+  color: var(--code-dim);
+}
+
+/* 파일 트리 — 실행하는 게 아니라 구조. 어둡게 하지 않습니다 */
+.post-body .contents_style .fmt-tree {
+  padding: var(--fmt-pad) !important;
+  border: 1px solid var(--box-gray-ln);
+  border-radius: var(--r);
+  corner-shape: squircle;
+  background: var(--box-gray-bg);
+  font: 500 13.5px / 1.85 var(--ff-mono) !important;
+  color: var(--ink-2);
+  overflow-x: auto;
+  white-space: pre;
+}
+.post-body .contents_style .fmt-tree b {
+  font-weight: 700;
+  color: var(--ink);
+}
+.post-body .contents_style .fmt-tree .fmt-dim {
+  color: var(--ink-3);
+}
+
+/* ============================================================
+   7. 표                                                  [TS]
+   가로로 넘치면 표 안쪽에서 스크롤. 페이지는 안 밀림
+   ============================================================ */
+
+.post-body .contents_style .fmt-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  border-top: 1px solid var(--ln-strong);
+  border-bottom: 1px solid var(--ln-strong);
+}
+.post-body .contents_style table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-sm) !important;
+  border: 0 !important;
+}
+.post-body .contents_style th,
+.post-body .contents_style td {
+  padding: 11px var(--sp-4) !important;
+  border: 0 !important;
+  text-align: left;
+  vertical-align: top;
+  white-space: nowrap;
+  background: none;
+}
+.post-body .contents_style thead th {
+  background: var(--fill);
+  font: 700 var(--fs-xs) / 1.4 var(--ff) !important;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.post-body .contents_style tbody tr {
+  border-top: 1px solid var(--ln);
+}
+.post-body .contents_style tbody td {
+  color: var(--ink-2);
+}
+/* 첫 칸은 그 줄의 이름 */
+.post-body .contents_style tbody td:first-child {
+  color: var(--ink);
+  font-weight: 700;
+}
+/* 숫자 칸 — 오른쪽 정렬, 자릿수 고정폭 */
+.post-body .contents_style .fmt-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+/* 설명 칸 — 줄바꿈 허용 */
+.post-body .contents_style .fmt-wrap {
+  white-space: normal;
+  min-width: 14em;
+}
+/* ✗/✓ 칸 — 가운데, 좁게 */
+.post-body .contents_style .fmt-mark {
+  text-align: center;
+  width: 3.2em;
+  font-weight: 700;
+}
+.post-body .contents_style .fmt-mark--no {
+  color: var(--warn);
+}
+.post-body .contents_style .fmt-mark--yes {
+  color: var(--acc-d);
+}
+
+/* ============================================================
+   8. 전후 비교 — ✗ 나쁜 예 / ✓ 좋은 예
+   ============================================================ */
+
+.post-body .contents_style .fmt-vs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+.post-body .contents_style .fmt-vs > * {
+  margin: 0 !important;
+  padding: var(--sp-4);
+  border: 1px solid var(--box-gray-ln);
+  border-radius: var(--r);
+  corner-shape: squircle;
+  background: var(--box-gray-bg);
+  font-size: 0.96em !important;
+  color: var(--ink-2);
+  min-width: 0;
+}
+.post-body .contents_style .fmt-vs__t {
+  display: block;
+  margin-bottom: var(--sp-2);
+  font: 700 var(--fs-xs) / 1 var(--ff-mono);
+  letter-spacing: 0.04em;
+}
+.post-body .contents_style .fmt-vs__bad .fmt-vs__t {
+  color: var(--warn);
+}
+.post-body .contents_style .fmt-vs__bad .fmt-vs__t::before {
+  content: "✗ ";
+}
+.post-body .contents_style .fmt-vs__good .fmt-vs__t {
+  color: var(--acc-d);
+}
+.post-body .contents_style .fmt-vs__good .fmt-vs__t::before {
+  content: "✓ ";
+}
+.post-body .contents_style .fmt-vs code {
+  word-break: break-all;
+}
+
+/* ============================================================
+   9. 이미지 · 자리표시자 · 링크 카드                      [TS]
+   캡션은 이미지 위. 구조는 그대로 두고 순서만 뒤집습니다
+   ============================================================ */
+
+.post-body .contents_style figure.imageblock {
+  display: flex;
+  flex-direction: column-reverse;
+  gap: var(--sp-3);
+}
+.post-body .contents_style figure.imageblock img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--r-lg);
+  corner-shape: squircle;
+}
+.post-body .contents_style figcaption {
+  margin: 0 !important;
+  font-size: var(--fs-xs) !important;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--ink-3);
+  text-align: left !important;
+}
+/* 세로로 긴 캡처는 가운데, 화면 높이 안에 */
+.post-body .contents_style figure.imageblock.fmt-tall {
+  align-items: center;
+}
+.post-body .contents_style figure.imageblock.fmt-tall img {
+  max-height: 70vh;
+  width: auto;
+}
+.post-body .contents_style figure.imageblock.fmt-tall figcaption {
+  align-self: flex-start;
+}
+
+/* 원고 단계 자리표시자 — 여기에 무슨 파일이 들어갈지 */
+.post-body .contents_style .fmt-slot {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+  padding: var(--sp-6) var(--fmt-pad);
+  border: 1px dashed var(--box-gray-ln);
+  border-radius: var(--r-lg);
+  corner-shape: squircle;
+  background: var(--box-gray-bg);
+}
+.post-body .contents_style .fmt-slot__t {
+  font: 700 var(--fs-label) / 1 var(--ff-mono) !important;
+  letter-spacing: var(--tr-label);
+  color: var(--ink-3);
+}
+.post-body .contents_style .fmt-slot__d {
+  font-size: var(--fs-sm) !important;
+  color: var(--ink-2);
+}
+
+/* 링크 카드 — 티스토리 오픈그래프 블록과 손으로 쓴 카드 둘 다 */
+.post-body .contents_style .fmt-link,
+.post-body .contents_style figure[data-ke-type="opengraph"] {
+  display: block;
+  padding: var(--fmt-pad);
+  border: 1px solid var(--ln-strong);
+  border-radius: var(--r);
+  corner-shape: squircle;
+  background: none;
+  text-decoration: none;
+  transition: border-color var(--t-fill) var(--ease-out);
+}
+.post-body .contents_style .fmt-link:hover,
+.post-body .contents_style figure[data-ke-type="opengraph"]:hover {
+  border-color: var(--acc-ln);
+}
+.post-body .contents_style .fmt-link {
+  background-image: none;
+}
+.post-body .contents_style .fmt-link__t,
+.post-body .contents_style .og-title {
+  display: block;
+  font-size: var(--fs-body) !important;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--ink) !important;
+}
+.post-body .contents_style .fmt-link__d,
+.post-body .contents_style .og-desc {
+  display: block;
+  margin-top: 4px !important;
+  font-size: var(--fs-sm) !important;
+  color: var(--ink-2) !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.post-body .contents_style .fmt-link__h,
+.post-body .contents_style .og-host {
+  display: block;
+  margin-top: var(--sp-3) !important;
+  font: 600 var(--fs-xs) / 1 var(--ff-mono) !important;
+  color: var(--ink-3) !important;
+}
+
+/* ============================================================
+   10. 시리즈 안내
+   ============================================================ */
+
+.post-body .contents_style .fmt-series {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2) var(--sp-4);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--ln);
+  border-bottom: 1px solid var(--ln);
+  font-size: var(--fs-sm) !important;
+}
+.post-body .contents_style .fmt-series__t {
+  font: 700 var(--fs-label) / 1.6 var(--ff-mono) !important;
+  letter-spacing: var(--tr-label);
+  color: var(--ink-3);
+}
+.post-body .contents_style .fmt-series__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0 !important;
+  padding: 0 !important;
+  list-style: none;
+}
+.post-body .contents_style .fmt-series__list li {
+  list-style: none;
+  margin: 0 !important;
+  color: var(--ink-2);
+}
+.post-body .contents_style .fmt-series__list li[aria-current="true"] {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* ============================================================
+   11. 모바일 — 360px 에서 가로 스크롤 없기
+   ============================================================ */
+
+@media (max-width: 600px) {
+  .post-body .contents_style .fmt-vs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .post-body .contents_style .fmt-callout,
+  .post-body .contents_style .fmt-tree,
+  .post-body .contents_style .fmt-link {
+    padding: var(--sp-4);
+  }
+  .post-body .contents_style .fmt-slot {
+    padding: var(--sp-5) var(--sp-4);
+  }
+  .post-body .contents_style pre[data-ke-type="codeblock"],
+  .post-body .contents_style .fmt-term {
+    padding: var(--sp-3) !important;
+    border-radius: var(--r-sm);
+  }
+  .post-body .contents_style pre[data-ke-type="codeblock"] code,
+  .post-body .contents_style .fmt-term code {
+    font-size: 13px !important;
+  }
+  .post-body .contents_style th,
+  .post-body .contents_style td {
+    padding: 10px var(--sp-3) !important;
+  }
+  .post-body .contents_style blockquote[data-ke-style="style3"] {
+    font-size: 1.12em !important;
+  }
+}
+
+/* 설명 열이 혼자 넓어 보이던 것.
+
+   시안은 fmt-wrap 에 min-width:14em(약 210px)을 준다. 메모가 길 때 열이 한 단어씩
+   찌그러지는 걸 막으려는 바닥값이다. 그런데 표는 width:100% 라 남는 폭을 나눠 갖는데,
+   바닥값이 큰 만큼 지분도 커진다. 메모가 짧으면 예약만 하고 안 쓴다.
+   24번 글에서 비고 443px 인데 글자는 99px, 뒤로 344px 이 비었다(2026-08-15 실측).
+
+   바닥값을 없애면 열 폭이 내용 비율대로 간다(186/201/443 -> 234/252/344).
+   메모가 길면 max-content 가 커져서 auto 배치가 알아서 넓혀 주므로 찌그러지지 않는다 */
+.post-body .contents_style .fmt-wrap { min-width: 0; }
+
+/* 숫자 열 정렬을 열 위치에 맞춰 알아서 정한다.
+
+   fmt-num 은 숫자를 열 오른쪽 끝에 붙여 자릿수를 맞추는 서식이다.
+   그런데 표는 width:100% 인데 내용은 훨씬 좁아서 남는 폭이 열에 얹힌다.
+   가운데 열이 그 폭을 받으면 숫자가 열 오른쪽 끝, 즉 다음 열 코앞까지 밀린다.
+   24번 글에서 값~비고 32px 인데 항목~값은 248px 이 비었다(2026-08-15 실측).
+
+   오른쪽 끝에 붙이는 게 맞는 경우는 두 가지뿐이다.
+     · 마지막 열이라 뒤에 아무것도 없을 때
+     · 뒤에도 숫자 열이라 오른쪽 정렬끼리 세로로 맞을 때
+   그래서 「뒤에 숫자 열이 아닌 열이 온다」는 조건일 때만 왼쪽으로 돌린다.
+   자릿수 고정폭(tabular-nums)은 그대로 두므로 숫자는 계속 세로로 맞는다.
+
+   원고가 규칙을 외우게 하지 않으려고 서식 쪽에서 처리한다 */
+.post-body .contents_style td.fmt-num:has(+ td:not(.fmt-num)),
+.post-body .contents_style th.fmt-num:has(+ th:not(.fmt-num)) {
+  text-align: left;
+}
+
+
+
+/* ===== 시안에서 우리가 바꾼 것 ===== */
+
+/* 표를 테두리 상자에 담는다. 시안은 위아래 선만인데 칸이 많으면
+   표가 한 덩어리로 안 보인다. 옛 스킨처럼 상자로 되돌렸다 */
+.post-body .contents_style .fmt-scroll {
+  border: 1px solid var(--ln-strong);
+  border-radius: var(--r);
+  corner-shape: squircle;
+}
+
+/* 줄 위에 마우스를 올리면 짚어준다. 칸이 많을 때 눈이 미끄러지지 않게.
+   칸(td)이 background:none 이라 줄(tr) 색이 그대로 비친다 */
+.post-body .contents_style tbody tr {
+  transition: background var(--t-fill, .14s) var(--ease-out, ease);
+}
+.post-body .contents_style tbody tr:hover {
+  background: var(--fill);
+}
+
+/* 그림 정렬. 티스토리는 에디터에서 고른 정렬을 figure 클래스로 남긴다
+   (imageblock alignCenter). 시안은 .fmt-tall 만 가운데로 뒀는데,
+   원고가 이미 정렬을 들고 있으니 그걸 따르는 게 맞다.
+   figure 가 flex column-reverse 라 가운데 정렬은 align-items 로 한다 */
+.post-body .contents_style figure.imageblock.alignCenter { align-items: center; }
+.post-body .contents_style figure.imageblock.alignRight { align-items: flex-end; }
+/* 캡션은 그림 아래에 둔다. 시안은 column-reverse 로 위에 뒀는데,
+   보고 나서 읽는 글이라 아래가 낫다고 정했다(2026-08-15) */
+.post-body .contents_style figure.imageblock { flex-direction: column; }
+/* 캡션은 그림을 따라간다. 그림이 가운데면 캡션도 가운데 */
+.post-body .contents_style figure.imageblock.alignCenter figcaption { align-self: center; }
+.post-body .contents_style figure.imageblock.alignRight figcaption { align-self: flex-end; }
+
+/* 그림 라벨. 매크로로 넣은 그림은 figcaption 을 붙일 수가 없어서
+   앞에 문단으로 적는다. 그림이 가운데니 라벨도 가운데 */
+.post-body .contents_style .fmt-cap {
+  font-size: var(--fs-xs) !important;
+  font-weight: 700;
+  color: var(--ink-3);
+  text-align: center;
+}
+/* 옛 글은 이 라벨을 인라인 스타일로 박아 뒀다. 이관 전까지 같이 잡아준다.
+   전수 확인 결과 opacity 0.7 을 쓰는 문단은 전부 그림 라벨이었다(20곳, 오탐 0) */
+.post-body .contents_style p[style*="opacity: 0.7"] { text-align: center; }
+
+/* 라벨은 제 그림에 붙어 있어야 한다. 문단 간격(30px)을 그대로 두면
+   위 그림과 아래 그림 사이에 똑같이 떠서 어느 쪽 설명인지 헷갈린다.
+   스킨 JS 가 라벨을 그림 뒤로 옮기므로 붙는 쪽은 위다.
+   (티스토리가 <p><figure> 로 뱉지만 <p> 안에 <figure> 가 못 들어가
+    브라우저가 <p> 를 닫아버려서, figure 는 라벨의 형제가 된다) */
+.post-body .contents_style figure.imageblock + .fmt-cap,
+.post-body .contents_style figure.imageblock + p[style*="opacity: 0.7"] {
+  margin-top: var(--sp-2) !important;
+}
+
+/* 제품 정보. 리뷰 맨 앞의 「제품명 / 가격 / 사용 기간」 같은 짧은 값 묶음.
+   정의 목록(fmt-deflist)은 값마다 두 줄에 구분선까지 그어서 세 줄에 275px 를 썼다.
+   여기서는 라벨과 값을 한 줄에 놓아 89px 로 줄인다.
+   라벨 폭은 제일 긴 것에 맞춰 자동으로 잡히고, 값이 길면 그 칸만 접힌다 */
+.post-body .contents_style .fmt-spec {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: var(--sp-2) var(--sp-5);
+  margin: var(--post-gap) 0 !important;
+  padding: var(--sp-4) 0;
+  border-top: 1px solid var(--ln-strong);
+  border-bottom: 1px solid var(--ln-strong);
+}
+.post-body .contents_style .fmt-spec dt {
+  margin: 0 !important;
+  font: 700 var(--fs-xs) / 1.7 var(--ff) !important;
+  letter-spacing: var(--tr-tight);
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.post-body .contents_style .fmt-spec dd {
+  margin: 0 !important;
+  font-size: var(--fs-sm) !important;
+  line-height: 1.7;
+  color: var(--ink);
+}
+/* 값이 강조되어야 하는 것 (가격 등) */
+.post-body .contents_style .fmt-spec dd.fmt-strong { font-weight: 700; }
+@media (max-width: 520px) {
+  .post-body .contents_style .fmt-spec { grid-template-columns: minmax(0, 1fr); gap: 2px var(--sp-3); }
+  .post-body .contents_style .fmt-spec dd { margin-bottom: var(--sp-2) !important; }
+}
+
+/* 번호 소제목. 원고 4편에서 20번 나온다. h3 는 사이드바 목차가 긁어가서 못 쓰고,
+   파란 원형 칩은 CLAUDE.md 2번 금지라 매번 <p><b>1. 제목</b></p> 로 흉내 내고 있었다.
+   숫자는 h2 와 같은 방식(.fmt-n)으로 흐리게 두고 제목만 세운다 */
+.post-body .contents_style .fmt-step {
+  margin-top: var(--sp-7) !important;
+  font-size: 1.06em !important;
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: var(--tr-tight);
+  color: var(--ink);
+}
+/* 소제목과 그 아래 첫 줄은 붙어 있어야 한 덩어리로 읽힌다 */
+.post-body .contents_style .fmt-step + * {
+  margin-top: var(--fmt-gap-tight) !important;
+}
+
+/* 핵심 한 줄. 원고 5편에서 문장 앞에 📌 를 붙여 13번 썼다.
+   박스(fmt-callout--key)를 두고도 줄로 쓴 건 박스가 무거워서다. 줄로 두고 선만 세운다 */
+.post-body .contents_style .fmt-key {
+  padding-left: var(--sp-4);
+  border-left: 3px solid var(--acc);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* 시리즈 차례는 새로 만들지 않는다. fmt.css 의 .fmt-series 가 이미 그것이다.
+   여기서 같은 이름으로 또 쓰면 뒤에 붙는 이쪽이 이겨서 가로 배치가 깨진다(2026-08-15에 한 번 깨뜨렸다).
+   쓰는 법은 _템플릿/서식.md 참고 */
+
+/* 가로로 여러 장. 티스토리 자체 그리드(figure.imagegridblock)는 세로로만 붙어서 못 쓴다.
+   매크로를 div.fmt-grid 로 감싸면 <p> 안에 <figure> 가 못 들어가 파서가 <p> 를 걷어내고
+   figure 만 자식으로 남는다. 그걸 flex 로 편다. 합쳐서 한 장으로 만들 필요가 없다 */
+.post-body .contents_style .fmt-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+/* figure 말고 자리표시자(.fmt-slot)도 들어오므로 자식 전체를 편다 */
+.post-body .contents_style .fmt-grid > * {
+  flex: 1 1 0;
+  min-width: 160px;
+  margin: 0 !important;
+}
+/* 칸을 꽉 채운다. 원고에 저장된 표시 폭과 세로 상한은 여기선 풀어야 한다 */
+.post-body .contents_style .fmt-grid > figure img {
+  width: 100% !important;
+  max-width: none !important;
+  max-height: none;
+}
+
+/* 폰 스크린샷처럼 세로로 긴 그림이 화면을 통째로 잡아먹지 않게 상한.
+   시안은 .fmt-tall 붙인 것만 막는데 옛 글엔 그 클래스가 없다. 19번 그림이 103vh 였다.
+   width 는 원고에 저장된 값을 그대로 두고 object-fit 으로 줄인다.
+   max-height 만 걸면 폭이 안 줄어 비율이 찌그러진다 */
+.post-body .contents_style figure.imageblock img {
+  max-height: 78vh;
+  width: auto;
+}
