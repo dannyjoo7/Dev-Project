@@ -1,11 +1,32 @@
 # Grain
 
-얇은 선과 여백 · 미리보기 [../README.md](../README.md) · 디자인 [design.md](design.md)
+얇은 선과 여백 · 디자인 [design.md](design.md) · 전체 [../README.md](../README.md)
+
+## 미리보기
+
+<table>
+  <tr>
+    <th align="center" width="50%">라이트</th>
+    <th align="center" width="50%">다크</th>
+  </tr>
+  <tr>
+    <td><img src="preview/home-light.png" alt="홈 - 라이트" /></td>
+    <td><img src="preview/home-dark.png" alt="홈 - 다크" /></td>
+  </tr>
+  <tr>
+    <td><img src="preview/list-light.png" alt="글 목록 - 라이트" /></td>
+    <td><img src="preview/list-dark.png" alt="글 목록 - 다크" /></td>
+  </tr>
+  <tr>
+    <td><img src="preview/post-light.png" alt="글 상세 - 라이트" /></td>
+    <td><img src="preview/post-dark.png" alt="글 상세 - 다크" /></td>
+  </tr>
+</table>
 
 ## 커스터마이징
 
 **숫자**
-`skin.html` 위쪽 상수 수정
+`dist/skin.html` 위쪽 상수 수정
 
 | 찾기 | 변경 |
 |:---|:---|
@@ -15,7 +36,7 @@
 글 수 · 카테고리 수 · 페이지 수 · 마지막 글 · 운영 일수 자동 적용
 
 **문구**
-`skin.html` 에서 검색 후 수정
+`dist/skin.html` 에서 검색 후 수정
 
 | 찾기 | 변경 |
 |:---|:---|
@@ -32,9 +53,3 @@
 <p class="widget__title label-ko">이 글의 목차</p>
 <p class="widget__title">Categories</p>
 ```
-
-## 안 한 것
-
-공지 화면 (`<s_notice_rep>` 없음. 공지를 쓰면 안 보임)
-보호글 비밀번호 화면
-홈 커버 (관리에서 켜면 홈이 달라질 수 있음)

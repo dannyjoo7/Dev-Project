@@ -98,9 +98,11 @@
 
 ```
 1. 티스토리 관리자 > 꾸미기 > 스킨 변경 > 스킨 등록
-2. 추가 버튼 클릭 후 skin.html, style.css, index.xml 선택
-3. 적용 클릭
+2. 추가 버튼 클릭 후 스킨 폴더 안의 파일을 전부 선택
+3. 스킨 변경 에서 적용 클릭
 ```
+
+Grain 은 `grain/dist/` 안의 7개다. 3번을 빼먹으면 보관함에만 들어가고 블로그는 안 바뀐다.
 
 ## 커스터마이징
 
@@ -128,8 +130,7 @@
 │   ├── index.xml
 │   └── preview/
 └── grain/         # 스킨 2
-    ├── skin.html
-    ├── style.css
+    ├── dist/      # 올리는 것 (skin.html, style.css, index.xml, preview*)
     ├── design.md  # 디자인 브리프 + 데이터 연결
     └── preview/
 ```
