@@ -15,9 +15,6 @@
     <recentEntries>5</recentEntries>
     <recentComments>5</recentComments>
     <recentTrackbacks>0</recentTrackbacks>
-    <itemsOnGuestbook>10</itemsOnGuestbook>
-    <tagsInCloud>30</tagsInCloud>
-    <sortInCloud>3</sortInCloud>
     <expandComment>1</expandComment>
     <expandTrackback>0</expandTrackback>
     <lengthOfRecentComment>30</lengthOfRecentComment>
@@ -26,7 +23,6 @@
     <showListOnArchive>1</showListOnArchive>
     <showListOnTag>1</showListOnTag>
     <showListOnSearch>1</showListOnSearch>
-    <showListOnGuestbook>1</showListOnGuestbook>
     <commentMessage />
     <trackbackMessage />
   </default>

@@ -7,6 +7,7 @@
 apply-fixes.py
 build-css.py
 preview.py
+check.py
 make-preview-images.py
 category-sample.html
 mockup/
