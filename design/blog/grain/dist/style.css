@@ -1235,6 +1235,17 @@ button { cursor: pointer; }
 
 /* ===== 스킨 전용 ===== */
 
+/* 목차·앵커 이동을 부드럽게. 목차 링크는 그냥 #id 앵커라 브라우저가 즉시 점프한다.
+   어디로 갔는지 알 수가 없어서 글이 통째로 바뀐 것처럼 보인다(2026-08-17).
+   제목이 헤더 밑에 가리는 건 scroll-margin-top 이 이미 잡아 준다.
+   화면 효과를 끈 사람에게는 예전처럼 즉시 이동한다.
+   위쪽 prefers-reduced-motion 블록은 animation·transition 만 눌러서 여기서 따로 받는다 */
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+
 /* 테마를 바꾸는 그 순간만 트랜지션을 끈다.
    hover 피드백용으로 걸어 둔 color 240ms 가 39곳인데, 테마를 바꿀 때도 같이 걸린다.
    배경은 즉시 바뀌는 반면(background-color 트랜지션 0곳) 글자만 240ms 동안 옛 색에서
