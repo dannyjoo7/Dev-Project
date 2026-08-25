@@ -2641,6 +2641,16 @@ html[data-theme="dark"] {
   max-height: none;
 }
 
+/* 본문 h3 가 위아래 어느 쪽과도 잘 안 갈렸다(2026-08-25).
+   크기가 h2 23px · h3 18px · 본문 16.5px 라 h3 가 본문보다 1.5px 큰 게 전부였다.
+   굵기는 700 이라 볼드가 이미 걸려 있어서 더 줄 것도 없었다.
+   처음엔 색을 --ink-2 로 낮춰 봤는데 본문이 --ink 라 오히려 본문 쪽으로 끌려갔다. 되돌렸다.
+   답은 크기다. 20px 로 올리면 본문과 3.5px, h2 와 3px 로 간격이 고르게 잡힌다 */
+.post-body .contents_style h3 { font-size: 20px !important; }
+@media (max-width: 900px) {
+  .post-body .contents_style h3 { font-size: 18.5px !important; }
+}
+
 /* 폰 스크린샷처럼 세로로 긴 그림이 화면을 통째로 잡아먹지 않게 상한.
    시안은 .fmt-tall 붙인 것만 막는데 옛 글엔 그 클래스가 없다. 19번 그림이 103vh 였다.
    width 는 원고에 저장된 값을 그대로 두고 object-fit 으로 줄인다.
