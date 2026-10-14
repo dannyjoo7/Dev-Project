@@ -8,6 +8,8 @@ apply-fixes.py
 build-css.py
 preview.py
 check.py
+live-check.py
+tistory-placeholders.json
 make-preview-images.py
 category-sample.html
 mockup/

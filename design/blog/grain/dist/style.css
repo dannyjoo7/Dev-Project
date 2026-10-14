@@ -1163,7 +1163,7 @@ button { cursor: pointer; }
 }
 
 @media (max-width: 480px) {
-  .wrap { padding: 0 var(--sp-4); }
+  .wrap { padding-inline: var(--sp-4); }
   .profile-card__stats { gap: var(--sp-4); }
   .post-tags { flex-direction: column; gap: var(--sp-2); }
 }
@@ -1237,7 +1237,7 @@ button { cursor: pointer; }
 
 /* 목차·앵커 이동을 부드럽게. 목차 링크는 그냥 #id 앵커라 브라우저가 즉시 점프한다.
    어디로 갔는지 알 수가 없어서 글이 통째로 바뀐 것처럼 보인다(2026-08-17).
-   제목이 헤더 밑에 가리는 건 scroll-margin-top 이 이미 잡아 준다.
+   제목이 헤더 밑에 가리는 건 아래 FMT_TWEAKS 의 scroll-padding-top 이 잡아 준다.
    화면 효과를 끈 사람에게는 예전처럼 즉시 이동한다.
    위쪽 prefers-reduced-motion 블록은 animation·transition 만 눌러서 여기서 따로 받는다 */
 html { scroll-behavior: smooth; }
@@ -1274,7 +1274,8 @@ html, body { margin: 0; }
   /* 완전한 원인 것들은 그대로 둔다 */
   .cat-new,
   .code-block__lights i,
-  .site-search__glass { corner-shape: round; }
+  .site-search__glass,
+  .comment__logo { corner-shape: round; }
 }
 
 /* 화면 전환용. UA 의 [hidden] 은 display:grid 같은 규칙에 밀린다.
@@ -1327,6 +1328,17 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
 
 /* 첫 글(큰 카드) 썸네일. 비율을 안 잡으면 세로로 긴 이미지가 카드를 통째로 늘린다 */
 .article-card--hero .article-card__thumb { aspect-ratio: 4 / 3; max-height: 340px; }
+/* 큰 카드는 썸네일과 글이 가로로 선다. flex 자식은 기본 최소 폭이 내용의 가장 긴 덩어리라,
+   요약에 공백 없는 문자열이 있으면 글 칸이 카드 밖으로 밀려 잘렸다.
+   18번 글 요약의 ═ 63개짜리 줄 때문에 글 칸이 929px 로 굳어 오른쪽 489px 가 잘렸다(2026-10-14 검색 결과 화면).
+   최소 폭을 풀고, 긴 덩어리는 어디서든 줄을 바꾼다 */
+.article-card__body { min-width: 0; }
+.article-card__excerpt { overflow-wrap: anywhere; }
+/* 폰에선 시안대로 16:9. 위의 4:3 이 시안의 모바일 규칙보다 뒤에 와서 이겼다.
+   390px 화면에서 첫 카드 그림만 266px 라 제목이 첫 화면 아래로 밀렸다(2026-10-14 전체 검수) */
+@media (max-width: 900px) {
+  .article-card--hero .article-card__thumb { aspect-ratio: 16 / 9; }
+}
 
 /* 프로필 카드 숫자를 3등분으로 고정.
    tabular-nums 는 뺀다. 모든 숫자를 같은 폭으로 맞추느라 4 처럼 좁은 글자에
@@ -1482,21 +1494,26 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
    헤더 안쪽을 wrap 시켜 메뉴를 아래 줄로 흘린다. 띄우지 않으니 겹칠 일이 없다 */
 /* 높이를 auto 로 보내는 트랜지션은 이것 없이는 안 돈다. 값이 아니라 키워드라서다.
    못 알아듣는 브라우저에선 지금까지처럼 즉시 열린다. 동작은 같고 사이만 안 이어진다.
+   헤더 전체는 2026-10-14 부터 JS 가 높이를 px 로 재서 옮긴다(닫힘도 움직이고 사파리에서도 돈다).
+   이 설정은 메뉴 안의 하위 목록 펼침에만 남아 있다.
    느린 화면 효과를 끄는 설정은 위쪽 prefers-reduced-motion 이 전부 눌러 준다 */
 :root { interpolate-size: allow-keywords; }
 
 @media (max-width: 900px) {
   /* 메뉴가 팍 튀어나오지 않게 헤더를 늘려서 연다.
      넘치는 동안 메뉴가 밖으로 비져 나오므로 가려 둔다 */
+  /* 높이만 옮긴다. 안쪽 여백과 줄 간격까지 옮기면 닫힌 뒤 0.2초 동안 로고가 4px 에서 8px 로 흘러내렸다.
+     높이는 JS 가 px 로 주므로 여백은 열고 닫는 순간 바뀌어도 높이 안에 묻힌다 */
   .site-header__inner {
     overflow: hidden;
-    transition: height var(--t-fill) var(--ease-out),
-                padding-bottom var(--t-fill) var(--ease-out),
-                row-gap var(--t-fill) var(--ease-out);
+    transition: height var(--t-fill) var(--ease-out);
   }
   body.is-nav-open .site-header__inner {
     height: auto;
     flex-wrap: wrap;
+    /* 줄을 바꾸면 첫 줄 높이가 버튼(44px)으로 줄어 위에 붙는다. 닫혀 있을 땐 60px 가운데라
+       열 때마다 로고와 버튼이 8px 튀어 올랐다. 그 차이만큼 위를 띄워 제자리에 둔다 */
+    padding-top: calc((var(--header-h) - var(--tap)) / 2);
     padding-bottom: var(--sp-3);
     row-gap: var(--sp-3);
     /* 카테고리를 펼치면 헤더가 1101px 이 되어 844px 화면을 넘긴다.
@@ -1603,8 +1620,10 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
   .burger-glyph span { transition: transform var(--t-fill) var(--ease-out), opacity var(--t-fill) var(--ease-out); }
 }
 
-.comment-form { display: flex; flex-direction: column; gap: var(--sp-3); }
-.comment-form__guest { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+/* 공식 구조상 비밀댓글 칸이 textarea 앞에 찍힌다. 줄바꿈 flex + order 로
+   손님 칸, 본문, (비밀댓글 · 등록) 순서로 다시 세운다. 주인에겐 비밀댓글이 없어 등록만 오른쪽에 남는다 */
+.comment-form { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-3) var(--sp-4); }
+.comment-form__guest { display: flex; flex-wrap: wrap; gap: var(--sp-2); flex: 1 1 100%; order: 0; }
 .comment-form input[type="text"],
 .comment-form input[type="password"],
 .comment-form textarea {
@@ -1618,23 +1637,61 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
   font: inherit;
   font-size: var(--fs-sm);
 }
-.comment-form textarea { width: 100%; resize: vertical; line-height: 1.7; }
-.comment-form__actions { display: flex; align-items: center; gap: var(--sp-4); }
-.comment-form__secret { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-3); }
+.comment-form textarea { flex: 1 1 100%; width: 100%; resize: vertical; line-height: 1.7; order: 1; }
+.comment-form__actions { display: flex; align-items: center; gap: var(--sp-4); order: 3; margin-left: auto; }
+.comment-form__secret { display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); color: var(--ink-3); order: 2; }
 .comment-form__actions .btn { margin-left: auto; }
 
+/* 태그 목록(/tag). 글 하단 태그와 같은 글씨로 쓰고, 많이 쓴 태그(cloud1)일수록 진하게 */
+.tag-cloud { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--sp-3) var(--sp-5); }
+.tag-cloud__item { font-size: var(--fs-sm); font-weight: 600; color: var(--ink-2); transition: color var(--t-ink) ease; }
+.tag-cloud__item:hover { color: var(--acc-d); }
+.tag-cloud__item.cloud1 { font-size: var(--fs-body); font-weight: 700; color: var(--ink); }
+.tag-cloud__item.cloud4, .tag-cloud__item.cloud5 { font-weight: 500; color: var(--ink-3); }
+
+/* 방명록(/guestbook). 댓글 틀을 그대로 쓰되 입력칸이 머리말 바로 밑, 목록이 그 아래다.
+   댓글은 본문 끝에 붙어 윗선과 위 여백으로 본문과 끊고, 입력칸이 맨 아래라 위 여백만 있다.
+   여기선 머리말 밑이라 끊을 본문이 없다. 윗선을 두면 사이드바 제목 옆에 선만 하나 뜬다 */
+.guestbook { margin-top: 0; padding-top: 0; border-top: 0; }
+.guestbook .comment-form { margin-top: 0; margin-bottom: var(--sp-6); }
+
+/* 제목 바로 밑 선은 첫 댓글의 윗선이다. 제목에 아래 여백이 없어 선이 글자에 붙었다(2026-10-13) */
+.comments__head { margin-bottom: var(--sp-4); }
 .comment { padding: var(--sp-4) 0; border-top: 1px solid var(--ln); }
-.comment__head { display: flex; align-items: baseline; gap: var(--sp-3); font-size: var(--fs-xs); }
+/* 좁은 폭에서 한 줄에 다 넣으려다 이름·날짜·수정/삭제가 각자 두 줄로 접혔다(모바일 답글).
+   항목은 안 쪼개고 줄째로 넘긴다 */
+.comment__head { display: flex; align-items: center; flex-wrap: wrap; column-gap: var(--sp-3); row-gap: 2px; font-size: var(--fs-xs); }
+.comment__author, .comment__date, .comment__head > a, .comment__actions a { white-space: nowrap; }
+/* 티스토리가 날짜 뒤에 끼워 넣는 「신고」. 클래스가 없어 본문 글자색을 받았다 */
+.comment__head > a:not(.comment__date) { color: var(--ink-3); text-decoration: none; }
+.comment__head > a:not(.comment__date):hover { color: var(--ink); }
+/* 프로필 이미지. rp_rep_logo 는 img 태그가 아니라 주소만 준다(2026-10-13 라이브에서 확인).
+   사진이 없으면 티스토리 기본 아바타(default_S.png)가 온다. 밝은 회색 바탕에 점 다섯 개로 찍은 T 로고다.
+   한때 다크에서 흰 원으로 튄다고 통째로 감췄는데, 그러면 로고까지 사라져 빈 원만 남았다(2026-10-13).
+   다크에서만 색을 뒤집는다. 0.86 이면 바탕이 빈 원 색(--ln)과 비슷한 어두운 회색, 점이 그보다 밝은 회색이 된다.
+   원이 둥근 네모로 보이면 위쪽 전역 corner-shape: squircle 예외 목록을 볼 것. 아바타가 빠져 있어 그랬다 */
+.comment__logo { display: inline-flex; flex: none; width: 24px; height: 24px; border-radius: 50%; overflow: hidden; background: var(--ln); }
+.comment__logo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.comment__logo img[src=""] { opacity: 0; }
+html[data-theme="dark"] .comment__logo img[src*="/manage/images/r3/default"] { filter: invert(.86); }
 .comment__author { font-weight: 700; color: var(--ink); }
-.comment__date { color: var(--ink-3); }
-.comment__actions { margin-left: auto; color: var(--ink-3); }
+/* 날짜가 곧 댓글 주소 링크다 */
+.comment__date { color: var(--ink-3); text-decoration: none; }
+.comment__date:hover { color: var(--ink-2); }
+.comment__actions { margin-left: auto; display: flex; gap: var(--sp-3); color: var(--ink-3); }
+.comment__actions a { color: inherit; text-decoration: none; }
+.comment__actions a:hover { color: var(--ink); }
 .comment__body { margin-top: 6px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.72; }
+/* 대댓글. 예전 세로선은 다음 댓글의 가로 구분선에 박혀 ㅗ 이음매가 생겼고,
+   대댓글이 여럿이면 사이 가로선까지 붙어 ㅏ 가 됐다. 흰 상자로도 묶어 봤는데 바탕색이 달라 혼자 떴다(2026-10-13).
+   선은 부모 아바타(24px) 한가운데 밑에서 내려오고, 아래 여백으로 다음 구분선과 띄운다.
+   대댓글끼리는 가로선 없이 간격으로만 나눈다. 그래야 선이 세로 하나만 남는다 */
 .comment-replies {
-  margin-left: var(--sp-5);
-  padding-left: var(--sp-4);
-  border-left: 1px solid var(--ln);
+  margin: 0 0 var(--sp-4) 11px;
+  padding-left: var(--sp-5);
+  border-left: 2px solid var(--ln);
 }
-.comment--reply:first-child { border-top: 0; }
+.comment--reply { padding: var(--sp-2) 0; border-top: 0; }
 
 /* [##_tag_label_rep_##] 은 링크 사이에 쉼표 텍스트를 끼워서 출력한다.
    링크 모양은 위에서 목업 선택자를 실제 a 선택자로 변환했고, 여기서는 쉼표만 숨긴다 */
@@ -1684,12 +1741,15 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
 }
 
 @media (max-width: 480px) {
-  .comment-replies { margin-left: var(--sp-3); padding-left: var(--sp-3); }
+  .comment-replies { padding-left: var(--sp-4); }
   .protected-entry__form { grid-template-columns: 1fr; }
 }
 
 /* 현재 페이지 — 티스토리가 span.selected 로 표시해 준다 */
 .pagination__num .selected { color: inherit; font-weight: inherit; }
+/* 갈 곳이 없는 이전·다음. JS 가 href 를 떼고 aria-disabled 를 다는데 모양이 그대로라
+   한 쪽짜리 검색 결과에서 「이전 1 다음」이 다 눌리는 버튼처럼 보였다(2026-10-14 전체 검수) */
+.pagination__link[aria-disabled="true"] { opacity: .4; cursor: default; }
 
 /* 표를 감싸는 스크롤 상자. JS 가 .table-wrap 을 씌운다.
    표 자체의 모양(padding·머리줄·선)은 fmt.css 가 맡는다 */
@@ -1783,6 +1843,175 @@ button.nav-item {
     visibility: hidden;
     transform: translateY(6px);
   }
+
+  /* 닫힐 때는 열릴 때보다 짧게. 다른 데로 눈을 돌린 뒤라 기다릴 까닭이 없다 */
+  .nav-dropdown__panel { transition-duration: var(--t-move); }
+  .nav-dropdown:hover .nav-dropdown__panel,
+  .nav-dropdown.is-open .nav-dropdown__panel { transition-duration: var(--t-fill); }
+}
+
+/* ----- 모션 다듬기 (2026-10-14) -----
+   PA 관리 화면의 모션 규칙을 옮겼다. 움직이는 건 transform 과 opacity 뿐이고, 한 화면에 하나만 크게 움직인다.
+   디자인 레포 다섯 곳(design-motion-principles 등)을 대조해 나온 모션 지적도 같이 반영했다.
+   prefers-reduced-motion 이면 위쪽 블록이 전부 끈다. 막대와 아이콘은 그 자리로 즉시 옮겨진다 */
+:root { --t-slide: .28s; }   /* 자리 옮김. PA 의 navigation-slide 280ms */
+
+/* 글 화면에서 움직이는 건 제목 하나로 둔다. 시안은 본문도 0.14초 늦게 0.4초 동안 띄워서
+   읽으러 들어온 글이 0.5초 남짓 흐렸다 */
+.post-body { animation: none; }
+
+/* 카드 등장 순서. 시안은 :nth-child 로 지연을 주는데, 목록 그리드의 첫 자식은 숨은 span.list-meta 다.
+   그래서 첫 카드가 40ms 에 뜨고, 9번째 카드부터는 지연이 없어 첫 카드보다 먼저 떴다.
+   카드만 a 라서 :nth-of-type 으로 센다 */
+a.article-card:nth-of-type(1) { animation-delay: 0ms; }
+a.article-card:nth-of-type(2) { animation-delay: 40ms; }
+a.article-card:nth-of-type(3) { animation-delay: 80ms; }
+a.article-card:nth-of-type(4) { animation-delay: 120ms; }
+a.article-card:nth-of-type(5) { animation-delay: 160ms; }
+a.article-card:nth-of-type(6) { animation-delay: 200ms; }
+a.article-card:nth-of-type(7) { animation-delay: 240ms; }
+a.article-card:nth-of-type(n+8) { animation-delay: 280ms; }
+
+/* 손가락으로 누르면 hover 가 눌린 채 남아서 카드가 떠 있다. 들어 올리는 건 마우스에서만 */
+@media (hover: none) {
+  .btn:hover,
+  .link-list__item:hover,
+  .article-card:hover { transform: none; }
+}
+/* 누르는 동안 살짝 들어간다. 시안은 제자리(none)로 돌려서 누른 느낌이 없었다 */
+.btn:active { transform: scale(.97); }
+
+/* 목차 현재 위치. 항목마다 왼쪽 선을 켜고 끄던 것을 막대 하나로 바꿔 항목 사이를 미끄러지게 한다.
+   PA 의 밑줄 탭(SlidingUnderlineNavigation)과 같은 방식이다. JS 가 현재 항목의 위치와 높이를 재서 옮긴다.
+   높이도 transform 으로 늘린다. 1px 짜리 막대를 scaleY 로 키우므로 위치(translateY)와 같이 움직인다.
+   처음 자리 잡을 때는 미끄러지지 않고 나타나기만 한다. .is-ready 전에는 opacity 만 전환한다 */
+.toc-nav { position: relative; }
+.toc-nav__marker {
+  position: absolute;
+  top: 0;
+  left: -1px;              /* .toc-nav 의 왼쪽 선 바로 위 */
+  width: 1px;
+  height: 1px;
+  background: var(--acc);
+  transform-origin: 0 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--t-move) ease;
+}
+.toc-nav__marker.is-ready {
+  opacity: 1;
+  transition: transform var(--t-slide) var(--ease-out), opacity var(--t-move) ease;
+}
+.toc-nav__link[aria-current="true"] { border-left-color: transparent; }
+/* 현재 항목의 굵기는 그대로 둔다. 굵어지면 긴 항목이 줄을 바꿔 목차 전체가 흔들리고 막대 높이도 어긋난다.
+   색만으로 충분하다 */
+.toc-nav__link[aria-current="true"] { font-weight: 600; }
+.toc-nav__link--h3[aria-current="true"] { font-weight: 500; }
+
+/* 코드 복사 버튼. 아이콘을 통째로 갈아 끼우던 것을 셋(복사·완료·실패)을 겹쳐 두고 크기와 투명도로 바꾼다.
+   PA 의 복사 확인 아이콘과 같은 방식이다 */
+.code-block__copy { display: inline-grid; place-items: center; }
+.code-block__copy svg {
+  grid-area: 1 / 1;
+  transition: opacity var(--t-move) var(--ease-out), transform var(--t-move) var(--ease-out);
+}
+.code-block__copy svg:not([data-icon="copy"]),
+.code-block__copy.is-done [data-icon="copy"],
+.code-block__copy.is-failed [data-icon="copy"] { opacity: 0; transform: scale(.6); }
+.code-block__copy.is-done [data-icon="done"],
+.code-block__copy.is-failed [data-icon="fail"] { opacity: 1; transform: none; }
+
+/* 복사 결과를 화면 읽기 프로그램에도 알린다. 버튼의 aria-label 만 바꾸면 읽어 주지 않는다.
+   JS 가 문서 끝에 role="status" 칸 하나를 두고 글자를 넣었다 뺀다 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* 모바일 메뉴를 닫는 동안(.is-nav-closing). JS 가 열린 모양 그대로 높이만 줄인 뒤 .is-nav-open 을 뗀다.
+   줄어드는 사이 넘치는 메뉴에 스크롤 막대가 비치지 않게 자르고, 햄버거는 누르자마자 ≡ 로 돌아간다 */
+@media (max-width: 900px) {
+  body.is-nav-closing .site-header__inner { overflow: hidden; }
+  body.is-nav-closing .burger-glyph span:nth-child(n) { transform: none; opacity: 1; }
+}
+
+/* 테마 전환. JS 가 View Transitions 로 화면 전체 두 장(옛 테마, 새 테마)을 겹쳐 바꾼다.
+   기본 0.25s 를 스킨의 자리 옮김 시간에 맞춘다. 동작 줄이기를 켜면 JS 가 아예 이걸 쓰지 않는다 */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--t-slide);
+  animation-timing-function: var(--ease-out);
+}
+
+/* 색 전환 시간 하나로. 글자색 0.24s, 테두리와 배경 0.2s 라 한 요소 안에서 끝나는 때가 어긋났다 */
+:root { --t-ink: .2s; }
+
+/* ----- 키보드 포커스 (2026-10-14) -----
+   지금까지 브라우저 기본 링에 맡겼다. 사이드바처럼 넘치는 부분을 잘라 내는 상자 안에서는
+   링 좌우가 잘려 어디에 있는지 보이지 않았다. 강조색 2px 로 통일하고, 그런 상자 안에서는 안쪽에 그린다.
+   마우스로 누를 때는 뜨지 않는다(:focus-visible) */
+:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+.sidebar :focus-visible,
+.nav-dropdown__panel :focus-visible,
+.code-block :focus-visible { outline-offset: -2px; }
+/* 검색창은 바깥 상자 테두리가 이미 포커스를 보여 준다. 링을 두 겹으로 두지 않는다 */
+.site-search input:focus-visible { outline: none; }
+@media (max-width: 900px) {
+  /* 모바일 헤더는 펼침 애니메이션 때문에 넘치는 부분을 자른다 */
+  .site-header__inner :focus-visible { outline-offset: -2px; }
+}
+
+/* ----- 손가락으로 누르는 곳 (2026-10-14) -----
+   스킨 기준은 44px(--tap)인데 390px 화면에서 재 보니 글자 링크 15~16px, 코드 복사 26px,
+   카테고리 40px(하위 34px), 홈 태그 30px, 작은 버튼과 입력칸 38px 였다.
+   손가락일 때만 넓힌다. 마우스로 보는 화면은 그대로다 */
+@media (pointer: coarse) {
+  .cat-tree .tt_category a,
+  .cat-tree .tt_category .link_sub_item,
+  .archive-list__item,
+  .btn--sm,
+  .comment-form input[type="text"],
+  .comment-form input[type="password"],
+  .comment-form__secret { min-height: var(--tap); }
+  .tag { height: var(--tap); }
+
+  /* 태그는 줄이 여럿이라 한 줄을 44px 로 세운다. 줄 사이 간격은 그 높이가 대신한다 */
+  .post-tags__list a,
+  .tag-cloud__item { display: inline-flex; align-items: center; min-height: var(--tap); }
+  .post-tags__list,
+  .tag-cloud { row-gap: 0; }
+
+  /* 한 줄짜리 글자 링크는 위아래 안쪽 여백을 늘리고 같은 만큼 바깥 여백을 당긴다.
+     배치는 그대로 두고 누르는 영역만 44px 가 된다. 여백은 줄 높이(1lh)에서 거꾸로 잰다.
+     14px 로 고정했더니 줄 높이가 낮은 카테고리 표시는 41px 에 그쳤다 */
+  .site-brand,
+  .post__cat,
+  .section-head > .section-head__more,
+  .comment__date,
+  .comment__head > a,
+  .comment__actions a,
+  .site-footer__links a {
+    --pad-tap: calc((var(--tap) - 1lh) / 2);
+    padding-block: var(--pad-tap);
+    margin-block: calc(var(--pad-tap) * -1);
+  }
+  /* 「답글」「위로」는 21px 로 좁다. 이웃과 겹치지 않게 사이 간격의 절반(6px)씩만 옆으로 넓힌다 */
+  .comment__actions a,
+  .site-footer__links a {
+    padding-inline: 6px;
+    margin-inline: -6px;
+  }
+
+  /* 코드 복사는 막대 높이가 정해져 있다. 보이는 크기는 두고 누르는 영역만 바깥으로 9px 씩 */
+  .code-block__copy { position: relative; }
+  .code-block__copy::after { content: ""; position: absolute; inset: -9px; }
 }
 
 
@@ -2659,3 +2888,35 @@ html[data-theme="dark"] {
   max-height: 78vh;
   width: auto;
 }
+
+/* 고정 헤더 밑으로 숨지 않게. 시안은 제목에만 scroll-margin-top 을 줘서 목차로 갈 때만 지켜졌고,
+   Tab 으로 링크를 옮겨 다니면 포커스가 헤더 밑으로 들어갔다(WCAG 2.4.11).
+   문서 전체에 같은 여백(헤더 + 24px)을 주고 제목 쪽은 0 으로 돌린다. 둘은 더해지므로
+   목차를 눌렀을 때 제목이 멈추는 자리(위에서 84px)는 전과 같다 */
+html { scroll-padding-top: calc(var(--header-h) + var(--sp-5)); }
+.post-body h2,
+.post-body h3,
+.post-body .contents_style h2,
+.post-body .contents_style h3 { scroll-margin-top: 0; }
+
+/* 라이트 경고색. 시안의 #ee2323 은 바탕 대비 4.08:1 로 본문 글자 기준(4.5:1)에 못 미쳤다.
+   경고 상자 위에서는 3.6:1 까지 떨어졌다. #cf1d1d 는 바탕 5.19:1, 경고 상자 위 약 4.5:1 이다.
+   다크(#ff6b6b, 6.81:1)는 그대로 둔다. html[data-theme="dark"] 가 :root 보다 우선이라 덮이지 않는다.
+   원고에 인라인으로 박힌 옛 #ee2323 은 원고 쪽 규칙이라 여기서 건드리지 않는다 */
+:root { --warn: #cf1d1d; }
+
+/* 원고 규칙이 허용하는 고정 링크색 #0070d1. 옛 글에 인라인으로 박혀 있다.
+   라이트에선 괜찮지만 다크 바탕에서는 3.82:1 로 본문 글자 기준(4.5:1)에 못 미친다
+   (2026-10-14 전체 검수, 23번 글 「지난 글」). 다크에서만 스킨 링크색으로 돌린다.
+   인라인 스타일을 이겨야 해서 !important 다 */
+html[data-theme="dark"] .post-body a[style*="0070d1" i] { color: var(--acc-d) !important; }
+
+/* 티스토리 content.css 가 id 선택자로 덮어쓰던 것 두 가지(2026-10-14 전체 검수).
+   `#tt-body-page h2[data-ke-size]` 가 font-weight: normal 이라 본문 h2(800)·h3(700)가 전부 400 으로 나왔다.
+   2026-08-25 h3 크기를 고칠 때 「굵기는 700 이 걸려 있다」고 적었는데 라이브에선 400 이었다.
+   `#tt-body-page hr[data-ke-style='style1']` 이 width: 64px 라 구분선이 왼쪽에 짧은 토막으로 남았고,
+   cursor: pointer !important 라 마우스를 올리면 누를 수 있는 것처럼 손가락이 떴다.
+   클래스만으로는 id 를 못 이기므로 같은 id 를 앞에 붙인다 */
+#tt-body-page .post-body .contents_style h2 { font-weight: 800; }
+#tt-body-page .post-body .contents_style h3 { font-weight: 700; }
+#tt-body-page .post-body .contents_style hr { width: 100%; cursor: auto !important; }
