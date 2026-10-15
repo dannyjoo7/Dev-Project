@@ -58,15 +58,15 @@
   /* 타이포 */
   --ff: Pretendard, "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
   --ff-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  --fs-display: 38px;
+  --fs-display: 32px;
   --fs-h1: 32px;
   --fs-h2: 23px;
-  --fs-h3: 18px;
-  --fs-body: 16.5px;
+  --fs-h3: 17px;
+  --fs-body: 17px;
   --fs-post: 17px;
   --fs-sm: 14px;
   --fs-xs: 12.5px;
-  --fs-label: 10.5px;
+  --fs-label: 11px;
   --lh-body: 1.75;
   --tr-tight: -0.032em;
   --tr-body: -0.015em;
@@ -179,7 +179,7 @@ button { cursor: pointer; }
 /* 한글 라벨 — 모노·대문자·자간 확장은 라틴에만. 한글은 일반 자체로 */
 .label-ko.label-ko {
   font-family: var(--ff);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 700;
   line-height: 1.4;
   letter-spacing: -0.01em;
@@ -337,7 +337,7 @@ button { cursor: pointer; }
   padding: 0 var(--sp-3) var(--sp-2);
   margin-bottom: var(--sp-2);
   border-bottom: 1px solid var(--ln);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: -0.01em;
   color: var(--ink-2);
@@ -423,7 +423,7 @@ button { cursor: pointer; }
   gap: var(--sp-2);
   padding: 0 var(--sp-5);
   border-radius: var(--r-sm);
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 800;
   letter-spacing: -0.028em;
   border: 1px solid transparent;
@@ -525,12 +525,12 @@ button { cursor: pointer; }
   display: flex;
   flex-wrap: wrap;
   gap: var(--sp-3) var(--sp-6);
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--ink-3);
 }
 .hero__now span { display: flex; flex-direction: column; gap: 3px; }
-.hero__now b { font-size: 13.5px; font-weight: 700; color: var(--ink); letter-spacing: -0.025em; }
+.hero__now b { font-size: 14px; font-weight: 700; color: var(--ink); letter-spacing: -0.025em; }
 
 .profile-card {
   border: 1px solid var(--ln);
@@ -542,13 +542,13 @@ button { cursor: pointer; }
   animation: popIn 0.36s var(--ease-out) 0.1s backwards;
 }
 .profile-card__avatar { width: 68px; height: 68px; border-radius: var(--r-lg); }
-.profile-card__name { font-size: 18px; }
+.profile-card__name { font-size: 17px; }
 .profile-card__role { font-size: var(--fs-xs); font-weight: 700; color: var(--ink-3); letter-spacing: -0.01em; }
 .profile-card__bio { font-size: var(--fs-sm); line-height: 1.7; color: var(--ink-2); }
 .profile-card__stats { display: flex; gap: var(--sp-5); padding-top: var(--sp-3); border-top: 1px solid var(--ln); }
 .profile-card__stat { display: flex; flex-direction: column; gap: 3px; }
-.profile-card__stat b { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-.profile-card__stat span { font-size: 11.5px; font-weight: 600; color: var(--ink-3); }
+.profile-card__stat b { font-size: 17px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
+.profile-card__stat span { font-size: 11px; font-weight: 600; color: var(--ink-3); }
 
 .band { padding: var(--sp-6) 0 var(--sp-7); border-top: 1px solid var(--ln); }
 .band__grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--sp-7); }
@@ -636,7 +636,7 @@ button { cursor: pointer; }
 .article-card:hover { border-color: var(--acc-ln); transform: translateY(-2px); }
 .article-card__thumb { aspect-ratio: 16 / 9; }
 .article-card__body { padding: var(--sp-4); display: flex; flex-direction: column; gap: 7px; flex: 1; }
-.article-card__cat { font-size: 11.5px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink-3); }
+.article-card__cat { font-size: 11px; font-weight: 700; letter-spacing: -0.01em; color: var(--ink-3); }
 .article-card__title { font-size: var(--fs-h3); line-height: 1.42; color: var(--ink); text-wrap: pretty; transition: color var(--t-ink) ease; }
 .article-card:hover .article-card__title { color: var(--acc-d); }
 .article-card__excerpt {
@@ -664,8 +664,8 @@ button { cursor: pointer; }
 .article-card--hero { grid-column: 1 / -1; flex-direction: row; }
 .article-card--hero .article-card__thumb { aspect-ratio: auto; width: 44%; flex: none; }
 .article-card--hero .article-card__body { padding: var(--sp-5) var(--sp-6); gap: var(--sp-2); justify-content: center; }
-.article-card--hero .article-card__title { font-size: 24px; line-height: 1.32; }
-.article-card--hero .article-card__excerpt { -webkit-line-clamp: 3; font-size: 15px; }
+.article-card--hero .article-card__title { font-size: 23px; line-height: 1.32; }
+.article-card--hero .article-card__excerpt { -webkit-line-clamp: 3; font-size: 14px; }
 
 .pagination {
   display: flex;
@@ -844,7 +844,7 @@ button { cursor: pointer; }
   border: 1px solid var(--box-gray-ln);
   border-radius: var(--r-lg);
   padding: var(--sp-4) var(--sp-5);
-  font-size: 15.5px;
+  font-size: 17px;
   line-height: 1.72;
   color: var(--ink-2);
 }
@@ -860,13 +860,13 @@ button { cursor: pointer; }
   padding: var(--sp-4) var(--sp-5);
 }
 .point-box__lead {
-  font-size: 16.5px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.028em;
   line-height: 1.55;
   color: var(--ink);
 }
-.point-box__lead + p { margin-top: 7px; font-size: 14.5px; line-height: 1.7; color: var(--ink-2); }
+.point-box__lead + p { margin-top: 7px; font-size: 14px; line-height: 1.7; color: var(--ink-2); }
 
 /* 코드 블록 — macOS 창 */
 .code-block {
@@ -925,7 +925,7 @@ button { cursor: pointer; }
   display: block;
   background: none;
   padding: 0;
-  font: 500 13.5px/1.72 var(--ff-mono);
+  font: 500 14px/1.72 var(--ff-mono);
   color: var(--code-ink);
   white-space: pre;
   letter-spacing: 0;
@@ -977,7 +977,7 @@ button { cursor: pointer; }
   margin-left: 0;
   padding-left: var(--sp-5);
   box-shadow: inset 2px 0 0 var(--ln-strong);
-  font-size: 16.5px;
+  font-size: 17px;
   line-height: 1.72;
   color: var(--ink-2);
 }
@@ -1024,8 +1024,8 @@ button { cursor: pointer; }
 }
 .post-nav__item:hover .post-nav__arrow { color: var(--acc); transform: rotate(45deg) translate(-2px, 2px); }
 .post-nav__text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-.post-nav__dir { font-size: 12px; font-weight: 600; color: var(--ink-3); letter-spacing: -0.01em; }
-.post-nav__title { font-size: 15px; font-weight: 700; line-height: 1.5; color: var(--ink); letter-spacing: -0.03em; transition: color var(--t-ink) ease; }
+.post-nav__dir { font-size: 12.5px; font-weight: 600; color: var(--ink-3); letter-spacing: -0.01em; }
+.post-nav__title { font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--ink); letter-spacing: -0.03em; transition: color var(--t-ink) ease; }
 .post-nav__item:hover .post-nav__title { color: var(--acc-d); }
 .post-nav__item--next { grid-template-columns: minmax(0, 1fr) auto; }
 .post-nav__item--next .post-nav__arrow { order: 2; transform: rotate(-135deg); }
@@ -1067,7 +1067,7 @@ button { cursor: pointer; }
 
 .widget--profile { display: flex; gap: var(--sp-3); align-items: center; }
 .widget--profile .profile-card__avatar { width: 42px; height: 42px; border-radius: var(--r); flex: none; }
-.widget--profile .profile-card__name { font-size: 15px; }
+.widget--profile .profile-card__name { font-size: 14px; }
 
 /* 사이드바 목차 — 얇은 세로선, 현재 위치에만 강조색 마커 */
 .toc-nav { display: flex; flex-direction: column; border-left: 1px solid var(--ln); }
@@ -1076,7 +1076,7 @@ button { cursor: pointer; }
   margin-left: -1px;
   padding: 6px 0 6px var(--sp-4);
   border-left: 1px solid transparent;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
   line-height: 1.5;
   color: var(--ink-3);
@@ -1130,12 +1130,12 @@ button { cursor: pointer; }
 
 @media (max-width: 900px) {
   :root {
-    --fs-display: 29px;
+    --fs-display: 26px;
     --fs-h1: 26px;
-    --fs-h2: 21px;
+    --fs-h2: 23px;
     --fs-h3: 17px;
-    --fs-body: 16px;
-    --fs-post: 16.5px;
+    --fs-body: 17px;
+    --fs-post: 17px;
     --post-gap: 26px;
     --post-h2-top: 60px;
     --post-h2-bottom: 22px;
@@ -1152,7 +1152,7 @@ button { cursor: pointer; }
   .article-card--hero { flex-direction: column; }
   .article-card--hero .article-card__thumb { width: 100%; aspect-ratio: 16 / 9; }
   .article-card--hero .article-card__body { padding: var(--sp-4); }
-  .article-card--hero .article-card__title { font-size: 21px; }
+  .article-card--hero .article-card__title { font-size: 20px; }
   .post { max-width: none; order: 1; }
   .sidebar { position: static; order: 2; max-height: none; overflow: visible; padding-top: var(--sp-5); border-top: 1px solid var(--ln); }
   .post-figure--tall .post-figure__img { max-height: 62vh; }
@@ -1273,7 +1273,6 @@ html, body { margin: 0; }
   * { corner-shape: squircle; }
   /* 완전한 원인 것들은 그대로 둔다 */
   .cat-new,
-  .code-block__lights i,
   .site-search__glass,
   .comment__logo { corner-shape: round; }
 }
@@ -1298,21 +1297,15 @@ body:not(#tt-body-index):not(#tt-body-page) [data-page-only]:not([data-page-only
 
 /* 대표 이미지가 없는 글.
    전에는 블로그 이름만 글자로 덩그러니 있어서 「이미지 없음」 표시처럼 보였다.
-   대체 표지처럼 보이게 면을 만든다. 강조색 옅은 번짐 + 얇은 격자 + 헤더와 같은 워드마크.
+   대체 표지처럼 보이게 면을 만들고 헤더와 같은 워드마크를 얹는다.
    이름은 JS 가 .site-brand 의 내용을 그대로 복사한다. 파란 점까지 따라온다.
-   색은 전부 토큰이라 라이트·다크 양쪽에서 알아서 묻는다 (2026-08-15) */
+   처음엔 강조색 번짐과 사선 격자를 깔았는데(2026-08-15), 「AI 티」 나는 장식이라 면만 남겼다(2026-10-15) */
 .article-card__thumb--none {
   aspect-ratio: 16 / 9;
   display: grid;
   place-items: center;
   overflow: hidden;
-  background:
-    radial-gradient(120% 95% at 18% 12%,
-      color-mix(in srgb, var(--acc) 14%, transparent), transparent 62%),
-    radial-gradient(90% 80% at 88% 92%,
-      color-mix(in srgb, var(--acc) 9%, transparent), transparent 58%),
-    repeating-linear-gradient(135deg, var(--ln) 0 1px, transparent 1px 15px),
-    var(--fill);
+  background: var(--fill);
 }
 /* 헤더 브랜드를 그대로 옮겨 온 워드마크 */
 .article-card__thumb--none .brandmark {
@@ -1935,6 +1928,46 @@ a.article-card:nth-of-type(n+8) { animation-delay: 280ms; }
   border: 0;
 }
 
+/* ----- 홈 (2026-10-15) -----
+   소개 한 줄 + 글 목록. 예전엔 큰 제목, 버튼 둘, 숫자 줄, 프로필 카드로 소개 페이지처럼 열렸고
+   최근 글은 오른쪽 아래 셋뿐이었다. 목록 화면(main.list-layout)을 홈에서도 보이고
+   머리말, 사이드바, 페이지 이동만 숨긴다. 카드는 큰 카드 하나 + 3열 두 줄까지, 나머지는 「전체 보기」로 */
+.home-intro { border-bottom: 1px solid var(--ln); }
+.home-intro__inner { display: flex; align-items: center; gap: var(--sp-4); padding-top: var(--sp-6); padding-bottom: var(--sp-5); }
+.home-intro__avatar { width: 52px; height: 52px; flex: none; border-radius: var(--r); overflow: hidden; background: var(--fill); }
+.home-intro__avatar img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.home-intro__text { min-width: 0; }
+.home-intro__title { margin: 0; font-size: var(--fs-h2); font-weight: 800; line-height: 1.35; letter-spacing: var(--tr-tight); color: var(--ink); text-wrap: balance; }
+.home-intro__title em { font-style: normal; color: var(--acc); }
+.home-intro__meta { margin-top: 6px; font-size: var(--fs-sm); color: var(--ink-3); }
+.home-intro__link { margin-left: auto; flex: none; }
+#tt-body-index .list-layout { grid-template-columns: minmax(0, 1fr); padding-top: var(--sp-6); }
+#tt-body-index .list-layout .pagination,
+#tt-body-index .list-layout .list-empty { display: none; }
+#tt-body-index .article-grid > a.article-card:nth-of-type(n+8) { display: none; }
+@media (min-width: 1100px) {
+  #tt-body-index .article-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* 홈에 몇 편이 오는지는 티스토리 블로그 설정을 따른다. 라이브는 3편이라(2026-10-15 확인, 18편이 6쪽)
+     3열이면 큰 카드 아래 두 장 옆에 한 칸이 빈다. 4편 미만이면 2열로 편다. 설정을 늘리면 알아서 3열이 된다 */
+  #tt-body-index .article-grid:not(:has(> a.article-card:nth-of-type(4))) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+/* 카드가 몇 장 안 되면 홈이 금방 끝난다. 다 본 자리에서 바로 전체 목록으로 */
+.home-more { display: flex; justify-content: center; margin-top: var(--sp-6); }
+/* 폰에선 사진, 글, 버튼이 한 줄에 못 선다. GitHub 은 푸터에도 있으니 여기선 뺀다 */
+@media (max-width: 600px) {
+  .home-intro__inner { padding-top: var(--sp-5); padding-bottom: var(--sp-4); align-items: flex-start; }
+  .home-intro__avatar { width: 44px; height: 44px; }
+  .home-intro__link { display: none; }
+}
+
+/* ----- 라벨 (2026-10-15) -----
+   작은 대문자 고정폭 글씨(ARCHIVE, CATEGORIES, SKILL/CS, REFERENCES)가 화면마다 반복돼 「AI 티」가 났다.
+   라벨은 전부 한국어 작은 굵은 글씨(.label-ko)로 쓰고, 제목 위 라벨은 제목만으로 뜻이 안 통할 때만 단다.
+   글의 카테고리는 제목 위에서 날짜 줄 맨 앞으로 옮겼다 */
+.label-ko.label-ko { font-size: var(--fs-xs); }
+.post__header .post__title { margin-top: 0; }
+.post__meta .post__cat { font: inherit; font-weight: 700; letter-spacing: inherit; text-transform: none; color: var(--acc-d); }
+
 /* 모바일 메뉴를 닫는 동안(.is-nav-closing). JS 가 열린 모양 그대로 높이만 줄인 뒤 .is-nav-open 을 뗀다.
    줄어드는 사이 넘치는 메뉴에 스크롤 막대가 비치지 않게 자르고, 햄버거는 누르자마자 ≡ 로 돌아간다 */
 @media (max-width: 900px) {
@@ -2399,7 +2432,7 @@ html[data-theme="dark"] {
   border-radius: var(--r);
   corner-shape: squircle;
   background: var(--box-gray-bg);
-  font: 500 13.5px / 1.85 var(--ff-mono) !important;
+  font: 500 14px / 1.85 var(--ff-mono) !important;
   color: var(--ink-2);
   overflow-x: auto;
   white-space: pre;
@@ -2688,7 +2721,7 @@ html[data-theme="dark"] {
   }
   .post-body .contents_style pre[data-ke-type="codeblock"] code,
   .post-body .contents_style .fmt-term code {
-    font-size: 13px !important;
+    font-size: 12.5px !important;
   }
   .post-body .contents_style th,
   .post-body .contents_style td {
@@ -2877,7 +2910,7 @@ html[data-theme="dark"] {
    답은 크기다. 20px 로 올리면 본문과 3.5px, h2 와 3px 로 간격이 고르게 잡힌다 */
 .post-body .contents_style h3 { font-size: 20px !important; }
 @media (max-width: 900px) {
-  .post-body .contents_style h3 { font-size: 18.5px !important; }
+  .post-body .contents_style h3 { font-size: 20px !important; }
 }
 
 /* 폰 스크린샷처럼 세로로 긴 그림이 화면을 통째로 잡아먹지 않게 상한.
@@ -2920,3 +2953,7 @@ html[data-theme="dark"] .post-body a[style*="0070d1" i] { color: var(--acc-d) !i
 #tt-body-page .post-body .contents_style h2 { font-weight: 800; }
 #tt-body-page .post-body .contents_style h3 { font-weight: 700; }
 #tt-body-page .post-body .contents_style hr { width: 100%; cursor: auto !important; }
+
+/* 참고 글 묶음 위의 「REFERENCES」 장식 라벨. 원고가 이미 「References」 제목을 달고 있어서
+   같은 말이 두 번 나왔고, 작은 대문자 고정폭이라 다른 라벨과 함께 걷었다(2026-10-15) */
+.post-body .contents_style blockquote[data-ke-style="style1"]::before { content: none; }

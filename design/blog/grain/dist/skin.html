@@ -26,18 +26,15 @@
   <div class="wrap site-header__inner">
     <a href="[##_blog_link_##]" class="site-brand">dannyjoo<span class="site-brand__dot">.</span>io</a>
 
+    <!-- 메뉴 이름은 한국어로 맞춘다. 「Info, Archive, 글」로 영어와 한국어가 섞였고, Archive 가 카테고리 메뉴,
+         사이드바 카테고리 제목, 날짜 보관함을 다 가리켰다. Info 는 펼쳐도 홈(로고와 같은 곳)과 GitHub 둘뿐이라
+         드롭다운을 없애고 소개는 링크로, GitHub 은 푸터로 옮겼다(2026-10-14) -->
     <nav class="site-nav">
-      <div class="nav-dropdown">
-        <button type="button" class="nav-item" aria-expanded="false">Info<span class="nav-item__caret"></span></button>
-        <div class="nav-dropdown__panel">
-          <a href="[##_blog_link_##]" class="nav-dropdown__item">소개</a>
-          <a href="https://github.com/dannyjoo7" class="nav-dropdown__item">GitHub<span class="nav-dropdown__count">@dannyjoo7</span></a>
-        </div>
-      </div>
+      <a href="[##_blog_link_##]" class="nav-item" data-nav="home">소개</a>
 
-      <!-- 카테고리 메가 패널 — 티스토리 카테고리를 그대로 얹는다 -->
+      <!-- 카테고리 메가 패널. 티스토리 카테고리를 그대로 얹는다 -->
       <div class="nav-dropdown nav-dropdown--mega">
-        <button type="button" class="nav-item" aria-expanded="false">Archive<span class="nav-item__caret"></span></button>
+        <button type="button" class="nav-item" aria-expanded="false">카테고리<span class="nav-item__caret"></span></button>
         <div class="nav-dropdown__panel">
           <div class="mega-group cat-tree" id="mega-cats"></div>
           <div class="nav-dropdown__panel--mega-foot">
@@ -70,78 +67,32 @@
   </div>
 </header>
 
-<!-- ==================== 홈 히어로 ====================
-     홈에서만 보인다. 숫자 세 칸은 전부 자동으로 채워진다 -->
-<main class="home-main" data-page-only="home">
-<section class="hero" data-page-only="home">
-  <div class="wrap hero__grid">
-    <div>
-      <p class="eyebrow">About</p>
-      <h1 class="hero__title">기록하고, 공유합니다<em>.</em></h1>
-      <p class="hero__lede">이 블로그는 개발하며 마주치는 문제들과 해결 과정, 그리고 일상의 소소한 이야기를 담는 공간입니다. 복잡한 것을 단순하게 정리하고, 나중의 나를 위해 기록합니다.</p>
-      <div class="hero__actions">
-        <a href="[##_blog_link_##]category" class="btn btn--primary">글 보러 가기</a>
-        <a href="https://github.com/dannyjoo7" class="btn btn--ghost">GitHub</a>
-      </div>
-      <div class="hero__now">
-        <span>글<b data-stat="posts">14편</b></span>
-        <span>마지막 글<b data-stat="last">2026.08.13</b></span>
-        <span>기록<b data-stat="days">1,186일째</b></span>
-      </div>
+<!-- ==================== 홈 ====================
+     소개는 한 줄, 그 아래는 바로 글 목록이다. 블로그에 온 사람은 첫 화면에서 글을 기대한다.
+     예전엔 큰 제목, 버튼 둘, 숫자 줄, 프로필 카드로 소개 페이지처럼 열렸고 최근 글은 오른쪽 아래 셋뿐이었다.
+     노션 팁의 「AI가 습관처럼 뽑는 큰 제목, 카드, 버튼」 틀이기도 했다(2026-10-15).
+     글 목록은 아래 목록 화면을 홈에서도 그대로 보여 준다. 숫자 두 칸은 자동으로 채워진다 -->
+<!-- main 이 아니라 div 다. 홈에선 아래 글 목록(main.list-layout)도 보여서 main 이 둘이 된다 -->
+<div class="home-main" data-page-only="home">
+<section class="home-intro">
+  <div class="wrap home-intro__inner">
+    <div class="home-intro__avatar"><img src="https://raw.githubusercontent.com/dannyjoo7/Dev-Project/main/design/blog/assets/profile.png" alt="" /></div>
+    <div class="home-intro__text">
+      <h1 class="home-intro__title">개발하며 마주친 문제와 해결 과정을 기록합니다<em>.</em></h1>
+      <p class="home-intro__meta">Danny Joo. 글 <span data-stat="posts">14편</span>, 마지막 글 <span data-stat="last">2026.08.13</span></p>
     </div>
-    <aside class="profile-card">
-      <div class="profile-card__avatar">
-        <img src="https://raw.githubusercontent.com/dannyjoo7/Dev-Project/main/design/blog/assets/profile.png" alt="dannyjoo" />
-      </div>
-      <div>
-        <h2 class="profile-card__name">Danny Joo</h2>
-        <p class="profile-card__role">Developer</p>
-      </div>
-      <p class="profile-card__bio">개발, 기술, 그리고 일상에 대한 기록.</p>
-      <div class="profile-card__stats">
-        <div class="profile-card__stat"><b data-stat="posts-n">14</b><span>글</span></div>
-        <div class="profile-card__stat"><b data-stat="cats-n">4</b><span>카테고리</span></div>
-        <div class="profile-card__stat"><b data-stat="years">3년</b><span>기록</span></div>
-      </div>
-    </aside>
+    <a href="https://github.com/dannyjoo7" class="btn btn--ghost btn--sm home-intro__link">GitHub</a>
   </div>
 </section>
-
-<!-- ==================== 홈: 관심사·링크·최근 글 ====================
-     목록 그리드 안에 두면 244px 열에 끼어 짓눌린다. 반드시 바깥에 -->
-<section class="band" data-page-only="home">
-  <div class="wrap band__grid">
-    <div>
-      <div class="section-head"><h2 class="eyebrow label-ko">관심사</h2></div>
-      <div class="tag-list">
-        <a href="[##_blog_link_##]category/Skill/Android" class="tag">Android</a>
-        <a href="[##_blog_link_##]category/Skill/Web" class="tag">Web</a>
-        <a href="[##_blog_link_##]category/Skill/Flutter" class="tag">Flutter</a>
-        <a href="[##_blog_link_##]category/Skill/JAVA" class="tag">JAVA</a>
-        <a href="[##_blog_link_##]category/Skill/Git" class="tag">Git</a>
-      </div>
-      <div class="section-head" style="margin-top:34px"><h2 class="eyebrow label-ko">링크</h2></div>
-      <div class="link-list">
-        <a href="https://github.com/dannyjoo7" class="link-list__item">GitHub<span class="link-list__handle">@dannyjoo7</span></a>
-        <a href="https://www.youtube.com/@danny_joo" class="link-list__item">YouTube<span class="link-list__handle">@danny_joo</span></a>
-      </div>
-    </div>
-    <div>
-      <div class="section-head">
-        <h2 class="eyebrow label-ko">최근 글</h2>
-        <a href="[##_blog_link_##]category" class="section-head__more">전체 보기</a>
-      </div>
-      <div class="recent-list" id="home-recent"></div>
-    </div>
-  </div>
-</section>
-</main>
+</div>
 
 <!-- ==================== 글 목록 ====================
-     홈에서는 통째로 숨는다. 다만 DOM 에는 남아서 위 "최근 글" 의 재료가 된다 -->
-<main class="wrap list-layout" data-page-only="list">
+     홈에서도 보인다. 홈에선 머리말과 사이드바, 페이지 이동만 숨기고 글 카드를 넓게 편다(2026-10-15) -->
+<main class="wrap list-layout" data-page-only="list home">
   <div class="list-head" data-page-only="list">
-    <p class="eyebrow">Archive</p>
+    <!-- 제목 위 작은 글씨는 제목만으로 뜻이 안 통할 때만 JS 가 채운다(검색 결과, 태그, 하위 카테고리, 방명록).
+         전체 목록과 날짜별 보관함은 제목이 이미 말해 준다(2026-10-15) -->
+    <p class="eyebrow label-ko" hidden></p>
     <h1 class="list-head__title">[##_page_title_##]</h1>
     <p class="list-head__count">
       전체 <span data-stat="posts">14편</span>,
@@ -153,7 +104,7 @@
   <!-- 사이드바 -->
   <aside class="sidebar" data-page-only="list">
     <div class="widget">
-      <p class="widget__title">Categories</p>
+      <p class="widget__title label-ko">카테고리</p>
       <nav class="widget__body cat-tree">
         <s_sidebar_element>[##_category_list_##]</s_sidebar_element>
       </nav>
@@ -165,7 +116,11 @@
     <!-- ==================== 글 목록 ====================
          s_list_rep 은 본문을 물어오지 않는다. 상세용 s_article_rep 로 목록을
          그리면 안 보이는 본문까지 전부 내려받는다 (예전 스킨이 그래서 339KB 였다) -->
-    <div class="article-grid" data-page-only="list">
+    <div class="section-head home-recent-head" data-page-only="home">
+      <h2 class="eyebrow label-ko">최근 글</h2>
+      <a href="[##_blog_link_##]category" class="section-head__more">전체 보기</a>
+    </div>
+    <div class="article-grid" data-page-only="list home">
       <s_list>
         <!-- 목록 머리말은 s_list 밖에 있어 치환자가 작동하지 않는다.
              안쪽에서 받은 실제 검색·태그·카테고리 값을 JS가 머리말로 옮긴다 -->
@@ -190,6 +145,10 @@
     </div>
 
     <p class="list-empty" hidden></p>
+
+    <div class="home-more" data-page-only="home">
+      <a href="[##_blog_link_##]category" class="btn btn--ghost">전체 글 보기</a>
+    </div>
 
     <!-- 태그 목록(/tag). s_tag 는 이 주소에서만 치환된다. tag_class 는 많이 쓴 순서로 cloud1~5 -->
     <s_tag>
@@ -296,7 +255,7 @@
     </div>
 
     <div class="widget">
-      <p class="widget__title">Archive</p>
+      <p class="widget__title label-ko">카테고리</p>
       <nav class="widget__body cat-tree">
         <s_sidebar_element>[##_category_list_##]</s_sidebar_element>
       </nav>
@@ -323,10 +282,11 @@
 <s_article_rep>
 <s_permalink_article_rep>
   <article class="post">
+    <!-- 카테고리는 제목 위 대문자 라벨이 아니라 날짜 줄 맨 앞에 둔다. 제목 위 작은 대문자 고정폭 글씨가
+         화면마다 반복돼 「AI 티」가 났다(2026-10-15) -->
     <header class="post__header">
-      <a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a>
       <h1 class="post__title">[##_article_rep_title_##]</h1>
-      <p class="post__meta">[##_article_rep_date_##]<i>·</i><span id="read-time"></span></p>
+      <p class="post__meta"><a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a><i>·</i>[##_article_rep_date_##]<i>·</i><span id="read-time"></span></p>
       <s_ad_div>
         <nav class="post-admin" aria-label="글 관리">
           <a href="[##_s_ad_m_link_##]">수정</a>
@@ -440,9 +400,8 @@
 <s_article_protected>
   <article class="post post--protected">
     <header class="post__header">
-      <a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a>
       <h1 class="post__title">[##_article_rep_title_##]</h1>
-      <p class="post__meta">[##_article_rep_date_##]</p>
+      <p class="post__meta"><a href="[##_article_rep_category_link_##]" class="post__cat">[##_article_rep_category_##]</a><i>·</i>[##_article_rep_date_##]</p>
       <s_ad_div>
         <nav class="post-admin" aria-label="글 관리">
           <a href="[##_s_ad_m_link_##]">수정</a>
@@ -471,6 +430,7 @@
 <footer class="site-footer">
   <div class="wrap site-footer__inner">
     <div class="site-footer__links">
+      <a href="https://github.com/dannyjoo7">GitHub</a>
       <a href="#" id="to-top">위로</a>
     </div>
   </div>
@@ -482,7 +442,6 @@
 
   // 관리 > 블로그 의 "글 목록 개수". 목록을 훑어 10 으로 확인했다
   var PER_PAGE = 10;
-  var START = '2023/05/16';   // 가장 오래된 공개 글(/4)
 
   var $  = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return [].slice.call((r || document).querySelectorAll(s)); };
@@ -498,6 +457,8 @@
 
   var navList = $('[data-nav="list"]');
   if (navList && page !== 'home') navList.setAttribute('aria-current', 'page');
+  var navHome = $('[data-nav="home"]');
+  if (navHome && page === 'home') navHome.setAttribute('aria-current', 'page');
 
   /* ---------- 2. 테마 ---------- */
   var root = document.documentElement;
@@ -656,7 +617,7 @@
   });
 
   /* ---------- 3. 카테고리 트리 ---------- */
-  // 트리는 한 페이지에 여러 벌 있다 (목록 사이드바 · 글 상세 Archive).
+  // 트리는 한 페이지에 여러 벌 있다 (목록 사이드바 · 글 상세 Categories).
   // 첫 벌만 손보면 글 상세에 괄호가 그대로 남는다
   var trees = $$('.cat-tree .tt_category');
   trees.forEach(function (t) {
@@ -724,10 +685,6 @@
     $$('[data-stat="' + key + '"]').forEach(function (el) { el.textContent = text; });
   }
 
-  var days = Math.floor((Date.now() - new Date(START).getTime()) / 86400000);
-  put('days', days.toLocaleString() + '일째');
-  put('years', Math.max(1, Math.floor(days / 365)) + '년');
-
   // 마지막 글 — 목록 첫 카드의 날짜. 추가 요청 없음
   var firstMeta = $('.article-card__meta');
   if (firstMeta) {
@@ -738,10 +695,9 @@
   function paint(posts, cats) {
     if (posts) {
       put('posts', posts + '편');
-      put('posts-n', posts);
       put('pages', Math.ceil(posts / PER_PAGE) + '페이지');
     }
-    if (cats) { put('cats', cats + '개'); put('cats-n', cats); }
+    if (cats) put('cats', cats + '개');
     if (posts) put('summary', '전체 ' + posts + '편, ' + (cats || 0) + '개 카테고리');
   }
 
@@ -772,11 +728,12 @@
       headCount.textContent = listCount.toLocaleString() + '편';
     }
   }
-  // 제목 위 작은 글씨로 무슨 목록인지 밝힌다. 전부 「Archive」라 검색 결과 「모드」가
-  // 카테고리 이름처럼 읽혔다(2026-10-14 전체 검수). 전체 목록과 날짜별 보관함은 그대로 Archive
-  var kinds = { search: 'Search', tag: 'Tag', category: 'Category' };
+  // 제목 위 작은 글씨로 무슨 목록인지 밝힌다. 제목만 있으면 검색 결과 「모드」가 카테고리 이름처럼 읽힌다
+  // (2026-10-14 전체 검수). 전체 목록과 날짜별 보관함은 제목이 말해 주므로 비워 둔다(2026-10-15)
+  var kinds = { search: '검색 결과', tag: '태그', category: '카테고리' };
   var headEyebrow = $('.list-head .eyebrow');
-  if (headEyebrow && kinds[seg[0]] && (seg.length > 1 || seg[0] === 'tag')) headEyebrow.textContent = kinds[seg[0]];
+  var showEyebrow = function (text) { if (headEyebrow) { headEyebrow.textContent = text; headEyebrow.hidden = false; } };
+  if (kinds[seg[0]] && (seg.length > 1 || seg[0] === 'tag')) showEyebrow(kinds[seg[0]]);
 
   // 검색·태그에서 걸리는 글이 없으면 화면이 통째로 비어 버린다
   // 태그 목록(/tag)과 방명록은 body 가 목록으로 분류되지만 글 목록이 아니다.
@@ -785,8 +742,7 @@
   var isGuestbook = document.body.id === 'tt-body-guestbook';
   // 방명록 머리말에 「전체 14편, 4개 카테고리」가 뜨면 방명록 개수로 읽힌다. 개수 치환자가 없어 숨긴다
   if (isGuestbook) {
-    var eyebrow = $('.list-head .eyebrow');
-    if (eyebrow) eyebrow.textContent = 'Guestbook';
+    showEyebrow('방명록');
     if (headCount) headCount.hidden = true;
   }
   if (isTagCloud && headCount) {
@@ -846,26 +802,10 @@
   });
 
   /* ---------- 7. 목록 1페이지 첫 글은 크게 ---------- */
-  if (page === 'list' && (new URLSearchParams(location.search).get('page') || '1') === '1') {
+  // 홈도 글 목록을 그대로 보여 주므로 같은 규칙을 탄다(2026-10-15)
+  if ((page === 'list' || page === 'home') && (new URLSearchParams(location.search).get('page') || '1') === '1') {
     var lead = $('.article-grid .article-card');
     if (lead && $('.article-card__thumb', lead)) lead.classList.add('article-card--hero');
-  }
-
-  /* ---------- 6. 홈 최근 글 ---------- */
-  var recent = $('#home-recent');
-  if (recent) {
-    $$('.article-card').slice(0, 4).forEach(function (card) {
-      var a = document.createElement('a');
-      a.href = card.getAttribute('href');
-      a.className = 'recent-list__item';
-      var img = $('.article-card__thumb img', card);
-      a.innerHTML =
-        '<div class="recent-list__thumb">' + (img ? '<img src="' + img.src + '" alt="" loading="lazy">' : '') + '</div>' +
-        '<div><p class="recent-list__title"></p><p class="recent-list__date"></p></div>';
-      $('.recent-list__title', a).textContent = $('.article-card__title', card).textContent;
-      $('.recent-list__date', a).textContent = $('.article-card__meta', card).textContent.split('·')[0].trim();
-      recent.appendChild(a);
-    });
   }
 
   /* ---------- 8. 페이지 이동 — 더 없는 쪽은 흐리게 ---------- */
@@ -1023,8 +963,8 @@
   codes.forEach(function (pre) {
     var wrap = document.createElement('div');
     wrap.className = 'code-block';
-    wrap.innerHTML = '<div class="code-block__bar"><span class="code-block__lights" aria-hidden="true">' +
-      '<i></i><i></i><i></i></span><span class="code-block__name">' +
+    // 맥 창 신호등 점은 뺐다. 누를 수도 없는 장식이고 「AI 티」 목록에 드는 흔한 꾸밈이다(2026-10-15)
+    wrap.innerHTML = '<div class="code-block__bar"><span class="code-block__name">' +
       (pre.getAttribute('data-ke-language') || 'code') +
       '</span><button class="code-block__copy" type="button" aria-label="코드 복사">' + COPY + CHECK + FAIL + '</button></div>';
     pre.parentNode.insertBefore(wrap, pre);
